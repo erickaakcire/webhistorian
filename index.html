@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <title>Web Historian</title>
+  <!--
+  Copyright (C) 2015  Ericka Menchen-Trevino, info@webhistorian.org
+
+  This program is free software; you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation; either version 2 of the License, or
+  (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License along
+  with this program; if not, write to the Free Software Foundation, Inc.,
+  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+  Original Herodotus image: https://www.flickr.com/photos/wy_jackrabbit/4338541055/?rb=1
+
+  -->
+</head>
+
+<body>
+<div id="main">
+  <script src="jquery.min.js"></script>
+  <script src="d3.min.js"></script>
+  <script src="spin.min.js"></script>
+  <script src="d3.layout.cloud.js"></script>
+  <script src="client.js"></script>
+  <script src ="history.js"></script>
+
+  <h1 id = "siteTitle"><a href="http://webhistorian.org" target = "blank" title="Herodotus: Image from Wyoming_Jackrabbit on Flickr.com, (CC BY-NC-SA 2.0). Modified to fit square format."><img src="her48.png" align="center"/> Web Historian</a></h1>
+
+  <div id="controls">
+    <div id="viz_selector" class="control">
+    </div>
+    <div id="option_space" class="control">
+      <div id="option_items"></div>
+    </div>
+    <div id="submission" class="control">
+    </div>
+  </div>
+
+  <div id = "loader"></div>
+  <div id = "title"></div>
+  <div id="visual_div"></div>
+  <div id = "below_visual"></div>
+</div>
+</body>
+</html>

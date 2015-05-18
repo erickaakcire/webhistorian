@@ -1,0 +1,234 @@
+#main {
+	max-width: 960px;
+	display: block;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+#title h1 {
+	margin-bottom: 5px;
+}
+
+#title h2 {
+	color:#444;
+    font: 14pt sans-serif;
+	margin-top: 5px;
+}
+
+#viz_p h4 {
+	color: red;	
+}
+
+#removed {
+	color: red;
+}
+
+a, a:visited {
+  color: #4d4d4d;
+  text-decoration: underline;
+}
+
+#controls {
+  width: 100%;
+  float: left;
+  margin-bottom: 25px;
+}
+
+.control {
+  float: left;
+  padding-right: 20px;
+}
+
+.control h3 {
+	margin-bottom: 5px;
+}
+
+.control button {
+	color: #333;
+}
+
+.control a {
+  color: black;
+  font-size: 12px;
+  padding: 5px;
+  background: #E2E2E2;
+  cursor: pointer;
+  margin-right: 3px;
+  text-decoration: none;
+}
+
+.control a:hover {
+  text-decoration: underline;
+  background: #F3F781;
+}
+
+.control a.active {
+  color: white;
+  background: #555;
+}
+
+
+table {
+    border-collapse: collapse;
+	width: 100%;
+	word-wrap: break-word;
+}
+
+td {
+    padding: 5px;
+	max-width: 200px;
+}
+
+#title button {
+	color: #B40404;
+}
+
+#siteTitle {
+	color: #333;
+	font: 35px sans-serif;
+	font-weight: bolder;
+}
+#siteTitle a {
+	text-decoration: none;
+}
+
+#tooltip {
+  position: absolute;
+  width: 200px;
+  height: auto;
+  padding: 10px;
+  background-color: white;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+  pointer-events: none;
+}
+
+#tooltip.hidden {
+  display: none;
+}
+
+#tooltip p {
+  margin: 0;
+  font-family: sans-serif;
+  font-size: 16px;
+  line-height: 20px;
+}
+
+#loader {
+  font: 30px sans-serif;
+  text-align: center;
+  color: 666;
+}
+
+#button {
+  text-align: left;
+}
+
+
+body {
+  font: 14px sans-serif;
+}
+
+h1 {
+  font: 25px sans-serif;
+  font-family: sans-serif;
+  font-weight:bolder;
+  color: #333;
+  text-align: left;
+}
+
+/*timeline viz*/
+.bar rect {
+  shape-rendering: crispEdges;
+}
+
+.bar text {
+  fill: #fff;
+}
+
+.axis path, .axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+/* for the network diagram */
+text {
+  fill: #000;
+  font: 12px sans-serif;
+  /*pointer-events: none;
+  display: none;*/
+}
+
+text:hover {
+	fill: red;
+}
+
+path.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+marker.marker {
+	fill: #333;
+	stroke: #333;
+}
+
+circle.network  {
+  cursor: move;
+  fill: #ccc;
+  stroke: #fff;
+  stroke-width: 1.5px;
+}
+
+circle.network:hover {
+	stroke: red;
+}
+
+.fixed {
+  fill: red;
+}
+
+/* for the circles */
+.circle text {
+  font: 10px sans-serif;
+}
+
+circle text:hover {
+  stroke: red;
+}
+
+/* timeline */
+svg {
+  font: 10px sans-serif;
+}
+
+.area {
+  fill: steelblue;
+  clip-path: url(#clip);
+}
+
+.axis path,
+.axis line {
+  fill: none;
+  stroke: #000;
+  shape-rendering: crispEdges;
+}
+
+.brush .extent {
+  stroke: #fff;
+  fill-opacity: .125;
+  shape-rendering: crispEdges;
+}
+
+/*
+text {
+  fill: #000;
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+*/
