@@ -1602,7 +1602,7 @@ function wrapper() {
         else if (viz_selection === "web_visit") {
             rmViz();
             rmOpt();
-            $("#option_items").append("<div id = \"options\"><h3>Websites visited options: "+timePeriod);
+            // $("#option_items").append("<div id = \"options\"><h3>Websites visited options: "+timePeriod);
             webVisitData(visualData, webVisitViz);
         }
         else if (viz_selection === "data_table") {
@@ -1766,7 +1766,7 @@ function wrapper() {
     $("document").ready(function () {
         //Get all data into fullData1
         getUrls(noTransform, noViz, function(){
-            $('#viz_selector').append("<h3>Visualization</h3> <a id=\"network\">Network</a> <a id=\"web_visit\" class=\"active\">Websites Visited</a> <a id=\"search_words\">Search Words</a> <a id=\"data_table\">All Your Data</a>");
+//            $('#viz_selector').append("<h3>Visualization</h3> <a id=\"network\">Network</a> <a id=\"web_visit\" class=\"active\">Websites Visited</a> <a id=\"search_words\">Search Words</a> <a id=\"data_table\">All Your Data</a>");
             //$('#submission').append("<h3>Submit</h3> <a id=\"submit\">Submit History to Research Project</a> "); //FOR RESEARCHER EDITION <a id=\"load_data\">Load data from file</a>
 
             //default is web_visit for all time, per globals above
@@ -1803,6 +1803,7 @@ function wrapper() {
                 submissionData(submitViz);
             });
 
+/*
             //visualization selection
             $("#network").click(function() {
                 selectViz("network");
@@ -1828,9 +1829,64 @@ function wrapper() {
                 d3.select("#data_table").classed("active", true);
                 vizSelected = "data_table"
             });
-        });
+*/
 
+            $("a#link_sites_visited").click(function(eventObj) {
+            	eventObj.preventDefault();
+
+                $("li.active").removeClass("active");
+                $("li#nav_sites_visited").addClass("active");
+
+                selectViz("web_visit");
+                vizSelected = "web_visit";
+            });
+
+		// TODO: Move into own functions outside wrapper...
+		
+            //visualization selection
+            $("a#link_network").click(function(eventObj) {
+            	eventObj.preventDefault();
+            	
+                $("li.active").removeClass("active");
+                $("li#nav_nav_network").addClass("active");
+            
+                selectViz("network");
+//                d3.selectAll("#viz_selector a").classed("active", false);
+//                d3.select("#network").classed("active", true);
+                vizSelected = "network";
+            });
+            
+            $("a#link_search_terms").click(function(eventObj) {
+            	eventObj.preventDefault();
+
+                $("li.active").removeClass("active");
+                $("li#nav_search_terms").addClass("active");
+
+                selectViz("search_words");
+//                d3.selectAll("#viz_selector a").classed("active", false);
+//                d3.select("#search_words").classed("active", true);
+                vizSelected = "search_words";
+            });
+
+            $("a#link_all_data").click(function(eventObj) {
+            	eventObj.preventDefault();
+
+                $("li.active").removeClass("active");
+                $("li#nav_all_data").addClass("active");
+
+                selectViz("data_table");
+//                d3.selectAll("#viz_selector a").classed("active", false);
+//                d3.select("#data_table").classed("active", true);
+                vizSelected = "data_table"
+            });
+
+        });
 
     });
 }
 wrapper();
+
+$(document).ready(function()
+{
+	$('[data-toggle="tooltip"]').tooltip();
+});

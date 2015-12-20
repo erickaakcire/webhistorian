@@ -1,26 +1,26 @@
 {
-  "name": "Web Historian - Web Browsing History Visualizations",
-  "version": "0.0.2",
-  "short_name": "Web Historian",
-  "description": "Web Historian helps you visualize the web browsing history that is already on your computer in a way you’ve never seen before.",
-  "permissions": [
-    "history",
-    "identity",
-    "tabs"
-  ],
-  "content_security_policy": "script-src 'self' https://apis.google.com; object-src 'self'",
-  "browser_action": {
-    "default_icon": "her48.png"
-  },
-  "icons": { "16": "her16.png",
-    "48": "her48.png",
-    "128": "her128.png" },
-  "background": {
-    "scripts": ["background.js"]
-  },
-    "scopes": [
-      "https://www.googleapis.com/auth/devstorage.read_write"
-    ]
-  },
-  "manifest_version": 2
+	"name": "Web Historian - Web Browsing History Visualizations",
+	"version": "0.0.3",
+	"short_name": "Web Historian",
+	"description": "Web Historian helps you visualize the web browsing history that is already on your computer in a way you’ve never seen before.",
+	"permissions": [
+		"history",
+		"identity",
+		"tabs"
+	],
+	"content_security_policy": "script-src 'self' https://apis.google.com; object-src 'self'",
+	"browser_action": {
+		"default_icon": "images/her48.png"
+	},
+	"icons": { 
+		"16": "images/her16.png",
+		"48": "images/her48.png",
+		"128": "images/her128.png" },
+	"background": {
+		"scripts": ["js/background.js"]
+	},
+	"scopes": [
+		"https://www.googleapis.com/auth/devstorage.read_write"
+	],
+	"manifest_version": 2
 }

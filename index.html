@@ -1,56 +1,87 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <link rel="stylesheet" type="text/css" href="style.css">
-  <title>Web Historian</title>
-  <!--
-  Copyright (C) 2015  Ericka Menchen-Trevino, info@webhistorian.org
+	<!--
+		Copyright (C) 2015 Ericka Menchen-Trevino, info@webhistorian.org
 
-  This program is free software; you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation; either version 2 of the License, or
-  (at your option) any later version.
+		This program is free software; you can redistribute it and/or modify
+		it under the terms of the GNU General Public License as published by
+		the Free Software Foundation; either version 2 of the License, or
+		(at your option) any later version.
 
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
+		This program is distributed in the hope that it will be useful,
+		but WITHOUT ANY WARRANTY; without even the implied warranty of
+		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+		GNU General Public License for more details.
 
-  You should have received a copy of the GNU General Public License along
-  with this program; if not, write to the Free Software Foundation, Inc.,
-  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+		You should have received a copy of the GNU General Public License along
+		with this program; if not, write to the Free Software Foundation, Inc.,
+		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-  Original Herodotus image: https://www.flickr.com/photos/wy_jackrabbit/4338541055/?rb=1
+		Original Herodotus image: https://www.flickr.com/photos/wy_jackrabbit/4338541055/?rb=1
+	-->
+	<head>
+		<meta charset="utf-8" />
+		<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap.min.css" />
+		<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-theme.min.css" />
+		<!-- <link rel="stylesheet" type="text/css" href="css/style.css" /> -->
+		<script src="vendor/js/jquery.min.js"></script>
+		<script src="vendor/js/bootstrap.min.js"></script>
+		<script src="vendor/js/d3.min.js"></script>
+		<script src="vendor/js/spin.min.js"></script>
+		<script src="vendor/js/d3.layout.cloud.js"></script>
+		<!-- <script src="js/client.js"></script> -->
+		<script src="js/history.js"></script>
+		<title>Web Historian</title>
+	</head>
+	<body>
+		<nav class="navbar navbar-inverse navbar-fixed-top">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="http://webhistorian.org">[ICON] Web Historian</a>
+				</div>
+				<div id="navbar" class="collapse navbar-collapse">
+					<ul class="nav navbar-nav navbar-right">
+						<li class="active" id="nav_sites_visited"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Websites Visited" id="link_sites_visited"><span class="glyphicon glyphicon-globe"></span></a></li>
+						<li id="nav_network"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Network" id="link_network"><span class="glyphicon glyphicon-cloud"></span></a></li>
+						<li id="nav_search_terms"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Search Terms" id="link_search_terms"><span class="glyphicon glyphicon-search"></span></a></li>
+						<li id="nav_all_data"><a href="#" data-toggle="tooltip" data-placement="bottom" title="All Data" id="link_all_data"><span class="glyphicon glyphicon-list"></span></a></li>
+					</ul>
+				</div><!--/.nav-collapse -->
+			</div>
+		</nav>
 
-  -->
-</head>
+		<div class="container">
+		    <div class="row" id="section_sites_visited">
+		    	<div class="col-md-12">
+		    		<h1>Websites Visited</h1>
+		    		<h3><span id="count_sites_visited">XXX</span> visited from <span id="start_sites_visited">START</span> to <span id="end_sites_visited">END</span>.</h3>
+		    		<div id="visualization_sites_visited" style="height: 480px;" />
+		    	</div>
+		    </div>
+		    
+			<div id="controls">
+				<div id="viz_selector" class="control"></div>
+				<div id="option_space" class="control">
+					<div id="option_items"></div>
+				</div>
+				<div id="submission" class="control"></div>
+			</div>
 
-<body>
-<div id="main">
-  <script src="jquery.min.js"></script>
-  <script src="d3.min.js"></script>
-  <script src="spin.min.js"></script>
-  <script src="d3.layout.cloud.js"></script>
-  <script src="client.js"></script>
-  <script src ="history.js"></script>
-
-  <h1 id = "siteTitle"><a href="http://webhistorian.org" target = "blank" title="Herodotus: Image from Wyoming_Jackrabbit on Flickr.com, (CC BY-NC-SA 2.0). Modified to fit square format."><img src="her48.png" align="center"/> Web Historian</a></h1>
-
-  <div id="controls">
-    <div id="viz_selector" class="control">
-    </div>
-    <div id="option_space" class="control">
-      <div id="option_items"></div>
-    </div>
-    <div id="submission" class="control">
-    </div>
-  </div>
-
-  <div id = "loader"></div>
-  <div id = "title"></div>
-  <div id="visual_div"></div>
-  <div id = "below_visual"></div>
-</div>
-</body>
+			<div id="loader"></div>
+			<div id="title"></div>
+			<div id="visual_div"></div>
+			<div id="below_visual"></div>
+		</div>
+		<footer class="footer">
+			<div class="container">
+				<p class="text-muted">Herodotus: Image from Wyoming_Jackrabbit on Flickr.com, (CC BY-NC-SA 2.0). Modified to fit square format.</p>
+			</div>
+		</footer>
+	</body>
 </html>
