@@ -1,6 +1,5 @@
 /*
- Web Historian 0.0.2, released 18 May 2015 - no submit function
- See webhistorian.org for more information
+ Web Historian - see webhistorian.org for more information
 
  Copyright (C) 2015  Ericka Menchen-Trevino, info@webhistorian.org
 
@@ -12,13 +11,15 @@
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+ GNU General Pu
+ blic License for more details.
 
  You should have received a copy of the GNU General Public License along
  with this program; if not, write to the Free Software Foundation, Inc.,
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. 
  */
 
+//a function to contain the whole script
 function wrapper() {
 
 //globals for the wrapper function
@@ -34,15 +35,22 @@ function wrapper() {
     var firstDate = "";
     var lastDate = "";
     var visualData = [];
+    var ids = [];
 
 //Getting data from Chrome History & creating the base dataset
     function getUrls(callback, viz, callback2) {
-        loadTime();
+        console.log("1");
+//        loadTime();
+        
+        console.log("2");
         // get all urls from history for the specified time period (startTime)
         var end = currDate.getTime();
         if (dateForward != Infinity) {
             end = dateForward;
         }
+
+        console.log("3");
+
         chrome.history.search({
                 'text': '',
                 'maxResults': 0,
@@ -50,6 +58,7 @@ function wrapper() {
                 //, 'endTime': end //not working
             },
             function (historyItems) {
+	        console.log("4");
                 //list of hostnames
                 urlArray = [];
                 for (var i = 0; i < historyItems.length; ++i) {
@@ -64,35 +73,64 @@ function wrapper() {
                 var results = [];
                 getVisitData(urlArray, results, callback, viz, callback2);
             });
+        console.log("3.5");
     }
 
-    function getVisitData(data, results, callback, viz, callback2) {
+    function getVisitData(data, results, callback, viz, callback2) 
+    {
         //gets visitItems from a supplied list of urls (as data)
         //used to determine last data element
-        var index = 0;
-        data.forEach(function (currentHistory) {
-            chrome.history.getVisits({url: currentHistory.url}, function (visitItems) {
-                visitItems.forEach(function (visit) {
-                    if (visit.visitTime >= dateLimit && visit.visitTime <= dateForward) {
+		var itemCount = data.length;
+		
+		var lastPercentage = "";
+		
+		var fetchVisits = function()
+		{
+			var historyItem = data.pop();
+			
+			var currentProgress = (100 * ((itemCount - data.length) / itemCount)).toFixed(1) + '%';
+
+			if (lastPercentage != currentProgress)
+			{
+				$("#visit_progress").width(currentProgress);
+				$("#visit_progress").html(currentProgress);
+				
+				lastPercentage = currentProgress;
+			}
+		
+            chrome.history.getVisits({url: historyItem.url}, function (visitItems) 
+            {
+                visitItems.forEach(function(visit) 
+                {
+                    if (visit.visitTime >= dateLimit && visit.visitTime <= dateForward) 
+                    {
                         results.push({
-                            url: currentHistory.url,
-                            title: currentHistory.title,
+                            url: historyItem.url,
+                            title: historyItem.title,
                             id: visit.id,
                             visitId: visit.visitId,
                             referringVisitId: visit.referringVisitId,
                             visitTime: visit.visitTime,
                             transitionType: visit.transition
                         });
+                        
+                        ids.push({id: visit.id});
                     }
                 });
-                index++;
-                //if we're on the last data element
-                if (index === data.length) {
-                    //callback
+                
+                if (data.length > 1)
+                	window.setTimeout(fetchVisits, 0);
+                else
+                {
+					$("#visit_progress").width("100%");
+					$("#visit_progress").html("100%");
+					
                     transformData(results, callback, viz, callback2);
                 }
-            });
-        })
+			});		
+		};
+		
+		window.setTimeout(fetchVisits(), 0);
     }
 
     function transformData(data, callback, viz, callback2) {
@@ -102,104 +140,143 @@ function wrapper() {
             fullData1 = [];
         }
 
-        //loop through each visit
-        for (var i = 0; i < data.length; i++) {
-            var dataItem = data[i];
-            var parser = document.createElement('a');
-            parser.href = dataItem.url;
+		var itemCount = data.length;
+		
+		var lastPercentage = '';
+		
+		var transformDataItem = function()
+		{
+			var currentProgress = (100 * ((itemCount - data.length) / itemCount)).toFixed(0) + '%';
+			
+			if (lastPercentage != currentProgress)
+			{
+				$("#transform_progress").width(currentProgress);
+				$("#transform_progress").html(currentProgress);
+				
+				lastPercentage = currentProgress;
+			}
+			
+			var activeItems = [];
+			
+			for (var i = 0; i < 100 && data.length > 0; i++)
+			    activeItems.push(data.pop());
+			    
+			for (var i = 0; i < activeItems.length; i++)
+			{    
+				var dataItem = activeItems[i];
+			
+				var parser = document.createElement('a');
+				parser.href = dataItem.url;
+				var refId = dataItem.referringVisitId;
+				// if this ID is not in dataItem.visitID, subtract 1 from refId
 
-            var refId = dataItem.referringVisitId; //***add a condition that if this ID is not in dataItem.visitID, subtract 1 from refId
-            var transType = dataItem.transitionType;
-            var protocol = parser.protocol;
-            var host = parser.hostname;
+	//            if(refId !== 0){
+	//                console.log("" + refId);
+	 //           }
 
-            var reGoogleCal = /\.google\.[a-z\.]*\/calendar\//; //run it on URL...
-            var reGoogleMaps = /\.google\.[a-z\.]*\/maps/; //run it on URL
-            var reGoogle = /\.google\.[a-z\.]*$/;
-            //dutch portals?
-            var reBing = /\.bing\.com/;
-            var reWwwGoogle = /www\.google\.[a-z\.]*$/;
-            var reAol = /\.aol\.[a-z\.]*$/;
-            var reBlogspot = /\.blogspot\.[a-z\.]*$/;
-            var reYahoo = /\.yahoo\.[a-z\.]*$/;
-            var reYahooSearchDomain = /search\.yahoo\.[a-z\.]*$/;
-            var reAsk = /\.ask\.[a-z\.]*$/;
-            var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; //parser.hostname.match(reTwoTwoThree)
-            var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; //parser.hostname.match(reDefaultDomain)
+				var transType = dataItem.transitionType;
+				var protocol = parser.protocol;
+				var host = parser.hostname;
 
-            var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
-            var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
+				var reGoogleCal = /\.google\.[a-z\.]*\/calendar\//; //run it on URL...
+				var reGoogleMaps = /\.google\.[a-z\.]*\/maps/; //run it on URL
+				var reGoogle = /\.google\.[a-z\.]*$/;
+				//dutch portals?
+				var reBing = /\.bing\.com/;
+				var reWwwGoogle = /www\.google\.[a-z\.]*$/;
+				var reAol = /\.aol\.[a-z\.]*$/;
+				var reBlogspot = /\.blogspot\.[a-z\.]*$/;
+				var reYahoo = /\.yahoo\.[a-z\.]*$/;
+				var reYahooSearchDomain = /search\.yahoo\.[a-z\.]*$/;
+				var reAsk = /\.ask\.[a-z\.]*$/;
+				var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; //parser.hostname.match(reTwoTwoThree)
+				var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; //parser.hostname.match(reDefaultDomain)
 
-            if (parser.href.match(reGoogleCal)) {
-                domain = "google calendar";
-            }
-            else if (parser.href.match(reGoogleMaps)) {
-                domain = "google maps";
-            }
-            else if (host.match(reGoogle) || host.match(reBlogspot) || host.match(reYahoo) || host.match(reAol)) {
-                domain = host;
-            }
-            else if (host.match(reTwoTwoThree)) {
-                domain = host.replace(reTwoTwoThree, "$1");
-            }
-            else {
-                domain = host.replace(reDefaultDomain, "$1");
-            }
+				var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
+				var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
-            if (host.match(reTopLevel2)) {
-                topDomain = host.replace(reTopLevel2, "$1");
-            }
-            else {
-                topDomain = host.replace(reTopLevel, "$1");
-            }
+				if (parser.href.match(reGoogleCal)) {
+					domain = "google calendar";
+				}
+				else if (parser.href.match(reGoogleMaps)) {
+					domain = "google maps";
+				}
+				else if (host.match(reGoogle) || host.match(reBlogspot) || host.match(reYahoo) || host.match(reAol)) {
+					domain = host;
+				}
+				else if (host.match(reTwoTwoThree)) {
+					domain = host.replace(reTwoTwoThree, "$1");
+				}
+				else {
+					domain = host.replace(reDefaultDomain, "$1");
+				}
 
-            reSearch = /q=([^&]+)/;
-            reYahooSearch = /p=([^&]+)/;
-            var searchTerms = "";
+				if (host.match(reTopLevel2)) {
+					topDomain = host.replace(reTopLevel2, "$1");
+				}
+				else {
+					topDomain = host.replace(reTopLevel, "$1");
+				}
 
-            if (reGoogle.test(host) || host === "duckduckgo.com" || reBing.test(host) || host === "search.aol.com" || host === reAsk.test(host)) {
+				reSearch = /q=([^&]+)/;
+				reYahooSearch = /p=([^&]+)/;
+				var searchTerms = "";
 
-                if (reSearch.test(parser.href)) {
-                    search = parser.href.match(reSearch, "$1");
-                    if (search[1] != "")
-                        var searchTerms1 = search[1];
-                    var dcSearchTerms = decodeURIComponent(searchTerms1);
-                    searchTerms = dcSearchTerms.replace(/\+/g, " ");
-                }
-            }
+				if (reGoogle.test(host) || host === "duckduckgo.com" || reBing.test(host) || host === "search.aol.com" || host === reAsk.test(host)) {
 
-            if (reYahooSearchDomain.test(host)) {
+					if (reSearch.test(parser.href)) {
+						search = parser.href.match(reSearch, "$1");
+						if (search[1] != "")
+							var searchTerms1 = search[1];
+						var dcSearchTerms = decodeURIComponent(searchTerms1);
+						searchTerms = dcSearchTerms.replace(/\+/g, " ");
+					}
+				}
 
-                if (reYahooSearch.test(parser.href)) {
-                    yahooSearch = parser.href.match(reYahooSearch, "$1");
-                    if (yahooSearch[1] != "")
-                        var searchTerms1 = yahooSearch[1];
-                    var dcSearchTerms = decodeURIComponent(searchTerms1);
-                    var searchTerms = dcSearchTerms.replace(/\+/g, " ");
-                }
-            }
-            fullData1.push({
-                id: dataItem.visitId,
-                url: dataItem.url,
-                urlId: dataItem.id,
-                protocol: protocol,
-                domain: domain,
-                topDomain: topDomain,
-                searchTerms: searchTerms,
-                date: dataItem.visitTime,
-                transType: dataItem.transitionType,
-                refVisitId: dataItem.referringVisitId,
-                title: dataItem.title
-            });
+				if (reYahooSearchDomain.test(host)) {
 
-        };// end looping through each visit
+					if (reYahooSearch.test(parser.href)) {
+						yahooSearch = parser.href.match(reYahooSearch, "$1");
+						if (yahooSearch[1] != "")
+							var searchTerms1 = yahooSearch[1];
+						var dcSearchTerms = decodeURIComponent(searchTerms1);
+						var searchTerms = dcSearchTerms.replace(/\+/g, " ");
+					}
+				}
+				fullData1.push({
+					id: dataItem.visitId,
+					url: dataItem.url,
+					urlId: dataItem.id,
+					protocol: protocol,
+					domain: domain,
+					topDomain: topDomain,
+					searchTerms: searchTerms,
+					date: dataItem.visitTime,
+					transType: dataItem.transitionType,
+					refVisitId: dataItem.referringVisitId,
+					title: dataItem.title
+				});
+			}
+                
+			if (data.length > 1)
+				window.setTimeout(transformDataItem, 0);
+			else
+			{
+				$("#transform_progress").width("100%");
+				$("#transform_progress").html("100%");
 
-        console.log("fullData1: ", fullData1.length);
-        visualData = fullData1;
-        sortByProp(visualData,"date");
-        console.log("visualData: ", visualData.length);
-        callback2();
-        callback(visualData, viz);
+				console.log("fullData1: ", fullData1.length);
+				visualData = fullData1;
+				sortByProp(visualData,"date");
+				console.log("visualData: ", visualData.length);
+				callback2();
+				callback(visualData, viz);
+				
+				$("#progress_bars").hide();
+			}
+		};
+		
+		window.setTimeout(transformDataItem, 0);
     }
 
 //Data wrangling
@@ -345,7 +422,7 @@ function wrapper() {
             });
 
             var d = new Date();
-            var removalRecord = {timeRemoved: d.getTime(), numUrls: urlsRemovedNow, numVisits: visitsRemovedNow}
+            var removalRecord = {timeRemoved: d.getTime(), numUrls: urlsRemovedNow, numVisits: visitsRemovedNow};
             storeRemovalData(removalRecord);
         }
         else {
@@ -354,7 +431,7 @@ function wrapper() {
             console.log(urls);
             var d = new Date();
             chrome.history.deleteUrl({url: url1});
-            var removalRecord = {timeRemoved: d.getTime(), numUrls: 1, numVisits: visits}
+            var removalRecord = {timeRemoved: d.getTime(), numUrls: 1, numVisits: visits};
             storeRemovalData(removalRecord);
         }
         getUrls(noTransform, noViz, function() {
@@ -365,7 +442,7 @@ function wrapper() {
     function storeRemovalData(data) {
         //add one object (data) to chrome local storage removal log, timeRemoved: , numUrls: , numVisits:
         var removalArray = [];
-        var existing = getStoredData("removals")
+        var existing = getStoredData("removals");
         if (existing != null) {
             existing.push({timeRemoved: data.timeRemoved, numUrls: data.numUrls, numVisits: data.numVisits});
             localStorage.setItem("removals", JSON.stringify(existing));
@@ -417,7 +494,7 @@ function wrapper() {
                 }
             }
             else {
-                console.log("Error in onlyIf function, should the value be absent - notValue === true, or present, notValue === false")
+                console.log("Error in onlyIf function, should the value be absent - notValue === true, or present, notValue === false");
             }
         }
         return data;
@@ -559,7 +636,7 @@ function wrapper() {
         return function (a, b) {
             var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
             return result * sortOrder;
-        }
+        };
     }
 
     function sortByProp(data, sort) {
@@ -633,7 +710,7 @@ function wrapper() {
             dates.push({date: date});
         }
         timeLine = countSomething(dates, "date");
-        callback(timeLine)
+        callback(timeLine);
     }
 
     function dataTableData(data, callback) {
@@ -686,12 +763,26 @@ function wrapper() {
     }
 
     function networkData(fullData, callback) {
+
+console.log("NETWORK 1.0");
+
         callFirstLastDate();
         loadTime();
         var allEdges = [];
         var uniqueEdges = [];
         var edgeList = [];
         var sorted = [];
+
+console.log("NETWORK 1.1 --> " + fullData.length);
+
+		var idMap = {};
+
+        for (var i = 0; i < fullData.length; i++) {
+            var dataItem = fullData[i];
+            var refId = dataItem.refVisitId;
+            
+            idMap[refId] = i;
+		}
 
         for (var i = 0; i < fullData.length; i++) {
             var dataItem = fullData[i];
@@ -700,7 +791,7 @@ function wrapper() {
             var domain = dataItem.domain;
             var protocol = dataItem.protocol;
             var transition = dataItem.transType;
-            var refIdInd = findIndexByKeyValue(fullData, "id", refId);
+            var refIdInd = idMap[refId]; // findIndexByKeyValue(fullData, "id", refId);
 
             if (refIdInd !== null && refId !== 0) {
                 var refDomain = fullData[refIdInd].domain;
@@ -710,11 +801,16 @@ function wrapper() {
                 }
             }
         }
+        
+console.log("NETWORK 1.2");
+        
 
         sorted = allEdges.sort(compare);
         totalLinks = allEdges.length + 1;
 
         var countEdges = 1;
+
+console.log("NETWORK 1.3");
 
         for (var j = 0; j < sorted.length; j++) {
             var sortedItem = sorted[j];
@@ -735,7 +831,12 @@ function wrapper() {
             }
         }
 
+console.log("NETWORK 1.4");
+
         callback(edgeList);
+
+console.log("NETWORK 1.5");
+        
     }
 
     function webVisitData(data, callback) {
@@ -982,6 +1083,8 @@ function wrapper() {
     function networkViz(links) {
         // Network visualization based on  http://www.d3noob.org/2013/03/d3js-force-directed-graph-example-basic.html and http://bl.ocks.org/mbostock/3750558
         // temporary labeling fix: if node has more than two edges (in or out) show label, otherwise hover for label
+
+console.log("NETWORK 1.4.1");
         d3.select("#" + timeSelection).classed("active", true);
         listenTimeClick();
         var numSites = links.length + 1;
@@ -989,6 +1092,8 @@ function wrapper() {
         d3.select("#title").append("h1").text("How did you get there?").attr("id", "viz_title");
         d3.select("#title").append("h2").text(totalLinks + " links between " + numSites + " websites from: " + firstDate + " to: " + lastDate);
         d3.select("#below_visual").append("p").text("This is a network based on how you navigate to the websites you visit. There is a link between two websites if you click on a link from one to the other. Drag to move websites to a fixed position. Double click to release the dragged website back to the normal layout.").attr("id", "viz_p");
+
+console.log("NETWORK 1.4.2");
 
         var nodes = {};
         var edgesMaxValue = 0;
@@ -1005,6 +1110,8 @@ function wrapper() {
             }
         });
 
+console.log("NETWORK 1.4.3");
+
         var width = 960;
         height = 500;
 
@@ -1016,6 +1123,8 @@ function wrapper() {
             .charge(-100)
             .on("tick", tick)
             .start();
+
+console.log("NETWORK 1.4.4");
 
         var svg = d3.select("#" + divName).append("svg")
             .attr("width", width)
@@ -1031,6 +1140,8 @@ function wrapper() {
         function dragstart(d) {
             d3.select(this).classed("fixed", d.fixed = true);
         }
+
+console.log("NETWORK 1.4.5");
 
         // build the arrow.
         svg.append("svg:defs").selectAll("marker")
@@ -1057,6 +1168,8 @@ function wrapper() {
             .attr("class", "link")
             .attr("marker-end", "url(#end)");
 
+console.log("NETWORK 1.4.6");
+
         // define the nodes
         var node = svg.selectAll(".node")
             .data(force.nodes())
@@ -1080,6 +1193,8 @@ function wrapper() {
                 return d.name;
             });
 
+console.log("NETWORK 1.4.7");
+
         // add the curvy lines
         function tick() {
             path.attr("d", function (d) {
@@ -1100,7 +1215,12 @@ function wrapper() {
                 });
         }
 
+console.log("NETWORK 1.4.8");
+
         rmLoad();
+
+console.log("NETWORK 1.4.9");
+
     }
 
     function timeLineViz(dataset) {
@@ -1277,7 +1397,7 @@ function wrapper() {
                 })
                 .append("svg:title")
                 .text(function (d) {
-                    return d.allTerms
+                    return d.allTerms;
                 });
         }
 
@@ -1374,9 +1494,9 @@ function wrapper() {
                             if (vdi) {
                                 console.log("visualDataPre",visualData.length);
                                 visualData.splice(vdi,1);
-                                console.log("visualDataPost",visualData.length)
+                                console.log("visualDataPost",visualData.length);
                             }
-                        })
+                        });
 
                     }
                 }
@@ -1567,7 +1687,64 @@ function wrapper() {
             function(token) {access_token = token;
                 console.log (access_token);
                 if (access_token) {
-					//nothing
+                    var PROJECT = '581411807237';
+                    var clientId = '581411807237-hi8jesii81k5725mo67q6bktc8ofi099.apps.googleusercontent.com';
+                    var apiKey = 'AIzaSyA6NwESlZ5-uHcaTr8KjaajrAX6yf94ISQ';
+                    var scopes = 'https://www.googleapis.com/auth/devstorage.read_write';
+                    var API_VERSION = 'v1';
+                    var BUCKET = 'web-historian-eu';
+                    var object = "";
+                    var GROUP =
+                        'group-00b4903a9760b6025c58662742f5a3adc6aaaedad9a94204ebd9a7e46e2ec252';
+
+                    //just for testing
+                    function listBuckets() {
+                        var request = gapi.client.storage.buckets.list({
+                            'project': PROJECT
+                        });
+                        executeRequest(request, 'listBuckets');
+                    }
+
+                    function executeRequest(request, apiRequestName) {
+                        request.execute(function(resp) {
+                            console.log(resp);
+                            //If the selected API command is not 'insertObject', pass the request
+                            //paramaters to the getCodeSnippet method call as 'request.B.rpcParams'
+                            //else pass request paramaters as 'request.B'
+                            if (apiRequestName != 'insertObject') {
+                                apiRequestCodeSnippetEntry.innerHTML =
+                                    getCodeSnippet(request.B.method, request.B.rpcParams);
+                                //Selected API Command is not 'insertObject'
+                                //hide insert object button
+                                filePicker.style.display = 'none';
+                            } else {
+                                apiRequestCodeSnippetEntry.innerHTML =
+                                    getCodeSnippet(request.B.method, request.B);
+                            }
+                        });
+                    }
+
+                    function getCodeSnippet(method, params) {
+                        var objConstruction = "// Declare your parameter object\n";
+                        objConstruction += "var params = {};";
+                        objConstruction += "\n\n";
+                        var param = "// Initialize your parameters \n";
+                        for (i in params) {
+                            param += "params['" + i + "'] = ";
+                            param += JSON.stringify(params[i], null, '\t');
+                            param += ";";
+                            param += "\n";
+                        }
+                        param += "\n";
+                        var methodCall = "// Make a request to the Google Cloud Storage API \n";
+                        methodCall += "var request = gapi.client." + method + "(params);";
+                        return objConstruction + param + methodCall;
+                    }
+
+                    $('#' + divName).append("<div id=\"visualization\"><a id=\"list_buckets\">List Buckets</a></div>");
+                    // maybe loadTime(); to show upload processing
+                    $("#list_buckets").click(function() { listBuckets(); });
+
                 }
                 else {
                     d3.select("#"+divName).append("p").text("Not Authorized - sumission not possible").attr("id", "visualization");
@@ -1590,26 +1767,39 @@ function wrapper() {
         if (viz_selection === "network") {
             rmViz();
             rmOpt();
-            $("#option_items").append("<div id = \"options\"><h3>Network Options: "+timePeriod);
+//            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"search_words\">Search Words</a> <a id=\"web_visit\">Web Visits</a> <a id=\"data_table\">Data Table</a></p><h3>Network Options: "+timePeriod);
+
+			console.log("NETWORK 1");
+
             networkData(visualData, networkViz);
+
+			console.log("NETWORK 2");
+
+            visualizationSelection();
+            
+			console.log("NETWORK 3");
+
         }
         else if (viz_selection === "search_words") {
             rmViz();
             rmOpt();
-            $("#option_items").append("<div id = \"options\"><h3>Search words options: "+timePeriod);
+//            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"network\">Network</a> <a id=\"web_visit\">Web Visits</a> <a id=\"data_table\">Data Table</a></p><h3>Search words options: "+timePeriod);
             searchWordsData(visualData, searchWordsViz);
+            visualizationSelection();
         }
         else if (viz_selection === "web_visit") {
             rmViz();
             rmOpt();
-            // $("#option_items").append("<div id = \"options\"><h3>Websites visited options: "+timePeriod);
+//            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"search_words\">Search Words</a> <a id=\"network\">Network</a> <a id=\"data_table\">Data Table</a></p> <h3>Websites visited options: "+timePeriod);
             webVisitData(visualData, webVisitViz);
+            visualizationSelection();
         }
         else if (viz_selection === "data_table") {
             rmViz();
             rmOpt();
-            //options appended in the viz
+//            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"search_words\">Search Words</a> <a id=\"network\">Network</a> <a id=\"web_visit\">Web Visits</a></p> ");
             dataTableData(fullData1, dataTableViz);
+            visualizationSelection();
         }
     }
 
@@ -1728,6 +1918,7 @@ function wrapper() {
         $("#title").empty();
         $("#below_visual").empty();
         $("#visual_div").empty();
+        $("#viz_selector").empty();
     }
 
     function rmOpt() {
@@ -1762,16 +1953,51 @@ function wrapper() {
         var spinner = new Spinner(opts).spin(target);
     }
 
+function visualizationSelection() {
+	 //visualization selection
+            $("#network").click(function() {
+//            	loadTime();
+                selectViz("network");
+                d3.selectAll("#viz_selector a").classed("active", false);
+                d3.select("#network").classed("active", true);
+                vizSelected = "network";
+            });
+            $("#web_visit").click(function() {
+                selectViz("web_visit");
+                d3.selectAll("#viz_selector a").classed("active", false);
+                d3.select("#web_visit").classed("active", true);
+                vizSelected = "web_visit";
+            });
+            $("#search_words").click(function() {
+                selectViz("search_words");
+                d3.selectAll("#viz_selector a").classed("active", false);
+                d3.select("#search_words").classed("active", true);
+                vizSelected = "search_words";
+            });
+            $("#data_table").click(function() {
+                selectViz("data_table");
+                d3.selectAll("#viz_selector a").classed("active", false);
+                d3.select("#data_table").classed("active", true);
+                vizSelected = "data_table";
+            });
+}
 //Putting it all together
     $("document").ready(function () {
+		$("#navbar").hide();
+
+		$('[data-toggle="tooltip"]').tooltip();
+		$('.datepicker').datepicker();
+		
         //Get all data into fullData1
         getUrls(noTransform, noViz, function(){
-//            $('#viz_selector').append("<h3>Visualization</h3> <a id=\"network\">Network</a> <a id=\"web_visit\" class=\"active\">Websites Visited</a> <a id=\"search_words\">Search Words</a> <a id=\"data_table\">All Your Data</a>");
-            //$('#submission').append("<h3>Submit</h3> <a id=\"submit\">Submit History to Research Project</a> "); //FOR RESEARCHER EDITION <a id=\"load_data\">Load data from file</a>
+        	
+            //New default, append images for visualization chooser
+            $('#viz_selector').show();
+            $("#navbar").show();
 
             //default is web_visit for all time, per globals above
-            selectViz(vizSelected);
-            d3.select("#all").classed("active", true);
+            //selectViz(vizSelected);
+            //d3.select("#all").classed("active", true);
 
             $("#load_data").click(function () { //used for researcher edition
                     var fileName = prompt("Please enter the file name");
@@ -1803,90 +2029,10 @@ function wrapper() {
                 submissionData(submitViz);
             });
 
-/*
-            //visualization selection
-            $("#network").click(function() {
-                selectViz("network");
-                d3.selectAll("#viz_selector a").classed("active", false);
-                d3.select("#network").classed("active", true);
-                vizSelected = "network";
-            });
-            $("#web_visit").click(function() {
-                selectViz("web_visit");
-                d3.selectAll("#viz_selector a").classed("active", false);
-                d3.select("#web_visit").classed("active", true);
-                vizSelected = "web_visit";
-            });
-            $("#search_words").click(function() {
-                selectViz("search_words");
-                d3.selectAll("#viz_selector a").classed("active", false);
-                d3.select("#search_words").classed("active", true);
-                vizSelected = "search_words";
-            });
-            $("#data_table").click(function() {
-                selectViz("data_table");
-                d3.selectAll("#viz_selector a").classed("active", false);
-                d3.select("#data_table").classed("active", true);
-                vizSelected = "data_table"
-            });
-*/
-
-            $("a#link_sites_visited").click(function(eventObj) {
-            	eventObj.preventDefault();
-
-                $("li.active").removeClass("active");
-                $("li#nav_sites_visited").addClass("active");
-
-                selectViz("web_visit");
-                vizSelected = "web_visit";
-            });
-
-		// TODO: Move into own functions outside wrapper...
-		
-            //visualization selection
-            $("a#link_network").click(function(eventObj) {
-            	eventObj.preventDefault();
-            	
-                $("li.active").removeClass("active");
-                $("li#nav_nav_network").addClass("active");
-            
-                selectViz("network");
-//                d3.selectAll("#viz_selector a").classed("active", false);
-//                d3.select("#network").classed("active", true);
-                vizSelected = "network";
-            });
-            
-            $("a#link_search_terms").click(function(eventObj) {
-            	eventObj.preventDefault();
-
-                $("li.active").removeClass("active");
-                $("li#nav_search_terms").addClass("active");
-
-                selectViz("search_words");
-//                d3.selectAll("#viz_selector a").classed("active", false);
-//                d3.select("#search_words").classed("active", true);
-                vizSelected = "search_words";
-            });
-
-            $("a#link_all_data").click(function(eventObj) {
-            	eventObj.preventDefault();
-
-                $("li.active").removeClass("active");
-                $("li#nav_all_data").addClass("active");
-
-                selectViz("data_table");
-//                d3.selectAll("#viz_selector a").classed("active", false);
-//                d3.select("#data_table").classed("active", true);
-                vizSelected = "data_table"
-            });
-
+			visualizationSelection();
+           
         });
 
     });
 }
 wrapper();
-
-$(document).ready(function()
-{
-	$('[data-toggle="tooltip"]').tooltip();
-});

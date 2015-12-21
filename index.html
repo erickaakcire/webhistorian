@@ -1,87 +1,157 @@
 <!DOCTYPE html>
+<!--
+	Copyright (C) 2015 Ericka Menchen-Trevino, info@webhistorian.org
+
+	This program is free software; you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation; either version 2 of the License, or
+	(at your option) any later version.
+
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License along
+	with this program; if not, write to the Free Software Foundation, Inc.,
+	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+
+	Original Herodotus image: https://www.flickr.com/photos/wy_jackrabbit/4338541055/?rb=1
+-->
 <html>
-	<!--
-		Copyright (C) 2015 Ericka Menchen-Trevino, info@webhistorian.org
-
-		This program is free software; you can redistribute it and/or modify
-		it under the terms of the GNU General Public License as published by
-		the Free Software Foundation; either version 2 of the License, or
-		(at your option) any later version.
-
-		This program is distributed in the hope that it will be useful,
-		but WITHOUT ANY WARRANTY; without even the implied warranty of
-		MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-		GNU General Public License for more details.
-
-		You should have received a copy of the GNU General Public License along
-		with this program; if not, write to the Free Software Foundation, Inc.,
-		51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-		Original Herodotus image: https://www.flickr.com/photos/wy_jackrabbit/4338541055/?rb=1
-	-->
 	<head>
 		<meta charset="utf-8" />
-		<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap.min.css" />
-		<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-theme.min.css" />
-		<!-- <link rel="stylesheet" type="text/css" href="css/style.css" /> -->
-		<script src="vendor/js/jquery.min.js"></script>
-		<script src="vendor/js/bootstrap.min.js"></script>
-		<script src="vendor/js/d3.min.js"></script>
-		<script src="vendor/js/spin.min.js"></script>
-		<script src="vendor/js/d3.layout.cloud.js"></script>
-		<!-- <script src="js/client.js"></script> -->
-		<script src="js/history.js"></script>
-		<title>Web Historian</title>
-	</head>
-	<body>
-		<nav class="navbar navbar-inverse navbar-fixed-top">
-			<div class="container">
-				<div class="navbar-header">
-					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-						<span class="sr-only">Toggle navigation</span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-						<span class="icon-bar"></span>
-					</button>
-					<a class="navbar-brand" href="http://webhistorian.org">[ICON] Web Historian</a>
-				</div>
-				<div id="navbar" class="collapse navbar-collapse">
-					<ul class="nav navbar-nav navbar-right">
-						<li class="active" id="nav_sites_visited"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Websites Visited" id="link_sites_visited"><span class="glyphicon glyphicon-globe"></span></a></li>
-						<li id="nav_network"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Network" id="link_network"><span class="glyphicon glyphicon-cloud"></span></a></li>
-						<li id="nav_search_terms"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Search Terms" id="link_search_terms"><span class="glyphicon glyphicon-search"></span></a></li>
-						<li id="nav_all_data"><a href="#" data-toggle="tooltip" data-placement="bottom" title="All Data" id="link_all_data"><span class="glyphicon glyphicon-list"></span></a></li>
-					</ul>
-				</div><!--/.nav-collapse -->
-			</div>
-		</nav>
+			<link rel="stylesheet" type="text/css" href="css/style.css" />
+			<title>Web Historian</title>
+			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap.min.css" />
+			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-theme.min.css" />
+			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-datepicker3.css" />
+			<script src="vendor/js/jquery.min.js"></script>
+			<script src="vendor/js/bootstrap.min.js"></script>
+			<script src="vendor/js/bootstrap-datepicker.min.js"></script>
+			<script src="vendor/js/d3.min.js"></script>
+			<script src="vendor/js/spin.min.js"></script>
+			<script src="vendor/js/d3.layout.cloud.js"></script>
+			<!-- <script src="vendor/js/client.js"></script> -->
+			<script src="js/history.js"></script>
+		</head>
+		<body>
+		<div id="main">
+			<nav class="navbar navbar-inverse navbar-fixed-top">
+				<div class="container">
+					<div class="navbar-header">
+						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+							<span class="sr-only">Toggle navigation</span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+							<span class="icon-bar"></span>
+						</button>
+						<a class="navbar-brand" href="http://webhistorian.org">[ICON] Web Historian</a>
+					</div>
+					<div id="navbar" style="display: none;">
+						<ul class="nav navbar-nav navbar-right">
+							<li id="nav_network"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Network" id="network"><span class="glyphicon glyphicon-cloud"></span></a></li>
+							<li id="nav_sites_visited"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Websites Visited" id="web_visit"><span class="glyphicon glyphicon-globe"></span></a></li>
+							<li id="nav_search_terms"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Search Terms" id="search_words"><span class="glyphicon glyphicon-search"></span></a></li>
+							<li id="nav_all_data"><a href="#" data-toggle="tooltip" data-placement="bottom" title="All Data" id="data_table"><span class="glyphicon glyphicon-list"></span></a></li>
+							<li id="nav_upload"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Upload &amp; Participate" id="submit"><span class="glyphicon glyphicon-cloud-upload"></span></a></li>
+						</ul>
 
-		<div class="container">
-		    <div class="row" id="section_sites_visited">
-		    	<div class="col-md-12">
-		    		<h1>Websites Visited</h1>
-		    		<h3><span id="count_sites_visited">XXX</span> visited from <span id="start_sites_visited">START</span> to <span id="end_sites_visited">END</span>.</h3>
-		    		<div id="visualization_sites_visited" style="height: 480px;" />
-		    	</div>
-		    </div>
-		    
-			<div id="controls">
-				<div id="viz_selector" class="control"></div>
+						<form class="navbar-form navbar-right">
+							<div class="form-group">
+								<div class="input-group" style="margin-right: 10px;">
+									<input class="datepicker form-control input-sm" id="start_date" placeholder="Start" data-date-format="mm/dd/yyyy" style="width: 90px;">
+									<div class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></div>
+								</div>
+								<div class="input-group">
+									<input class="datepicker form-control input-sm" id="end_date" placeholder="End" data-date-format="mm/dd/yyyy" style="width: 90px;">
+									<div class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></div>
+								</div>
+						    </div>
+						</form>
+					</div><!--/.nav-collapse -->
+				</div>
+			</nav>
+			
+			<div id="controls" style="margin-top: 60px;">
 				<div id="option_space" class="control">
 					<div id="option_items"></div>
 				</div>
-				<div id="submission" class="control"></div>
 			</div>
+			<div class="row" id="progress_bars">
+				<div id="progress">
+					<h6>Fetching Visit Data&#8230;</h6>
+					<div class="progress">
+						<div class="progress-bar" id="visit_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
+					</div>
+					<h6>Transforming Data&#8230;</h6>
+					<div class="progress">
+						<div class="progress-bar" id="transform_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
+					</div>
+				</div>
+			</div>
+			
+			<div id="visualizations">
+				<div class="row" id="viz_selector" style="display: none;">
+					<div class="col-sm-6 col-md-3">
+						<a id="web_visit">
+							<div class="thumbnail">
+								<img src="images/network.png" alt="Network" />
+								<div class="caption">
+									<h3>Network</h3>
+									<p>
+										Links between websites browsed from - to
+									</p>
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="col-sm-6 col-md-3">
+						<a id="web_visit">
+							<div class="thumbnail">
+								<img src="images/visit.png" alt="Web Visits" />
+								<div class="caption">
+									<h3>Web Visits</h3>
+									<p>
+										Circles sized by number of visits.
+									</p>
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="col-sm-6 col-md-3">
+						<a id="search_words">
+							<div class="thumbnail">
+								<img src="images/wordCloud.png" alt="Search Words" />
+								<div class="caption">
+									<h3>Search Words</h3>
+									<p>
+										Words used in multiple web searches.
+									</p>
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="col-sm-6 col-md-3">
+						<a id="data_table">
+							<div class="thumbnail">
+								<img src="images/table.png" alt="Data Table" />
+								<div class="caption">
+									<h3>Data Table</h3>
+									<p>
+										Each web visit in a table
+									</p>
+								</div>
+							</div>
+						</a>
+					</div>
+				</div>
 
-			<div id="loader"></div>
-			<div id="title"></div>
-			<div id="visual_div"></div>
+				<div id="loader"></div>
+				<div id="title"></div>
+				<div id="visual_div"></div>
+			</div>
 			<div id="below_visual"></div>
 		</div>
-		<footer class="footer">
-			<div class="container">
-				<p class="text-muted">Herodotus: Image from Wyoming_Jackrabbit on Flickr.com, (CC BY-NC-SA 2.0). Modified to fit square format.</p>
-			</div>
-		</footer>
 	</body>
 </html>
