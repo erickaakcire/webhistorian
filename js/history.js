@@ -21,6 +21,8 @@
 
 //a function to contain the whole script
 function wrapper() {
+	var startDate = null;
+	var endDate = null;
 
 //globals for the wrapper function
     var divName = "visual_div";
@@ -30,7 +32,7 @@ function wrapper() {
     dateLimit.setDate(currDate.getDate() - 91);
     var dateForward = Infinity;
     var timeSelection = "all";
-    var vizSelected = "web_visit";
+    var vizSelected = null;
     var fullData1 = [];
     var firstDate = "";
     var lastDate = "";
@@ -1026,9 +1028,9 @@ console.log("NETWORK 1.5");
         d3.select("#" + timeSelection).classed("active", true);
         listenTimeClick();
         var json = data1;
-        var numDomains = countUnique(visualData, "domain");
+        var numDomains = -1; // countUnique(visualData, "domain");
         d3.select("#title").append("h1").text("What websites do you visit?").attr("id", "viz_title");
-        d3.select("#title").append("h2").text(numDomains + " websites visited from: " + firstDate + " to: " + lastDate).attr("id", "viz_subtitle");
+        d3.select("#title").append("h2").text(numDomains + " websites visited from: " + startDate + " to: " + endDate).attr("id", "viz_subtitle");
         d3.select("#below_visual").append("p").text("A larger circle means that the website was visited more.").attr("id", "viz_p");
 
         var r = 960,
@@ -1470,7 +1472,7 @@ console.log("NETWORK 1.4.9");
 
     function buildDomainTable(dataset) {
         //localStorage.removeItem("removals"); // clears local storage of removals, for debugging
-        if (document.getElementById('visualization')) {
+        if (document.getElementById('domain_visualization')) {
             rmViz();
             rmOpt();
             $("#option_items").append("<div id = \"options\"><h3>Data Table Options</h3><a id=\"day\">Website Domains Data</a><a id=\"week\">Search Term Data</a><a id=\"all\">All Visits</a></div>");
@@ -1505,46 +1507,51 @@ console.log("NETWORK 1.4.9");
             }
         });
 
-        var data = dataset.sort(dynamicSort("counter"));
+//        var data = dataset.sort(dynamicSort("counter"));
 
         //build table
-        var table, header, row, cell, ckbox;
-        table = document.createElement('table');
-        table.style.border = "1px solid #ccc";
-        table.id = "visualization";
+        var table = document.createElement('table');
+//        table.style.border = "1px solid #ccc";
+        table.id = "domain_visualization";
 
-        for (var i = 0; i < data.length; ++i) {
-            row = table.insertRow(i);
-            cell = row.insertCell(0);
-            cell.style.border = "1px solid #ccc";
-            chkbox = document.createElement('input');
-            chkbox.type = "checkbox";
-            chkbox.id = "isSuppressed_" + i;
-            chkbox.name = "chkbox";
-            cell.appendChild(chkbox);
-            cell = row.insertCell(1);
-            cell.innerHTML = data[i].count;
-            cell.style.border = "1px solid #ccc";
-            cell = row.insertCell(2);
-            cell.innerHTML = data[i].counter;
-            cell.style.border = "1px solid #ccc";
+        document.getElementById(divName).appendChild(table);
+        
+        console.log('DATA: ' + JSON.stringify(dataset, 2) + ' :DATA');
+        
+        var tableData = [];
+        
+        for (var i = 0; i < dataset.length; i++)
+        {
+        	var dataObj = {};
+        	dataObj['remove'] = dataset[i]['counter'];
+        	dataObj['domain'] = dataset[i]['counter'];
+        	dataObj['visits'] = dataset[i]['count'];
+        	
+        	tableData.push(dataObj);
         }
 
-        //build table header
-        header = table.createTHead();
-        var row = header.insertRow(0);
-        var cell = row.insertCell(0);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = "<b>Remove</b>";
-        var cell = row.insertCell(1);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = "<b>Visits</b>";
-        var cell = row.insertCell(2);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = "<b>Domain <span style=\"color:red\">&laquo;</span></b>";
-
-        //append to div
-        document.getElementById(divName).appendChild(table);
+		$('table#domain_visualization').bootstrapTable({
+			columns: [{
+				field: 'remove',
+				title: 'Remove',
+				checkbox: true,
+				sortable: false
+			}, {
+				field: 'visits',
+				title: 'Visits',
+				sortable: true
+			}, {
+				field: 'domain',
+				title: 'Domain',
+				sortable: true
+			}],
+			data: tableData,
+			striped: true,
+			pagination: true,
+			search: true,
+			sortable: true
+		});
+        
         rmLoad();
     }
 
@@ -1595,83 +1602,80 @@ console.log("NETWORK 1.4.9");
         });
 
         //build table
-        var table, header, row, cell, ckbox;
-        table = document.createElement('table');
-        table.style.border = "1px solid #ccc";
-        table.id = "visualization";
+        var table = document.createElement('table');
+        table.id = "search_visualization";
+        document.getElementById(divName).appendChild(table);
+        
+        var tableData = [];
 
         for (var i = 0; i < data.length; ++i) {
+            var row = {};
+            
             var d = new Date(data[i].date);
-
-            row = table.insertRow(i);
-            cell = row.insertCell(0);
-            cell.style.border = "1px solid #ccc";
-            chkbox = document.createElement('input');
-            chkbox.type = "checkbox";
-            chkbox.id = "isSuppressed_" + i;
-            chkbox.name = "chkbox";
-            cell.appendChild(chkbox);
-            cell = row.insertCell(1);
-            cell.innerHTML = data[i].domain;
-            cell.style.border = "1px solid #ccc";
-            cell = row.insertCell(2);
-            cell.innerHTML = d;
-            cell.style.border = "1px solid #ccc";
-            cell = row.insertCell(3);
-            cell.innerHTML = data[i].searchTerms;
-            cell.style.border = "1px solid #ccc";
-            cell = row.insertCell(4);
-            cell.innerHTML = data[i].id;
-            cell.style.border = "1px solid #ccc";
-            cell = row.insertCell(5);
-            cell.innerHTML = data[i].refVisitId;
-            cell.style.border = "1px solid #ccc";
-            cell = row.insertCell(6);
-            cell.innerHTML = data[i].transType;
-            cell.style.border = "1px solid #ccc";
-            cell = row.insertCell(7);
-            cell.innerHTML = data[i].url;
-            cell.style.border = "1px solid #ccc";
-            cell = row.insertCell(8);
-            cell.innerHTML = data[i].title;
-            cell.style.border = "1px solid #ccc";
+            
+            row['remove'] = "isSuppressed_" + i;
+            row['domain'] = data[i].domain;
+            row['date'] = "<span style='display: none;'>" + d.toISOString() + "</span>" + d;
+            row['terms'] = data[i].searchTerms;
+            row['id'] = data[i].id;
+            row['reference_id'] = data[i].refVisitId;
+            row['transition'] = data[i].transType;
+            row['url'] = data[i].url;
+            row['title'] = data[i].title;
+            
+            tableData.push(row);
         }
 
-        //build table header
-        header = table.createTHead();
-        var row = header.insertRow(0);
-        var cell = row.insertCell(0);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = "<b>Remove</b>";
-        var cell = row.insertCell(1);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = "<b>Domain</b>";
-        var cell = row.insertCell(2);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = headDate;
-        var cell = row.insertCell(3);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = headSearchTerms;
-        var cell = row.insertCell(4);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = "<b>ID</b>";
-        var cell = row.insertCell(5);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = "<b>Reference ID</b>";
-        var cell = row.insertCell(6);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = "<b>Transition</b>";
-        var cell = row.insertCell(7);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = "<b>URL</b>";
-        var cell = row.insertCell(8);
-        cell.style.border = "1px solid #ccc";
-        cell.innerHTML = "<b>Title</b>";
+		$('table#search_visualization').bootstrapTable({
+			columns: [{
+				field: 'remove',
+				title: 'Remove',
+				checkbox: true,
+				sortable: false
+			}, {
+				field: 'domain',
+				title: 'Domain',
+				sortable: true
+			}, {
+				field: 'date',
+				title: 'Date',
+				sortable: true
+			}, {
+				field: 'terms',
+				title: 'Search Terms',
+				sortable: true
+			}, {
+				field: 'id',
+				title: 'ID',
+				sortable: true
+			}, {
+				field: 'reference_id',
+				title: 'Reference ID',
+				sortable: true
+			}, {
+				field: 'transition',
+				title: 'Transition',
+				sortable: true
+			}, {
+				field: 'url',
+				title: 'URL',
+				sortable: true
+			}, {
+				field: 'title',
+				title: 'Title',
+				sortable: true
+			}],
+			data: tableData,
+			striped: true,
+			pagination: true,
+			search: true,
+			sortable: true
+		});
 
-        //append to div
-        document.getElementById(divName).appendChild(table);
 
         rmLoad();
+
+        $('table#visualization').bootstrapTable();
     }
 
     function submitViz(data) {
@@ -1751,8 +1755,7 @@ console.log("NETWORK 1.4.9");
                 }
             }
         );
-
-
+        
         rmLoad();
     }
 
@@ -1763,42 +1766,61 @@ console.log("NETWORK 1.4.9");
 
 //Interface
     function selectViz(viz_selection) {
+        console.log('DATA: ' + JSON.stringify(visualData[0], 2) + ' :ATAD');    
+    
         var timePeriod = "Time Period</h3><a id=\"day\">One day</a><a id=\"week\">One week</a><a id=\"month\">One month</a><a id=\"all\">All available</a><a id=\"choose\">Choose Time</a></div>";
+        
+        var filteredData = [];
+
+		var start = 0;
+		
+		if (startDate != null)
+			start = startDate.getTime();
+			
+		var end = Number.MAX_VALUE;
+
+		if (endDate != null)
+			end = endDate.getTime();
+		
+        for (var i = 0; i < visualData.length; i++)
+        {
+            if (i % 1000 == 0)
+            	console.log(visualData[i].date + " >? " + start);
+            	
+        	if (visualData[i].date < end && visualData[i].date > start)
+				filteredData.push(visualData[i]);
+        }
+        
+        console.log('FILTERED: ' + filteredData.length);
+        
         if (viz_selection === "network") {
             rmViz();
             rmOpt();
 //            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"search_words\">Search Words</a> <a id=\"web_visit\">Web Visits</a> <a id=\"data_table\">Data Table</a></p><h3>Network Options: "+timePeriod);
 
-			console.log("NETWORK 1");
-
-            networkData(visualData, networkViz);
-
-			console.log("NETWORK 2");
-
+            networkData(filteredData, networkViz);
             visualizationSelection();
-            
-			console.log("NETWORK 3");
 
         }
         else if (viz_selection === "search_words") {
             rmViz();
             rmOpt();
 //            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"network\">Network</a> <a id=\"web_visit\">Web Visits</a> <a id=\"data_table\">Data Table</a></p><h3>Search words options: "+timePeriod);
-            searchWordsData(visualData, searchWordsViz);
+            searchWordsData(filteredData, searchWordsViz);
             visualizationSelection();
         }
         else if (viz_selection === "web_visit") {
             rmViz();
             rmOpt();
 //            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"search_words\">Search Words</a> <a id=\"network\">Network</a> <a id=\"data_table\">Data Table</a></p> <h3>Websites visited options: "+timePeriod);
-            webVisitData(visualData, webVisitViz);
+            webVisitData(filteredData, webVisitViz);
             visualizationSelection();
         }
         else if (viz_selection === "data_table") {
             rmViz();
             rmOpt();
 //            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"search_words\">Search Words</a> <a id=\"network\">Network</a> <a id=\"web_visit\">Web Visits</a></p> ");
-            dataTableData(fullData1, dataTableViz);
+            dataTableData(filteredData, dataTableViz);
             visualizationSelection();
         }
     }
@@ -1981,44 +2003,83 @@ function visualizationSelection() {
                 vizSelected = "data_table";
             });
 }
-//Putting it all together
-    $("document").ready(function () {
+
+	function refresh()
+	{
+		if (vizSelected != null)
+			selectViz(vizSelected)	
+	}
+	
+	
+	//Putting it all together
+    $("document").ready(function () 
+    {
 		$("#navbar").hide();
 
 		$('[data-toggle="tooltip"]').tooltip();
 		$('.datepicker').datepicker();
 		
+		$("input#start_date").change(function()
+		{
+			var value = $("input#start_date").val();
+			
+			if (value != "")
+			{
+				var tokens = value.split("/");
+				
+				startDate = new Date(parseInt(tokens[2]), parseInt(tokens[0]) - 1, parseInt(tokens[1]), 0, 0, 0, 0);
+				
+				refresh();
+			}
+			else
+				startDate = null;
+		});
+
+		$("input#end_date").change(function()
+		{
+			var value = $("input#end_date").val();
+			
+			if (value != "")
+			{
+				var tokens = value.split("/");
+				
+				endDate = new Date(parseInt(tokens[2]), parseInt(tokens[0]) - 1, parseInt(tokens[1]), 23, 59, 59, 999);
+				
+				refresh();
+			}
+			else
+				startDate = null;
+		});
+		
         //Get all data into fullData1
-        getUrls(noTransform, noViz, function(){
-        	
+        getUrls(noTransform, noViz, function()
+        {
             //New default, append images for visualization chooser
             $('#viz_selector').show();
             $("#navbar").show();
 
-            //default is web_visit for all time, per globals above
-            //selectViz(vizSelected);
-            //d3.select("#all").classed("active", true);
-
-            $("#load_data").click(function () { //used for researcher edition
-                    var fileName = prompt("Please enter the file name");
-                    d3.json(fileName, function(error, root) {
-                        if (root === undefined) {
-                            $('#' + divName).append("<div id=\"visualization\"><h3>Error loading data, check file name and file format</h3></div>");
-                        }
-                        else {
-                            fullData1 = [];
-                            fullData1 = root.data;
-                            visualData = [];
-                            visualData = root.data;
-                            console.log("file load success");
-                            console.log("fullData1: ",fullData1.length);
-                            console.log("visualData: ",visualData.length);
-                            timeSelection = "all";
-                            selectViz(vizSelected);
-                        }
-                    });
-                }
-            );
+            $("#load_data").click(function () 
+            { //used for researcher edition
+				var fileName = prompt("Please enter the file name");
+				d3.json(fileName, function(error, root) {
+					if (root === undefined) 
+					{
+						$('#' + divName).append("<div id=\"visualization\"><h3>Error loading data, check file name and file format</h3></div>");
+					}
+					else 
+					{
+						fullData1 = [];
+						fullData1 = root.data;
+						visualData = [];
+						visualData = root.data;
+						console.log("file load success");
+						console.log("fullData1: ",fullData1.length);
+						console.log("visualData: ",visualData.length);
+						timeSelection = "all";
+						selectViz(vizSelected);
+					}
+				});
+			});
 
             $("#submit").click(function() {
                 console.log("submit click");
@@ -2030,9 +2091,7 @@ function visualizationSelection() {
             });
 
 			visualizationSelection();
-           
         });
-
     });
 }
 wrapper();

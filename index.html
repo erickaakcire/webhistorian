@@ -26,9 +26,11 @@
 			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap.min.css" />
 			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-theme.min.css" />
 			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-datepicker3.css" />
+			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-table.css">
 			<script src="vendor/js/jquery.min.js"></script>
 			<script src="vendor/js/bootstrap.min.js"></script>
 			<script src="vendor/js/bootstrap-datepicker.min.js"></script>
+			<script src="vendor/js/bootstrap-table.js"></script>
 			<script src="vendor/js/d3.min.js"></script>
 			<script src="vendor/js/spin.min.js"></script>
 			<script src="vendor/js/d3.layout.cloud.js"></script>
@@ -60,12 +62,10 @@
 						<form class="navbar-form navbar-right">
 							<div class="form-group">
 								<div class="input-group" style="margin-right: 10px;">
+									<div class="input-group-addon"><span class="glyphicon glyphicon-chevron-left"></span></div>
 									<input class="datepicker form-control input-sm" id="start_date" placeholder="Start" data-date-format="mm/dd/yyyy" style="width: 90px;">
-									<div class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></div>
-								</div>
-								<div class="input-group">
-									<input class="datepicker form-control input-sm" id="end_date" placeholder="End" data-date-format="mm/dd/yyyy" style="width: 90px;">
-									<div class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span></div>
+									<input class="datepicker form-control input-sm" id="end_date" placeholder="End" data-date-format="mm/dd/yyyy" style="width: 90px; border-left: none;">
+									<div class="input-group-addon"><span class="glyphicon glyphicon-chevron-right"></span></div>
 								</div>
 						    </div>
 						</form>
