@@ -2080,6 +2080,62 @@ function visualizationSelection() {
 					}
 				});
 			});
+			
+			$('#upload_modal').on('show.bs.modal', function (e) 
+			{
+				var dayBundles = {};
+				var dayIndices = [];
+				
+				console.log("FIRST: " + JSON.stringify(visualData[0], 2));
+				
+				for (var i = 0; i < visualData.length; i++)
+				{
+					var date = moment(visualData[i]["date"]);
+					
+					var dayString = date.format("MMMM Do");
+					
+					var dayList = dayBundles[dayString];
+					
+					if (dayList == undefined)
+					{
+						dayList = [];
+						dayBundles[dayString] = dayList;
+						dayIndices.push(dayString);
+					}
+					
+					dayList.push(visualData[i]);
+				}
+			
+				$("#modal_overview").html(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
+
+				$("#upload_data").click(function()
+				{
+					console.log("CLICKED UPLOAD BUTTON");
+					
+					var bundles = [];
+					
+					for (var i = 0; i < dayIndices.length; i++)
+					{
+						bundles.push(dayBundles[dayIndices[i]]);
+					}
+					
+					var onProgress = function(index, total)
+					{
+						var percentComplete = (index / total) * 100;
+						
+						console.log("UPLOAD PROGRESS: " + percentComplete);
+					
+						$("#upload_progress").css("width", percentComplete + "%");
+					};
+					
+					var onComplete = function()
+					{
+						$('#upload_modal').modal('hide');
+					};
+					
+					uploadPassiveData(bundles, 0, onProgress, onComplete);
+				});
+			});
 
             $("#submit").click(function() {
                 console.log("submit click");

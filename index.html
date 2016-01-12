@@ -27,15 +27,17 @@
 			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-theme.min.css" />
 			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-datepicker3.css" />
 			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-table.css">
-			<script src="vendor/js/jquery.min.js"></script>
+			<script src="vendor/js/jquery-1.12.0.min.js"></script>
 			<script src="vendor/js/bootstrap.min.js"></script>
 			<script src="vendor/js/bootstrap-datepicker.min.js"></script>
 			<script src="vendor/js/bootstrap-table.js"></script>
 			<script src="vendor/js/d3.min.js"></script>
 			<script src="vendor/js/spin.min.js"></script>
 			<script src="vendor/js/d3.layout.cloud.js"></script>
+			<script src="vendor/js/moment.min.js"></script>
 			<!-- <script src="vendor/js/client.js"></script> -->
 			<script src="js/history.js"></script>
+			<script src="js/upload.js"></script>
 		</head>
 		<body>
 		<div id="main">
@@ -56,7 +58,7 @@
 							<li id="nav_sites_visited"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Websites Visited" id="web_visit"><span class="glyphicon glyphicon-globe"></span></a></li>
 							<li id="nav_search_terms"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Search Terms" id="search_words"><span class="glyphicon glyphicon-search"></span></a></li>
 							<li id="nav_all_data"><a href="#" data-toggle="tooltip" data-placement="bottom" title="All Data" id="data_table"><span class="glyphicon glyphicon-list"></span></a></li>
-							<li id="nav_upload"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Upload &amp; Participate" id="submit"><span class="glyphicon glyphicon-cloud-upload"></span></a></li>
+							<li id="nav_upload" data-toggle="tooltip" data-placement="bottom" title="Upload &amp; Participate"><a href="#" data-toggle="modal" id="submit" data-target="#upload_modal"><span class="glyphicon glyphicon-cloud-upload"></span></a></li>
 						</ul>
 
 						<form class="navbar-form navbar-right">
@@ -152,6 +154,30 @@
 				<div id="visual_div"></div>
 			</div>
 			<div id="below_visual"></div>
+		</div>
+
+		<div class="modal fade" tabindex="-1" role="dialog" id="upload_modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Upload Data to Server</h4>
+					</div>
+					<div class="modal-body">
+						<h6>Overview</h6>
+						<div id="modal_overview"></div>
+
+						<h6>Upload Progress</h6>
+						<div class="progress">
+							<div class="progress-bar" id="upload_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
+						</div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+						<button type="button" class="btn btn-primary" id="upload_data">Upload</button>
+					</div>
+				</div>
+			</div>
 		</div>
 	</body>
 </html>
