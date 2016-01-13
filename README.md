@@ -5,6 +5,6 @@ Web Historian helps users analyze their own web browsing, and users can opt-in t
 
 The extension uses the D3.js for the visualizations and accesses the history data via the chrome.history API.
 
-Web Historian runs entirely on the local browser using only client-side JavaScript. 
+Web Historian runs entirely on the local browser using only client-side JavaScript and can be used while the browser offline, until the "participate" option is chosen. 
 
 For more information see http://webhistorian.org
