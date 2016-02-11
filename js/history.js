@@ -2085,9 +2085,7 @@ function visualizationSelection() {
 			{
 				var dayBundles = {};
 				var dayIndices = [];
-				
-				console.log("FIRST: " + JSON.stringify(visualData[0], 2));
-				
+								
 				for (var i = 0; i < visualData.length; i++)
 				{
 					var date = moment(visualData[i]["date"]);
@@ -2110,8 +2108,6 @@ function visualizationSelection() {
 
 				$("#upload_data").click(function()
 				{
-					console.log("CLICKED UPLOAD BUTTON");
-					
 					var bundles = [];
 					
 					for (var i = 0; i < dayIndices.length; i++)
@@ -2122,8 +2118,6 @@ function visualizationSelection() {
 					var onProgress = function(index, total)
 					{
 						var percentComplete = (index / total) * 100;
-						
-						console.log("UPLOAD PROGRESS: " + percentComplete);
 					
 						$("#upload_progress").css("width", percentComplete + "%");
 					};
@@ -2133,7 +2127,10 @@ function visualizationSelection() {
 						$('#upload_modal').modal('hide');
 					};
 					
-					uploadPassiveData(bundles, 0, onProgress, onComplete);
+					chrome.identity.getProfileUserInfo(function(userInfo)
+					{
+						uploadPassiveData(CryptoJS.MD5(userInfo.email).toString(), bundles, 0, onProgress, onComplete);
+					});
 				});
 			});
 
