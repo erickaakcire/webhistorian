@@ -1,8 +1,8 @@
 define(["../app/utils", "moment"], function(utils, moment) {
-	var visualization = {};
-	
-	visualization.compileData = function(data)
-	{
+    var visualization = {};
+    
+    visualization.compileData = function(data)
+    {
         //hard coding categories for top accessed websites in the US and NL. Putting into a heierarchical object for visualization.
         //need to implement regex matches and top domain matching esp. for blogs, education and governmnet...
         //need to create a variable for category names and make loops
@@ -159,42 +159,42 @@ define(["../app/utils", "moment"], function(utils, moment) {
             ]
         });
         
-        return dataset;	
-	}
-	
-	visualization.display = function(history, data)
-	{
-		$("input#start_date").datepicker().on("changeDate", function(e)
-		{
-			visualization.display(history, data);
-		});
+        return dataset; 
+    }
+    
+    visualization.display = function(history, data)
+    {
+        $("input#start_date").datepicker().on("changeDate", function(e)
+        {
+            visualization.display(history, data);
+        });
 
-		$("input#end_date").datepicker().on("changeDate", function(e)
-		{
-			visualization.display(history, data);
-		});
+        $("input#end_date").datepicker().on("changeDate", function(e)
+        {
+            visualization.display(history, data);
+        });
 
         var startDate = utils.startDate();
         var endDate = utils.endDate();
-		
-		var filteredData = utils.filterByDates(data, startDate, endDate); // TODO: Pull date from widgets...
-		
-		d3.selectAll("#viz_selector a").classed("active", false);
-		d3.select("#web_visit").classed("active", true);
-		vizSelected = "web_visit";
+        
+        var filteredData = utils.filterByDates(data, startDate, endDate); // TODO: Pull date from widgets...
+        
+        d3.selectAll("#viz_selector a").classed("active", false);
+        d3.select("#web_visit").classed("active", true);
+        vizSelected = "web_visit";
 
-		utils.clearVisualization();
-		utils.clearOptions();
-		
-		var dataset = visualization.compileData(filteredData);
-				
-		d3.select("#" + history.timeSelection).classed("active", true);
+        utils.clearVisualization();
+        utils.clearOptions();
+        
+        var dataset = visualization.compileData(filteredData);
+                
+        d3.select("#" + history.timeSelection).classed("active", true);
 
         var numDomains = utils.countUniqueProperty(data, "domain");
         
         d3.select("#title").append("h1").text("What websites do you visit?").attr("id", "viz_title");
         
-		d3.select("#title").append("h2").text(numDomains + " websites visited from " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY")).attr("id", "viz_subtitle");
+        d3.select("#title").append("h2").text(numDomains + " websites visited from " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY")).attr("id", "viz_subtitle");
         d3.select("#below_visual").append("p").text("A larger circle means that the website was visited more.").attr("id", "viz_p");
 
         var r = 960,
@@ -244,7 +244,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
             .text(function (d) {
                 return d.className.substring(0, d.r / 3);
             });
-	};
-	
-	return visualization;
+    };
+    
+    return visualization;
 });

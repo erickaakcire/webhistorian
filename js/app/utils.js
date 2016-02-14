@@ -1,5 +1,5 @@
 define(function() {
-	var utils = {};
+    var utils = {};
 
     utils.sortByProperty = function(data, sort) 
     {
@@ -13,9 +13,9 @@ define(function() {
             return 0;
         });
     }
-	
-	utils.countsOfProperty = function(data, property)
-	{
+    
+    utils.countsOfProperty = function(data, property)
+    {
         var valueCounts = {};
         
         for (var i = 0; i < data.length; i++) 
@@ -25,8 +25,8 @@ define(function() {
             var value = data[i][property];
             
             if (valueCounts[value] == undefined)
-            	valueCounts[value] = 0;
-            	
+                valueCounts[value] = 0;
+                
             valueCounts[value] += 1;
         }
         
@@ -34,20 +34,20 @@ define(function() {
         
         for (var key in valueCounts)
         {
-        	if (valueCounts.hasOwnProperty(key))
-        	{
+            if (valueCounts.hasOwnProperty(key))
+            {
                 counts.push({
-                	"counter": key,
-                	"count": valueCounts[key]
+                    "counter": key,
+                    "count": valueCounts[key]
                 });
-        	}
+            }
         }
         
         return counts;
-	};
-	
-	utils.countUniqueProperty = function(data, property) 
-	{
+    };
+    
+    utils.countUniqueProperty = function(data, property) 
+    {
         return utils.countsOfProperty(data, property).length;
     };
     
@@ -69,20 +69,20 @@ define(function() {
     {
         var filteredData = [];
 
-		var start = 0;
-		
-		if (startDate != null)
-			start = startDate.getTime();
-			
-		var end = Number.MAX_VALUE;
+        var start = 0;
+        
+        if (startDate != null)
+            start = startDate.getTime();
+            
+        var end = Number.MAX_VALUE;
 
-		if (endDate != null)
-			end = endDate.getTime();
-		
+        if (endDate != null)
+            end = endDate.getTime();
+        
         for (var i = 0; i < data.length; i++)
         {
-        	if (data[i].date < end && data[i].date > start)
-				filteredData.push(data[i]);
+            if (data[i].date < end && data[i].date > start)
+                filteredData.push(data[i]);
         }
         
         return filteredData;
@@ -107,7 +107,7 @@ define(function() {
                 recurse(node.name, child);
             });
             else 
-            	classes.push({packageName: name, className: node.name, value: node.size});
+                classes.push({packageName: name, className: node.name, value: node.size});
         }
 
         recurse(null, root);
@@ -117,19 +117,19 @@ define(function() {
     
     utils.startDate = function()
     {
-    	if ($("input#start_date").val() != null)
-    		return $("input#start_date").datepicker("getDate");
-    		
-    	return null;
+        if ($("input#start_date").val() != null)
+            return $("input#start_date").datepicker("getDate");
+            
+        return null;
     };
 
     utils.endDate = function()
     {
-    	if ($("input#end_date").val() != null)
-    		return $("input#end_date").datepicker("getDate");
-    		
-    	return null;
+        if ($("input#end_date").val() != null)
+            return $("input#end_date").datepicker("getDate");
+            
+        return null;
     };
     
-	return utils;
+    return utils;
 });
