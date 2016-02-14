@@ -3,7 +3,8 @@
   "name": "Web Historian - Web Browsing History Visualizations",
   "version": "0.0.2",
   "short_name": "Web Historian",
-  "description": "Web Historian helps you visualize the web browsing history that is already on your computer in a way you’ve never seen before.",
+  "description": "Web Historian - See your web browsing history in a new light",
+  "default_locale": "en",
   "permissions": [
     "history",
     "identity",
@@ -11,11 +12,11 @@
   ],
   "offline_enabled": true,
   "browser_action": {
-    "default_icon": "her48.png"
+    "default_icon": "star48.png"
   },
-  "icons": { "16": "her16.png",
-    "48": "her48.png",
-    "128": "her128.png" },
+  "icons": { "16": "star16.png",
+    "48": "star48.png",
+    "128": "star128.png" },
   "background": {
     "scripts": ["background.js"]
   }
