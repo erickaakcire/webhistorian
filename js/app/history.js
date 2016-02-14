@@ -19,8 +19,17 @@
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. 
  */
 
+
 //a function to contain the whole script
-function wrapper() {
+
+
+define(["spin", "moment"], function (Spinner, moment) 
+{
+	var history = {};
+    history.fullData = [];
+    history.timeSelection = "all";
+	
+//function wrapper() {
 	var startDate = null;
 	var endDate = null;
 
@@ -31,9 +40,8 @@ function wrapper() {
     var dateLimit = new Date(currDate.getTime());
     dateLimit.setDate(currDate.getDate() - 91);
     var dateForward = Infinity;
-    var timeSelection = "all";
+
     var vizSelected = null;
-    var fullData1 = [];
     var firstDate = "";
     var lastDate = "";
     var visualData = [];
@@ -138,8 +146,8 @@ function wrapper() {
     function transformData(data, callback, viz, callback2) {
         //original data has: url title id visitId referringVisitId visitTime transitionType
 
-        if (fullData1 != []) {
-            fullData1 = [];
+        if (history.fullData != []) {
+            history.fullData = [];
         }
 
 		var itemCount = data.length;
@@ -245,7 +253,7 @@ function wrapper() {
 						var searchTerms = dcSearchTerms.replace(/\+/g, " ");
 					}
 				}
-				fullData1.push({
+				history.fullData.push({
 					id: dataItem.visitId,
 					url: dataItem.url,
 					urlId: dataItem.id,
@@ -267,8 +275,8 @@ function wrapper() {
 				$("#transform_progress").width("100%");
 				$("#transform_progress").html("100%");
 
-				console.log("fullData1: ", fullData1.length);
-				visualData = fullData1;
+				console.log("fullData1: ", history.fullData.length);
+				visualData = history.fullData;
 				sortByProp(visualData,"date");
 				console.log("visualData: ", visualData.length);
 				callback2();
@@ -841,164 +849,6 @@ console.log("NETWORK 1.5");
         
     }
 
-    function webVisitData(data, callback) {
-        //hard coding categories for top accessed websites in the US and NL. Putting into a heierarchical object for visualization.
-        //need to implement regex matches and top domain matching esp. for blogs, education and governmnet...
-        //need to create a variable for category names and make loops
-        //var categories = ["adult", "banking", "blog", "education", "email", "government", "hard_news", "information", "search", "shopping", "social", "soft_news", "technology", "video"];
-        callFirstLastDate();
-        loadTime();
-        var domains = countSomething(data, "domain");
-
-        var adultA = [];
-        var bankingA = [];
-        var blogA = [];
-        var educationA = [];
-        var emailA = [];
-        var governmentA = [];
-        var hard_newsA = [];
-        var informationA = [];
-        var searchA = [];
-        var shoppingA = [];
-        var socialA = [];
-        var soft_newsA = [];
-        var technologyA = [];
-        var videoA = [];
-
-        var adult = ["pornhub.com", "xvideos.com", "xhamster.com", "xcams.com", "youporn.com"];
-        var banking = ["paypal.com", "chase.com", "bankofamerica.com", "wellsfargo.com", "capitalone.com", "ing.nl", "rabobank.nl", "abnamro.nl"];
-        var blog = ["wordpress.com", "blogspot.nl", "blogspot.com", "wordpress.org", "tumblr.com"];
-        var education = ["eur.nl", "ac.uk", ".edu"];
-        var email = ["live.com", "gmail.com", "mail.google.com", "inbox.google.com", "mailboxapp.com", "mail.yahoo.com"];
-        var government = ["belastingdienst.nl", ".gov"];//last
-        var hard_news = ["huffingtonpost.com", "geenstijl.nl", "nu.nl", "telegraaf.nl", "nos.nl", "nrc.nl", "cnn.com", "nytimes.com", "washingtonpost.com", "foxnews.com", "ad.nl", "volkskrant.nl"];
-        var information = ["wikipedia.org", "imdb.com"];
-        var search = ["www.google.nl", "bing.com", "baidu.com", "www.google.com", "search.yahoo.com", "duckduckgo.com"];
-        var shopping = ["amazon.com", "apple.com", "walmart.com", "etsy.com", "target.com", "marktplaats.nl", "bol.com", "bva-auctions.com", "aliexpress.com", "amazon.de", "ikea.com", "ebay.com", "ah.nl"];
-        var social = ["reddit.com", "tumblr.com", "blogspot.com", "facebook.com", "twitter.com", "linkedin.com", "t.co", "pinterest.com", "flickr.com", "imgur.com", "instagram.com"];
-        var soft_news = ["theonion.com", "vice.com", "diply.com", "espn.go.com", "buzzfeed.com", "bleacherreport.com", "dumpert.nl", "theladbible.com", "viralmundo.nl"];
-        var technology = ["stackoverflow.com", "slashdot.org", "github.com"];
-        var video = ["youtube.com", "netflix.com", "hulu.com", "kickass.to"];
-
-        var specified = [];
-        adult.forEach(function (a) {
-            specified.push(a);
-        });
-        banking.forEach(function (a) {
-            specified.push(a);
-        });
-        blog.forEach(function (a) {
-            specified.push(a);
-        });
-        education.forEach(function (a) {
-            specified.push(a);
-        });
-        email.forEach(function (a) {
-            specified.push(a);
-        });
-        government.forEach(function (a) {
-            specified.push(a);
-        });
-        hard_news.forEach(function (a) {
-            specified.push(a);
-        });
-        information.forEach(function (a) {
-            specified.push(a);
-        });
-        search.forEach(function (a) {
-            specified.push(a);
-        });
-        shopping.forEach(function (a) {
-            specified.push(a);
-        });
-        social.forEach(function (a) {
-            specified.push(a);
-        });
-        soft_news.forEach(function (a) {
-            specified.push(a);
-        });
-        technology.forEach(function (a) {
-            specified.push(a);
-        });
-        video.forEach(function (a) {
-            specified.push(a);
-        });
-
-        var otherA = [];
-
-        for (var i = 0; i < domains.length; i++) {
-            var domain = domains[i].counter;
-            var size = domains[i].count;
-            if (contains(specified, domain)) {
-                if (contains(adult, domain)) {
-                    adultA.push({name: domain, size: size});
-                }
-                if (contains(banking, domain)) {
-                    bankingA.push({name: domain, size: size});
-                }
-                if (contains(blog, domain)) {
-                    blogA.push({name: domain, size: size});
-                }
-                if (contains(education, domain)) {
-                    educationA.push({name: domain, size: size});
-                }
-                if (contains(email, domain)) {
-                    emailA.push({name: domain, size: size});
-                }
-                if (contains(government, domain)) {
-                    governmentA.push({name: domain, size: size});
-                }
-                if (contains(hard_news, domain)) {
-                    hard_newsA.push({name: domain, size: size});
-                }
-                if (contains(information, domain)) {
-                    informationA.push({name: domain, size: size});
-                }
-                if (contains(search, domain)) {
-                    searchA.push({name: domain, size: size});
-                }
-                if (contains(shopping, domain)) {
-                    shoppingA.push({name: domain, size: size});
-                }
-                if (contains(social, domain)) {
-                    socialA.push({name: domain, size: size});
-                }
-                if (contains(soft_news, domain)) {
-                    soft_newsA.push({name: domain, size: size});
-                }
-                if (contains(technology, domain)) {
-                    technologyA.push({name: domain, size: size});
-                }
-                if (contains(video, domain)) {
-                    videoA.push({name: domain, size: size});
-                }
-            }
-            else {
-                otherA.push({name: domain, size: size});
-            }
-        }
-        var dataset = ({
-            name: "Domains", children: [
-                {name: "Adult", children: adultA},
-                {name: "Banking", children: bankingA},
-                {name: "Blog", children: blogA},
-                {name: "Education", children: educationA},
-                {name: "Email", children: emailA},
-                {name: "Government", children: governmentA},
-                {name: "Hard News", children: hard_newsA},
-                {name: "Information", children: informationA},
-                {name: "Other", children: otherA},
-                {name: "Search", children: searchA},
-                {name: "Shopping", children: shoppingA},
-                {name: "Social", children: socialA},
-                {name: "Soft News", children: soft_newsA},
-                {name: "Technology", children: technologyA},
-                {name: "Video", children: videoA}
-            ]
-        });
-        callback(dataset);
-    }
-
     function submissionData(callback) {
         callFirstLastDate();
         loadTime();
@@ -1010,7 +860,7 @@ console.log("NETWORK 1.5");
         else {
             removals.push({timeRemoved: null, numUrls: 0, numVisits: 0});
         }
-        var finalData = {userId: userId, removed: removals, data: fullData1};
+        var finalData = {userId: userId, removed: removals, data: history.fullData};
 
         callback(finalData);
     }
@@ -1021,73 +871,12 @@ console.log("NETWORK 1.5");
         callback(data);
     }
 
-//Visualizations
-    function webVisitViz(data1) {
-        // Top Websites visual based on Bubble Chart http://bl.ocks.org/mbostock/4063269 by Mike Bostock and http://jsfiddle.net/xsafy/
-
-        d3.select("#" + timeSelection).classed("active", true);
-        listenTimeClick();
-        var json = data1;
-        var numDomains = -1; // countUnique(visualData, "domain");
-        d3.select("#title").append("h1").text("What websites do you visit?").attr("id", "viz_title");
-        d3.select("#title").append("h2").text(numDomains + " websites visited from: " + startDate + " to: " + endDate).attr("id", "viz_subtitle");
-        d3.select("#below_visual").append("p").text("A larger circle means that the website was visited more.").attr("id", "viz_p");
-
-        var r = 960,
-            format = d3.format(",d"),
-            fill = d3.scale.category20();
-
-        var bubble = d3.layout.pack()
-            .sort(null)
-            .size([r, r])
-            .padding(1.5);
-
-        var vis = d3.select("#" + divName).append("svg")
-            .attr("width", r)
-            .attr("height", r)
-            .attr("class", "bubble")
-            .attr("id", "visualization");
-
-
-        var node = vis.selectAll("g.node")
-            .data(bubble.nodes(classes(json))
-                .filter(function (d) {
-                    return !d.children;
-                }))
-            .enter().append("g")
-            .attr("class", "node")
-            .attr("transform", function (d) {
-                return "translate(" + d.x + "," + d.y + ")";
-            });
-
-        node.append("title")
-            .text(function (d) {
-                return d.className + ": " + format(d.value);
-            });
-
-        node.append("circle")
-            .attr("r", function (d) {
-                return d.r;
-            })
-            .style("fill", function (d) {
-                return fill(d.packageName);
-            });
-
-        node.append("text")
-            .attr("text-anchor", "middle")
-            .attr("dy", ".3em")
-            .text(function (d) {
-                return d.className.substring(0, d.r / 3);
-            });
-        rmLoad();
-    }
-
     function networkViz(links) {
         // Network visualization based on  http://www.d3noob.org/2013/03/d3js-force-directed-graph-example-basic.html and http://bl.ocks.org/mbostock/3750558
         // temporary labeling fix: if node has more than two edges (in or out) show label, otherwise hover for label
 
 console.log("NETWORK 1.4.1");
-        d3.select("#" + timeSelection).classed("active", true);
+        d3.select("#" + history.timeSelection).classed("active", true);
         listenTimeClick();
         var numSites = links.length + 1;
 
@@ -1350,7 +1139,7 @@ console.log("NETWORK 1.4.9");
         //searchWords text, size, allTerms
 
         listenTimeClick();
-        d3.select("#" + timeSelection).classed("active", true);
+        d3.select("#" + history.timeSelection).classed("active", true);
 
         d3.select("#title").append("h1").text("What are you looking for?").attr("id", "viz_title");
         d3.select("#title").append("h2").text(uniqueTerms.length + " unique search terms with " + data1.length + " unique words used from: " + firstDate + " to: " + lastDate);
@@ -1488,7 +1277,7 @@ console.log("NETWORK 1.4.9");
                 for (var i = 0; i < data.length; i++) {
                     if (document.getElementById("isSuppressed_" + i).checked) {
                         //get an array of objects, all of the URLs from a domain with their count
-                        var urlArray1 = getSuppressedUrl(fullData1, "domain", data[i].counter); //data[i].counter is the domain name
+                        var urlArray1 = getSuppressedUrl(history.fullData, "domain", data[i].counter); //data[i].counter is the domain name
                         removeHistory(urlArray1, true);
                         //get the array index of each url item that matches in visualData, vdi, then
                         urlArray1.forEach(function(a){
@@ -1813,7 +1602,7 @@ console.log("NETWORK 1.4.9");
             rmViz();
             rmOpt();
 //            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"search_words\">Search Words</a> <a id=\"network\">Network</a> <a id=\"data_table\">Data Table</a></p> <h3>Websites visited options: "+timePeriod);
-            webVisitData(filteredData, webVisitViz);
+//            webVisitData(filteredData, webVisitViz);
             visualizationSelection();
         }
         else if (viz_selection === "data_table") {
@@ -1826,7 +1615,7 @@ console.log("NETWORK 1.4.9");
     }
 
     function selectTime(time) {
-        timeSelection = time;
+        history.timeSelection = time;
         var d = new Date();
         var lowVal = 0;
 
@@ -1845,7 +1634,7 @@ console.log("NETWORK 1.4.9");
 
         var highVal = currDate.getTime();
 
-        visualData = onlyBetween(fullData1,"date",lowVal,highVal);
+        visualData = onlyBetween(history.fullData,"date",lowVal,highVal);
         selectViz(vizSelected);
         console.log("visualData: ",visualData.length);
     }
@@ -1890,9 +1679,9 @@ console.log("NETWORK 1.4.9");
                     var highVal = toD1.getTime();
                     console.log("highVal: ",highVal);
 
-                    visualData = onlyBetween(fullData1,"date",lowVal,highVal);
+                    visualData = onlyBetween(history.fullData,"date",lowVal,highVal);
                     selectViz(vizSelected);
-                    timeSelection = "choose";
+                    history.timeSelection = "choose";
                     d3.selectAll("#option_items a").classed("active", false);
                     d3.select("#choose").classed("active", true);
                     console.log("visualData: ",visualData.length);
@@ -1984,12 +1773,6 @@ function visualizationSelection() {
                 d3.select("#network").classed("active", true);
                 vizSelected = "network";
             });
-            $("#web_visit").click(function() {
-                selectViz("web_visit");
-                d3.selectAll("#viz_selector a").classed("active", false);
-                d3.select("#web_visit").classed("active", true);
-                vizSelected = "web_visit";
-            });
             $("#search_words").click(function() {
                 selectViz("search_words");
                 d3.selectAll("#viz_selector a").classed("active", false);
@@ -2068,14 +1851,14 @@ function visualizationSelection() {
 					}
 					else 
 					{
-						fullData1 = [];
-						fullData1 = root.data;
+						history.fullData = [];
+						history.fullData = root.data;
 						visualData = [];
 						visualData = root.data;
 						console.log("file load success");
-						console.log("fullData1: ",fullData1.length);
+						console.log("fullData1: ",history.fullData.length);
 						console.log("visualData: ",visualData.length);
-						timeSelection = "all";
+						history.timeSelection = "all";
 						selectViz(vizSelected);
 					}
 				});
@@ -2129,7 +1912,10 @@ function visualizationSelection() {
 					
 					chrome.identity.getProfileUserInfo(function(userInfo)
 					{
-						uploadPassiveData(CryptoJS.MD5(userInfo.email).toString(), bundles, 0, onProgress, onComplete);
+						requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
+						{
+							pdk.upload("http://historian.audacious-software.com/data/add-bundle.json", CryptoJS.MD5(userInfo.email).toString(), bundles, 0, onProgress, onComplete);
+						});					
 					});
 				});
 			});
@@ -2139,12 +1925,14 @@ function visualizationSelection() {
                 d3.selectAll("#viz_selector a").classed("active", false);
                 console.log("submit click if");
                 dateForward = Infinity;
-                timeSelection = "all";
+                history.timeSelection = "all";
                 submissionData(submitViz);
             });
 
 			visualizationSelection();
         });
     });
-}
-wrapper();
+
+	return history;
+});
+//wrapper();
