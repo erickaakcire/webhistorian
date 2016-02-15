@@ -1,6 +1,6 @@
 define(["../app/utils", "moment"], function(utils, moment) {
     var visualization = {};
-    
+
     visualization.compileData = function(data)
     {
         //hard coding categories for top accessed websites in the US and NL. Putting into a heierarchical object for visualization.
@@ -160,7 +160,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
         });
         
         return dataset; 
-    }
+    };
     
     visualization.display = function(history, data)
     {
@@ -177,7 +177,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
         var startDate = utils.startDate();
         var endDate = utils.endDate();
         
-        var filteredData = utils.filterByDates(data, startDate, endDate); // TODO: Pull date from widgets...
+        var filteredData = utils.filterByDates(data, startDate, endDate);
         
         d3.selectAll("#viz_selector a").classed("active", false);
         d3.select("#web_visit").classed("active", true);

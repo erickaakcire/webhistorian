@@ -28,6 +28,8 @@ define(["spin", "moment"], function (Spinner, moment)
 	var history = {};
     history.fullData = [];
     history.timeSelection = "all";
+    history.earliestTimestamp = Number.MAX_VALUE;
+    history.latestTimestamp = Number.MIN_VALUE;
 	
 //function wrapper() {
 	var startDate = null;
@@ -49,17 +51,12 @@ define(["spin", "moment"], function (Spinner, moment)
 
 //Getting data from Chrome History & creating the base dataset
     function getUrls(callback, viz, callback2) {
-        console.log("1");
 //        loadTime();
-        
-        console.log("2");
         // get all urls from history for the specified time period (startTime)
         var end = currDate.getTime();
         if (dateForward != Infinity) {
             end = dateForward;
         }
-
-        console.log("3");
 
         chrome.history.search({
                 'text': '',
@@ -68,7 +65,6 @@ define(["spin", "moment"], function (Spinner, moment)
                 //, 'endTime': end //not working
             },
             function (historyItems) {
-	        console.log("4");
                 //list of hostnames
                 urlArray = [];
                 for (var i = 0; i < historyItems.length; ++i) {
@@ -83,7 +79,6 @@ define(["spin", "moment"], function (Spinner, moment)
                 var results = [];
                 getVisitData(urlArray, results, callback, viz, callback2);
             });
-        console.log("3.5");
     }
 
     function getVisitData(data, results, callback, viz, callback2) 
@@ -124,6 +119,12 @@ define(["spin", "moment"], function (Spinner, moment)
                             transitionType: visit.transition
                         });
                         
+						if (visit.visitTime < history.earliestTimestamp)
+							history.earliestTimestamp = visit.visitTime;
+
+						if (visit.visitTime > history.latestTimestamp)
+							history.latestTimestamp = visit.visitTime;
+                        
                         ids.push({id: visit.id});
                     }
                 });
@@ -136,6 +137,12 @@ define(["spin", "moment"], function (Spinner, moment)
 					$("#visit_progress").html("100%");
 					
                     transformData(results, callback, viz, callback2);
+
+					console.log("EARLY: " + history.earliestTimestamp);
+					console.log("LATE: " + history.latestTimestamp);
+				
+					$("input#start_date").datepicker("setDate", new Date(history.earliestTimestamp));
+					$("input#end_date").datepicker("setDate", new Date(history.latestTimestamp));
                 }
 			});		
 		};
@@ -289,11 +296,6 @@ define(["spin", "moment"], function (Spinner, moment)
 		window.setTimeout(transformDataItem, 0);
     }
 
-//Data wrangling
-    function callFirstLastDate(){
-        firstDate = setFirstDate(visualData);
-        lastDate = setLastDate(visualData);
-    }
     function findIndexByKeyValue(arrayToSearch, key, valueToSearch) {
         for (var i = 0; i < arrayToSearch.length; i++) {
             var item = arrayToSearch[i][key];
@@ -312,93 +314,6 @@ define(["spin", "moment"], function (Spinner, moment)
             }
         }
         return indexArray;
-    }
-
-    function contains(a, obj) {
-        for (var i = 0; i < a.length; i++) {
-            if (a[i] === obj) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    function termArrayFun(dataSearch) {
-        var termArray = [];
-        for (var i = 0; i < dataSearch.length; i++) {
-            var dataItem = dataSearch[i];
-            var terms = dataItem.searchTerms;
-            var domain = dataItem.domain;
-
-            if (terms != "undefined" && terms != null) {
-                termArray.push({term: terms, domain: domain});
-            }
-        }
-        return termArray;
-    }
-
-    function uniqueCount(data, key) {
-        var countTerms = 1;
-        var uniqueTerms = [];
-        var term = key;
-
-        for (i = 0; i < data.length; i++) {
-            var thisTerm = data[i].term;
-            var prevTerm = "";
-            if (i > 0) {
-                prevTerm = data[i - 1].term;
-            }
-
-            if (thisTerm === prevTerm) {
-                countTerms++;
-            }
-            else {
-                uniqueTerms.push({term: thisTerm, value: countTerms});
-            }
-        }
-        return uniqueTerms;
-    }
-
-    function searchWordsFun(words, terms) {
-        var countWords = 1;
-        var sortedAllWords = words;
-        var uniqueTerms = terms;
-        var searchTermContext = [];
-        var searchWords = [];
-        maxCount = 0;
-
-        for (i = 0; i < sortedAllWords.length; i++) {
-            var thisWord = sortedAllWords[i].word;
-            var thisTermId = sortedAllWords[i].termId;
-            var thisTerm = "";
-            if (uniqueTerms[thisTermId - 1].term) {
-                thisTerm = uniqueTerms[thisTermId - 1].term;
-            }
-            var nextWord = "";
-            var nextTermId = "";
-            if (i < sortedAllWords.length - 1) {
-                nextWord = sortedAllWords[i + 1].word;
-                nextTermId = sortedAllWords[i + 1].termId;
-            }
-
-            if (nextTermId === thisTermId) {
-            }
-            else if (thisWord === nextWord) {
-                countWords++;
-                searchTermContext.push(" " + thisTerm);
-            }
-            else {
-                searchTermContext.push(" " + thisTerm);
-                var stc = searchTermContext.toString();
-                searchWords.push({text: thisWord, size: countWords, allTerms: stc});
-                if (countWords > maxCount) {
-                    maxCount = countWords;
-                }
-                countWords = 1;
-                searchTermContext = [];
-            }
-        }
-        return searchWords;
     }
 
     function getSuppressedUrl(data, key, value) {
@@ -445,7 +360,7 @@ define(["spin", "moment"], function (Spinner, moment)
             storeRemovalData(removalRecord);
         }
         getUrls(noTransform, noViz, function() {
-            selectViz(vizSelected);
+
         });
     }
 
@@ -481,54 +396,6 @@ define(["spin", "moment"], function (Spinner, moment)
         return data;
     }
 
-    function onlyIf(array, property, value, notValue) {
-        //returns an array with only the property value specified, or only not that value (true/false)
-        var data = [];
-        for (i = 0; i < array.length; i++) {
-            var dataItem = array[i];
-            var prop = array[i][property];
-            if (notValue === true) {
-                if (prop === value) {
-                    //nothing
-                }
-                else {
-                    data.push(dataItem);
-                }
-            }
-            else if (notValue === false) {
-                if (prop === value) {
-                    data.push(dataItem);
-                }
-                else {
-                    //nothing
-                }
-            }
-            else {
-                console.log("Error in onlyIf function, should the value be absent - notValue === true, or present, notValue === false");
-            }
-        }
-        return data;
-    }
-
-    function classes(root) {
-        //for webVisitViz to flatten heierarchy
-        var classes = [];
-
-        function recurse(name, node) {
-            if (node.children) node.children.forEach(function (child) {
-                recurse(node.name, child);
-            });
-            else classes.push({packageName: name, className: node.name, value: node.size});
-        }
-
-        recurse(null, root);
-        return {children: classes};
-    }
-
-    function log10(val) {
-        return val / Math.LN10;
-    }
-
     function countSomething(data, countIt) {
         //count a property value of an object, return array with unique property values (counter), and count of that value (count)
         countArray = [];
@@ -550,46 +417,6 @@ define(["spin", "moment"], function (Spinner, moment)
             }
         }
         return countArray;
-    }
-
-    function countUnique(data, countIt) {
-        //count a property value of an object, return number of unique values in that property
-        countU = 0;
-        var sorted = sortByProp(data, countIt);
-        for (var i = 0; i < sorted.length; i++) {
-            var dataItem = sorted[i];
-            var countThing = sorted[i][countIt];
-            var nextCountThing = "";
-            if (i < sorted.length - 1) {
-                nextCountThing = sorted[i + 1][countIt];
-            }
-            if (countThing === nextCountThing) {
-                //nothing
-            }
-            else {
-                countU++;
-            }
-        }
-        return countU;
-    }
-
-    function uniqueValues(obj, prop) {
-        //return an array with the unique values of an object property - maybe add a count
-        uValues = [];
-        var sorted = sortByProp(obj, prop);
-
-        sorted.forEach(function (a, b) {
-            var propValue = a[prop];
-            var nextPropValue = b[prop];
-            if (propValue === nextPropValue) {
-                //nothing
-            }
-            else {
-                uValues.push();
-            }
-        });
-        console.log(uValues);
-        return uValues;
     }
 
     function lowHighNum(objArr, prop, low) {
@@ -616,39 +443,6 @@ define(["spin", "moment"], function (Spinner, moment)
         }
     }
 
-    function setFirstDate(dataset) {
-        var first = lowHighNum(dataset, "date", true);
-        var firstD = new Date(first);
-        firstDa = firstD.toDateString();
-        return firstDa;
-    }
-
-    function setLastDate(dataset) {
-        var last = lowHighNum(dataset, "date", false);
-        var lastD = new Date(last);
-        lastDa = lastD.toDateString();
-        return lastDa;
-    }
-
-    function lengthInUtf8Bytes(str) {
-        // Matches only the 10.. bytes that are non-initial characters in a multi-byte sequence.
-        var m = encodeURIComponent(str).match(/%[89ABab]/g);
-        return str.length + (m ? m.length : 0);
-    }
-
-//Sorting
-    function dynamicSort(property) {
-        var sortOrder = 1;
-        if (property[0] === "-") {
-            sortOrder = -1;
-            property = property.substr(1);
-        }
-        return function (a, b) {
-            var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-            return result * sortOrder;
-        };
-    }
-
     function sortByProp(data, sort) {
         loadTime();
         var sorted = data.sort(function (a, b) {
@@ -673,42 +467,9 @@ define(["spin", "moment"], function (Spinner, moment)
         return sorted;
     }
 
-    function compare(a, b) {
-        if (a.sort < b.sort)
-            return -1;
-        if (a.sort > b.sort)
-            return 1;
-        return 0;
-    }
-
-    function compareSW(a, b) {
-        if (a.term < b.term)
-            return -1;
-        if (a.term > b.term)
-            return 1;
-        return 0;
-    }
-
-    function compareSwords(a, b) {
-        if (a.word < b.word)
-            return -1;
-        if (a.word > b.word)
-            return 1;
-        return 0;
-    }
-
-    function compareD(a, b) {
-        if (a.domain < b.domain)
-            return -1;
-        if (a.domain > b.domain)
-            return 1;
-        return 0;
-    }
-
 //Passing data to visualizations
     function timeLineData(data, callback) {
         //fullData1: id, url, urlId, protocol, domain, topDomain, searchTerms, date, transType, refVisitId, title
-        callFirstLastDate();
         var timeLine = [];
         var dates = [];
         for (var i = 0; i < data.length; i++) {
@@ -723,134 +484,7 @@ define(["spin", "moment"], function (Spinner, moment)
         callback(timeLine);
     }
 
-    function dataTableData(data, callback) {
-        //fullData1: id, url, urlId, protocol, domain, topDomain, searchTerms, date, transType, refVisitId, title
-        callFirstLastDate();
-        loadTime();
-        dtData = countSomething(data, "domain");
-        callback(dtData, data);
-    }
-
-    function searchWordsData(dataSearch, callback) {
-        callFirstLastDate();
-        loadTime();
-        var allSearchWords = [];
-        var countUniqueTerms = 1;
-        var termArray = termArrayFun(dataSearch);
-        //arrays for search words data prep
-        // stop words to filter from word cloud - From Jonathan Feinberg's cue.language, see lib/cue.language/license.txt.
-        var stopWords = /^(i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|i'm|you're|he's|she's|it's|we're|they're|i've|you've|we've|they've|i'd|you'd|he'd|she'd|we'd|they'd|i'll|you'll|he'll|she'll|we'll|they'll|isn't|aren't|wasn't|weren't|hasn't|haven't|hadn't|doesn't|don't|didn't|won't|wouldn't|shan't|shouldn't|can't|cannot|couldn't|mustn't|let's|that's|who's|what's|here's|there's|when's|where's|why's|how's|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall)$/;
-
-        var sortedTerms = termArray.sort(compareSW);
-
-        uniqueTerms = uniqueCount(sortedTerms, "term");
-
-        var maxWords = 0;
-
-        for (i = 0; i < uniqueTerms.length; i++) {
-            var thisTerm = uniqueTerms[i].term;
-            var punctuationless = thisTerm.replace(/[\"\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "");
-            var thisTermNoPunct = punctuationless.replace(/\s{2,}/g, " ");
-            var words = thisTermNoPunct.split(" ");
-            var countWords = words.length;
-            if (countWords > maxWords) {
-                maxWords = countWords;
-            }
-            for (var j = 0; j < words.length; j++) {
-                if (stopWords.test(words[j].toLowerCase()) === false) {
-                    allSearchWords.push({word: words[j].toLowerCase(), termId: countUniqueTerms});
-                }
-            }
-            countUniqueTerms++;
-        }
-
-        var sortedAllWords = allSearchWords.sort(compareSwords);
-
-        var searchWords = searchWordsFun(sortedAllWords, uniqueTerms);
-
-        callback(searchWords, maxWords);
-
-    }
-
-    function networkData(fullData, callback) {
-
-console.log("NETWORK 1.0");
-
-        callFirstLastDate();
-        loadTime();
-        var allEdges = [];
-        var uniqueEdges = [];
-        var edgeList = [];
-        var sorted = [];
-
-console.log("NETWORK 1.1 --> " + fullData.length);
-
-		var idMap = {};
-
-        for (var i = 0; i < fullData.length; i++) {
-            var dataItem = fullData[i];
-            var refId = dataItem.refVisitId;
-            
-            idMap[refId] = i;
-		}
-
-        for (var i = 0; i < fullData.length; i++) {
-            var dataItem = fullData[i];
-            var refId = dataItem.refVisitId;
-            var id = dataItem.id;
-            var domain = dataItem.domain;
-            var protocol = dataItem.protocol;
-            var transition = dataItem.transType;
-            var refIdInd = idMap[refId]; // findIndexByKeyValue(fullData, "id", refId);
-
-            if (refIdInd !== null && refId !== 0) {
-                var refDomain = fullData[refIdInd].domain;
-                var refProtocol = fullData[refIdInd].protocol;
-                if (domain != refDomain && refDomain != null && refDomain != "" && domain != "" && domain != null) {
-                    allEdges.push({sort: refDomain + domain, source: refDomain, target: domain});
-                }
-            }
-        }
-        
-console.log("NETWORK 1.2");
-        
-
-        sorted = allEdges.sort(compare);
-        totalLinks = allEdges.length + 1;
-
-        var countEdges = 1;
-
-console.log("NETWORK 1.3");
-
-        for (var j = 0; j < sorted.length; j++) {
-            var sortedItem = sorted[j];
-            var countThing = sorted[j].sort;
-            var sourceItem = sorted[j].source;
-            var targetItem = sorted[j].target;
-            var nextCountThing = "";
-            if (j < sorted.length - 1) {
-                nextCountThing = sorted[j + 1].sort;
-            }
-            if (countThing === nextCountThing) {
-                countEdges++;
-            }
-            else {
-                edgeList.push({source: sourceItem, target: targetItem, value: countEdges});
-                //console.log(sourceItem, targetItem, countEdges);
-                countEdges = 1;
-            }
-        }
-
-console.log("NETWORK 1.4");
-
-        callback(edgeList);
-
-console.log("NETWORK 1.5");
-        
-    }
-
     function submissionData(callback) {
-        callFirstLastDate();
         loadTime();
         var userId = chrome.runtime.id;
         var removals = [];
@@ -866,153 +500,10 @@ console.log("NETWORK 1.5");
     }
 
     function noTransform(data, callback) {
-        callFirstLastDate();
         loadTime();
         callback(data);
     }
 
-    function networkViz(links) {
-        // Network visualization based on  http://www.d3noob.org/2013/03/d3js-force-directed-graph-example-basic.html and http://bl.ocks.org/mbostock/3750558
-        // temporary labeling fix: if node has more than two edges (in or out) show label, otherwise hover for label
-
-console.log("NETWORK 1.4.1");
-        d3.select("#" + history.timeSelection).classed("active", true);
-        listenTimeClick();
-        var numSites = links.length + 1;
-
-        d3.select("#title").append("h1").text("How did you get there?").attr("id", "viz_title");
-        d3.select("#title").append("h2").text(totalLinks + " links between " + numSites + " websites from: " + firstDate + " to: " + lastDate);
-        d3.select("#below_visual").append("p").text("This is a network based on how you navigate to the websites you visit. There is a link between two websites if you click on a link from one to the other. Drag to move websites to a fixed position. Double click to release the dragged website back to the normal layout.").attr("id", "viz_p");
-
-console.log("NETWORK 1.4.2");
-
-        var nodes = {};
-        var edgesMaxValue = 0;
-
-        // Compute the distinct nodes from the links.
-        links.forEach(function (link) {
-            link.source = nodes[link.source] ||
-            (nodes[link.source] = {name: link.source});
-            link.target = nodes[link.target] ||
-            (nodes[link.target] = {name: link.target});
-            link.value = +link.value;
-            if (edgesMaxValue < link.value) {
-                edgesMaxValue = link.value;
-            }
-        });
-
-console.log("NETWORK 1.4.3");
-
-        var width = 960;
-        height = 500;
-
-        var force = d3.layout.force()
-            .nodes(d3.values(nodes))
-            .links(links)
-            .size([width, height])
-            .linkDistance(40)
-            .charge(-100)
-            .on("tick", tick)
-            .start();
-
-console.log("NETWORK 1.4.4");
-
-        var svg = d3.select("#" + divName).append("svg")
-            .attr("width", width)
-            .attr("height", height)
-            .attr("id", "visualization");
-
-        var drag = force.drag().on("dragstart", dragstart);
-
-        function dblclick(d) {
-            d3.select(this).classed("fixed", d.fixed = false);
-        }
-
-        function dragstart(d) {
-            d3.select(this).classed("fixed", d.fixed = true);
-        }
-
-console.log("NETWORK 1.4.5");
-
-        // build the arrow.
-        svg.append("svg:defs").selectAll("marker")
-            .data(["end"])      // Different link/path types can be defined here
-            .enter().append("svg:marker")    // This section adds in the arrows
-            .attr("id", String)
-            .attr("viewBox", "0 -5 10 10")
-            .attr("refX", 17)
-            .attr("refY", -1.5)
-            .attr("markerWidth", 5)
-            .attr("markerHeight", 5)
-            .attr("orient", "auto")
-            .attr("class", "marker")
-            .append("svg:path")
-            .attr("d", "M0,-5L10,0L0,5");
-
-        // add the links and the arrows
-        var path = svg.append("svg:g").selectAll("path")
-            .data(force.links())
-            .enter().append("svg:path")
-            .style("userSpaceOnUse", 1.5)
-            //function(d,i){ return links[i].value/(edgesMaxValue/5);}
-            //    .attr("class", function(d) { return "link " + d.type; })
-            .attr("class", "link")
-            .attr("marker-end", "url(#end)");
-
-console.log("NETWORK 1.4.6");
-
-        // define the nodes
-        var node = svg.selectAll(".node")
-            .data(force.nodes())
-            .enter().append("g")
-            .attr("class", "node")
-            //.call(force.drag);
-            .on("dblclick", dblclick)
-            .call(drag);
-
-        // add the nodes
-        node.append("circle")
-            .attr("r", 5)
-            .attr("class", "network");
-        //replace 5 with function(d, i) { return d.weight * 4;}
-
-        // add the text
-        node.append("text")
-            .attr("x", 12)
-            .attr("dy", ".35em")
-            .text(function (d) {
-                return d.name;
-            });
-
-console.log("NETWORK 1.4.7");
-
-        // add the curvy lines
-        function tick() {
-            path.attr("d", function (d) {
-                var dx = d.target.x - d.source.x,
-                    dy = d.target.y - d.source.y,
-                    dr = Math.sqrt(dx * dx + dy * dy);
-                return "M" +
-                    d.source.x + "," +
-                    d.source.y + "A" +
-                    dr + "," + dr + " 0 0,1 " +
-                    d.target.x + "," +
-                    d.target.y;
-            });
-
-            node
-                .attr("transform", function (d) {
-                    return "translate(" + d.x + "," + d.y + ")";
-                });
-        }
-
-console.log("NETWORK 1.4.8");
-
-        rmLoad();
-
-console.log("NETWORK 1.4.9");
-
-    }
 
     function timeLineViz(dataset) {
         // based on Mike Bostock's example: http://bl.ocks.org/mbostock/1667367
@@ -1134,339 +625,6 @@ console.log("NETWORK 1.4.9");
         rmLoad();
     }
 
-    function searchWordsViz(data1, maximum) {
-        // Search Words word cloud visulization based on work by Jason Davies
-        //searchWords text, size, allTerms
-
-        listenTimeClick();
-        d3.select("#" + history.timeSelection).classed("active", true);
-
-        d3.select("#title").append("h1").text("What are you looking for?").attr("id", "viz_title");
-        d3.select("#title").append("h2").text(uniqueTerms.length + " unique search terms with " + data1.length + " unique words used from: " + firstDate + " to: " + lastDate);
-        d3.select("#below_visual").append("p").text("This is a cloud of the words you have used to search the web. The larger words were used in a greater number of different searches. Hover your mouse over each word for a tool-tip that shows all of the search terms where the word was used.").attr("id", "viz_p");
-
-        //<p><label>Download:</label><a id="download-svg" href="#" target="_blank">SVG</a> |<a id="download-png" href="#" target="_blank">PNG</a>
-
-        var fill = d3.scale.category20();
-        d3.layout.cloud().size([960, 500])
-            .words(data1)
-            .padding(5)
-            .rotate(function () {
-                return 0;
-            })
-            .font("Impact")
-            .fontSize(function (d) {
-                var fontSizeCalc = d.size / maxCount;
-                return log10(fontSizeCalc * 140) * 2;
-            })
-            //.fontSize(function(d) { return d.size * 20 })
-            .on("end", draw)
-            .start();
-        function draw(words) {
-            d3.select("#" + divName).append("svg")
-                .attr("width", 960)
-                .attr("height", 500)
-                .attr("id", "visualization")
-                .append("g")
-                .attr("transform", "translate(480,250)")
-                .selectAll("text")
-                .data(words)
-                .enter().append("text")
-                .style("font-size", function (d) {
-                    return d.size + "px";
-                })
-                .style("font-family", "Impact")
-                .style("fill", function (d, i) {
-                    return fill(i);
-                })
-                .attr("text-anchor", "middle")
-                .attr("transform", function (d) {
-                    return "translate(" + [d.x, d.y] + ")rotate(" + d.rotate + ")";
-                })
-                .text(function (d) {
-                    return d.text;
-                })
-                .append("svg:title")
-                .text(function (d) {
-                    return d.allTerms;
-                });
-        }
-
-        rmLoad();
-    }
-
-    function dataTableViz(data, fulldata) {
-        $("#option_items").append("<div id = \"options\"><h3>Data Table Options</h3><a id=\"day\">Website Domains Data</a><a id=\"week\">Search Term Data</a><a id=\"all\">All Visits</a></div>");
-
-        //default
-        d3.select("#day").classed("active", true);
-
-        rmViz();
-        loadTime();
-        buildDomainTable(data);
-
-
-        document.getElementById('day').addEventListener('click', function () {
-            if (d3.select("#day").classed("active", false)) {
-                d3.select("#day").classed("active", true);
-            }
-            if (d3.select("#week").classed("active", true)) {
-                d3.select("#week").classed("active", false);
-            }
-            if (d3.select("#all").classed("active", true)) {
-                d3.select("#all").classed("active", false);
-            }
-            rmViz();
-            rmOpt();
-            loadTime();
-            buildDomainTable(data);
-        });
-
-        document.getElementById('week').addEventListener('click', function () {
-            if (d3.select("#day").classed("active", true)) {
-                d3.select("#day").classed("active", false);
-            }
-            if (d3.select("#week").classed("active", false)) {
-                d3.select("#week").classed("active", true);
-            }
-            if (d3.select("#all").classed("active", true)) {
-                d3.select("#all").classed("active", false);
-            }
-            rmViz();
-            loadTime();
-            dtChoice = 0;
-            buildHistoryTable(fulldata);
-        });
-
-        document.getElementById('all').addEventListener('click', function () {
-            //rmViz();//not working at the right time, yet gets removed anyway
-            //console.log("rmViz");
-            if (d3.select("#day").classed("active", true)) {
-                d3.select("#day").classed("active", false);
-            }
-            if (d3.select("#week").classed("active", true)) {
-                d3.select("#week").classed("active", false);
-            }
-            if (d3.select("#all").classed("active", false)) {
-                d3.select("#all").classed("active", true);
-            }
-
-            dtChoice = 1;
-            loadTime();//not working
-            buildHistoryTable(fulldata);
-        });
-
-        // allow table to export as .TSV - tab separated values: file http://stackoverflow.com/questions/14964035/how-to-export-javascript-array-info-to-csv-on-client-side
-    }
-
-    function buildDomainTable(dataset) {
-        //localStorage.removeItem("removals"); // clears local storage of removals, for debugging
-        if (document.getElementById('domain_visualization')) {
-            rmViz();
-            rmOpt();
-            $("#option_items").append("<div id = \"options\"><h3>Data Table Options</h3><a id=\"day\">Website Domains Data</a><a id=\"week\">Search Term Data</a><a id=\"all\">All Visits</a></div>");
-            d3.select("#day").classed("active", true);
-        }
-        d3.select("#title").append("h1").text("Data Table");
-        d3.select("#title").append("h2").text(dataset.length + " Websites visited from: " + firstDate + " to: " + lastDate).attr("id", "viz_title");
-        d3.select("#title").append("button").text("Remove Checked Domains from History").attr("id", "remove");
-        d3.select("#title").append("p").text("To view and/or remove search terms choose the Search Term Data option above. To view each visit to each website as a separate record choose All Visits.").attr("id", "visit");
-
-        document.getElementById('remove').addEventListener('click', function () {
-            if (confirm('Do you want to remove all visits to the checked domain(s) from your browser history FOREVER?')) {
-                for (var i = 0; i < data.length; i++) {
-                    if (document.getElementById("isSuppressed_" + i).checked) {
-                        //get an array of objects, all of the URLs from a domain with their count
-                        var urlArray1 = getSuppressedUrl(history.fullData, "domain", data[i].counter); //data[i].counter is the domain name
-                        removeHistory(urlArray1, true);
-                        //get the array index of each url item that matches in visualData, vdi, then
-                        urlArray1.forEach(function(a){
-                            var vdi = findIndexArrByKeyValue(visualData,url,a);
-                            if (vdi) {
-                                console.log("visualDataPre",visualData.length);
-                                visualData.splice(vdi,1);
-                                console.log("visualDataPost",visualData.length);
-                            }
-                        });
-
-                    }
-                }
-                selectViz("data_table");//reload with revised data?
-                d3.select("#title").append("h3").text("Deleted selected information from browser history.").attr("id", "removed");
-            }
-        });
-
-//        var data = dataset.sort(dynamicSort("counter"));
-
-        //build table
-        var table = document.createElement('table');
-//        table.style.border = "1px solid #ccc";
-        table.id = "domain_visualization";
-
-        document.getElementById(divName).appendChild(table);
-        
-        console.log('DATA: ' + JSON.stringify(dataset, 2) + ' :DATA');
-        
-        var tableData = [];
-        
-        for (var i = 0; i < dataset.length; i++)
-        {
-        	var dataObj = {};
-        	dataObj['remove'] = dataset[i]['counter'];
-        	dataObj['domain'] = dataset[i]['counter'];
-        	dataObj['visits'] = dataset[i]['count'];
-        	
-        	tableData.push(dataObj);
-        }
-
-		$('table#domain_visualization').bootstrapTable({
-			columns: [{
-				field: 'remove',
-				title: 'Remove',
-				checkbox: true,
-				sortable: false
-			}, {
-				field: 'visits',
-				title: 'Visits',
-				sortable: true
-			}, {
-				field: 'domain',
-				title: 'Domain',
-				sortable: true
-			}],
-			data: tableData,
-			striped: true,
-			pagination: true,
-			search: true,
-			sortable: true
-		});
-        
-        rmLoad();
-    }
-
-    function buildHistoryTable(dataset) {
-        rmViz();
-        console.log("rmViz");
-        loadTime();
-        console.log("spin not showing up");
-
-        var headSearchTerms = "<b>Search Terms</b>";
-        var headDate = "<b>Date</b>";
-
-        //fullData1: id, url, urlId, protocol, domain, topDomain, searchTerms, date, transType, refVisitId, title
-        if (dtChoice === 0) {
-            dataST = onlyIf(dataset, "searchTerms", "", true);
-            data = sortByProp(dataST, "searchTerms");
-            d3.select("#title").append("h1").text("Data Table: Search Terms");
-            headSearchTerms = "<b>Search Terms <span style=\"color:red\">&laquo;</span></b>";
-        }
-        else if (dtChoice === 1) {
-            data = sortByPropRev(dataset, "date");
-            d3.select("#title").append("h1").text("Data Table: All Visits");
-            headDate = "<b>Date <span style=\"color:red\">&laquo;</span></b>";
-        }
-
-        d3.select("#title").append("h2").text(data.length + " records from: " + firstDate + " to: " + lastDate).attr("id", "viz_title");
-        d3.select("#title").append("button").text("Remove Checked Items from History").attr("id", "remove");
-        $('#title').append("<div id=\"visit\"><p>Press &#8984;F (mac) or Ctrl+F (windows) to search this table.</p></div>");
-
-        document.getElementById('remove').addEventListener('click', function () {
-            if (confirm('Do you want to permanently remove all checked items from your browser history?')) {
-                for (var i = 0; i < data.length; i++) {
-                    if (document.getElementById("isSuppressed_" + i).checked) {
-                        var url = data[i].url;
-                        var urlInd = findIndexByKeyValue(urlArray, "url", url);
-                        var vc = urlArray[urlInd].vc;
-                        var obj1 = {url: url, visitCount: vc};
-                        removeHistory(obj1, false);
-                    }
-                }
-                selectViz("data_table", true);
-                d3.select("#title").append("h3").text("Removed checked information from browser history.").attr("id", "removed");
-            }
-        });
-
-        document.getElementById('day').addEventListener('click', function () {
-            dataTableData(dataset, dataTableViz);
-        });
-
-        //build table
-        var table = document.createElement('table');
-        table.id = "search_visualization";
-        document.getElementById(divName).appendChild(table);
-        
-        var tableData = [];
-
-        for (var i = 0; i < data.length; ++i) {
-            var row = {};
-            
-            var d = new Date(data[i].date);
-            
-            row['remove'] = "isSuppressed_" + i;
-            row['domain'] = data[i].domain;
-            row['date'] = "<span style='display: none;'>" + d.toISOString() + "</span>" + d;
-            row['terms'] = data[i].searchTerms;
-            row['id'] = data[i].id;
-            row['reference_id'] = data[i].refVisitId;
-            row['transition'] = data[i].transType;
-            row['url'] = data[i].url;
-            row['title'] = data[i].title;
-            
-            tableData.push(row);
-        }
-
-		$('table#search_visualization').bootstrapTable({
-			columns: [{
-				field: 'remove',
-				title: 'Remove',
-				checkbox: true,
-				sortable: false
-			}, {
-				field: 'domain',
-				title: 'Domain',
-				sortable: true
-			}, {
-				field: 'date',
-				title: 'Date',
-				sortable: true
-			}, {
-				field: 'terms',
-				title: 'Search Terms',
-				sortable: true
-			}, {
-				field: 'id',
-				title: 'ID',
-				sortable: true
-			}, {
-				field: 'reference_id',
-				title: 'Reference ID',
-				sortable: true
-			}, {
-				field: 'transition',
-				title: 'Transition',
-				sortable: true
-			}, {
-				field: 'url',
-				title: 'URL',
-				sortable: true
-			}, {
-				field: 'title',
-				title: 'Title',
-				sortable: true
-			}],
-			data: tableData,
-			striped: true,
-			pagination: true,
-			search: true,
-			sortable: true
-		});
-
-
-        rmLoad();
-
-        $('table#visualization').bootstrapTable();
-    }
-
     function submitViz(data) {
         console.log("submitViz");
         rmViz();
@@ -1553,67 +711,6 @@ console.log("NETWORK 1.4.9");
         rmLoad();
     }
 
-//Interface
-    function selectViz(viz_selection) {
-        console.log('DATA: ' + JSON.stringify(visualData[0], 2) + ' :ATAD');    
-    
-        var timePeriod = "Time Period</h3><a id=\"day\">One day</a><a id=\"week\">One week</a><a id=\"month\">One month</a><a id=\"all\">All available</a><a id=\"choose\">Choose Time</a></div>";
-        
-        var filteredData = [];
-
-		var start = 0;
-		
-		if (startDate != null)
-			start = startDate.getTime();
-			
-		var end = Number.MAX_VALUE;
-
-		if (endDate != null)
-			end = endDate.getTime();
-		
-        for (var i = 0; i < visualData.length; i++)
-        {
-            if (i % 1000 == 0)
-            	console.log(visualData[i].date + " >? " + start);
-            	
-        	if (visualData[i].date < end && visualData[i].date > start)
-				filteredData.push(visualData[i]);
-        }
-        
-        console.log('FILTERED: ' + filteredData.length);
-        
-        if (viz_selection === "network") {
-            rmViz();
-            rmOpt();
-//            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"search_words\">Search Words</a> <a id=\"web_visit\">Web Visits</a> <a id=\"data_table\">Data Table</a></p><h3>Network Options: "+timePeriod);
-
-            networkData(filteredData, networkViz);
-            visualizationSelection();
-
-        }
-        else if (viz_selection === "search_words") {
-            rmViz();
-            rmOpt();
-//            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"network\">Network</a> <a id=\"web_visit\">Web Visits</a> <a id=\"data_table\">Data Table</a></p><h3>Search words options: "+timePeriod);
-            searchWordsData(filteredData, searchWordsViz);
-            visualizationSelection();
-        }
-        else if (viz_selection === "web_visit") {
-            rmViz();
-            rmOpt();
-//            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"search_words\">Search Words</a> <a id=\"network\">Network</a> <a id=\"data_table\">Data Table</a></p> <h3>Websites visited options: "+timePeriod);
-//            webVisitData(filteredData, webVisitViz);
-            visualizationSelection();
-        }
-        else if (viz_selection === "data_table") {
-            rmViz();
-            rmOpt();
-//            $("#option_items").append("<div id = \"options\"><h3>Choose a Visualization</h3><p><a id=\"search_words\">Search Words</a> <a id=\"network\">Network</a> <a id=\"web_visit\">Web Visits</a></p> ");
-            dataTableData(filteredData, dataTableViz);
-            visualizationSelection();
-        }
-    }
-
     function selectTime(time) {
         history.timeSelection = time;
         var d = new Date();
@@ -1635,7 +732,6 @@ console.log("NETWORK 1.4.9");
         var highVal = currDate.getTime();
 
         visualData = onlyBetween(history.fullData,"date",lowVal,highVal);
-        selectViz(vizSelected);
         console.log("visualData: ",visualData.length);
     }
 
@@ -1680,7 +776,6 @@ console.log("NETWORK 1.4.9");
                     console.log("highVal: ",highVal);
 
                     visualData = onlyBetween(history.fullData,"date",lowVal,highVal);
-                    selectViz(vizSelected);
                     history.timeSelection = "choose";
                     d3.selectAll("#option_items a").classed("active", false);
                     d3.select("#choose").classed("active", true);
@@ -1764,75 +859,16 @@ console.log("NETWORK 1.4.9");
         var spinner = new Spinner(opts).spin(target);
     }
 
-function visualizationSelection() {
-	 //visualization selection
-            $("#network").click(function() {
-//            	loadTime();
-                selectViz("network");
-                d3.selectAll("#viz_selector a").classed("active", false);
-                d3.select("#network").classed("active", true);
-                vizSelected = "network";
-            });
-            $("#search_words").click(function() {
-                selectViz("search_words");
-                d3.selectAll("#viz_selector a").classed("active", false);
-                d3.select("#search_words").classed("active", true);
-                vizSelected = "search_words";
-            });
-            $("#data_table").click(function() {
-                selectViz("data_table");
-                d3.selectAll("#viz_selector a").classed("active", false);
-                d3.select("#data_table").classed("active", true);
-                vizSelected = "data_table";
-            });
-}
-
 	function refresh()
 	{
 		if (vizSelected != null)
 			selectViz(vizSelected)	
 	}
 	
-	
 	//Putting it all together
     $("document").ready(function () 
     {
 		$("#navbar").hide();
-
-		$('[data-toggle="tooltip"]').tooltip();
-		$('.datepicker').datepicker();
-		
-		$("input#start_date").change(function()
-		{
-			var value = $("input#start_date").val();
-			
-			if (value != "")
-			{
-				var tokens = value.split("/");
-				
-				startDate = new Date(parseInt(tokens[2]), parseInt(tokens[0]) - 1, parseInt(tokens[1]), 0, 0, 0, 0);
-				
-				refresh();
-			}
-			else
-				startDate = null;
-		});
-
-		$("input#end_date").change(function()
-		{
-			var value = $("input#end_date").val();
-			
-			if (value != "")
-			{
-				var tokens = value.split("/");
-				
-				endDate = new Date(parseInt(tokens[2]), parseInt(tokens[0]) - 1, parseInt(tokens[1]), 23, 59, 59, 999);
-				
-				refresh();
-			}
-			else
-				startDate = null;
-		});
 		
         //Get all data into fullData1
         getUrls(noTransform, noViz, function()
@@ -1859,7 +895,6 @@ function visualizationSelection() {
 						console.log("fullData1: ",history.fullData.length);
 						console.log("visualData: ",visualData.length);
 						history.timeSelection = "all";
-						selectViz(vizSelected);
 					}
 				});
 			});
@@ -1928,8 +963,6 @@ function visualizationSelection() {
                 history.timeSelection = "all";
                 submissionData(submitViz);
             });
-
-			visualizationSelection();
         });
     });
 
