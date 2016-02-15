@@ -4,7 +4,6 @@
   "version": "0.0.2",
   "short_name": "Web Historian",
   "description": "Web Historian - See your web browsing history in a new light",
-  "default_locale": "en",
   "permissions": [
     "history",
     "identity",
