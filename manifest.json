@@ -1,22 +1,25 @@
 {
   "manifest_version": 2,
   "name": "Web Historian - Web Browsing History Visualizations",
-  "version": "0.0.2",
+  "version": "0.0.5",
   "short_name": "Web Historian",
   "description": "Web Historian - See your web browsing history in a new light",
   "permissions": [
     "history",
     "identity",
+    "identity.email",
     "tabs"
   ],
-  "offline_enabled": true,
   "browser_action": {
-    "default_icon": "star48.png"
+    "default_icon": "images/star48.png"
   },
-  "icons": { "16": "star16.png",
-    "48": "star48.png",
-    "128": "star128.png" },
+  "icons": { "16": "images/star16.png",
+    "48": "images/star48.png",
+    "128": "images/star128.png" },
   "background": {
-    "scripts": ["background.js"]
+    "scripts": ["js/app/chrome.js"]
+  },
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv3SbqCVSchUgfdLwkrMypciVNzeSMkofPtyRzG8tCS+C35t4VXKlBJdsG3pmF1RVyo5RarSLOV9gqgWNRELmyjhafxXTXlaGMMAaTmCc/xthPgwk3Zt3ZASfVICtHLxxaZf29Wf2JpiHLyj/fbk2ChRWTy0V7B3CkA+VLPOqzgROeQPWze8gDqigoCjpv3eey+ApmmhbVEmPnU0/QtPcxBp1Phhzk0Mnv9JnR+luloK5aXuvgb96PgNL8NbAAndT772WvB3ppS4jwFseVE2X/R3He6ZMmJeD4wiA6dUoDZyJ/sAjGEcqmzCxdn1eRg0qctDU/4gKr4g9AMcUEac0qQIDAQAB",
+  "offline_enabled": true
   }
 }

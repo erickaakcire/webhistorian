@@ -5,6 +5,19 @@
 	margin-right: auto;
 }
 
+img {
+   padding:1px;
+   border:1px solid #888;
+}
+img:hover {
+	padding:1px;
+	border:1px solid #B40404;
+}
+#viz_selector a {
+	text-decoration:none;
+}
+
+
 #title h1 {
 	margin-bottom: 5px;
 }
