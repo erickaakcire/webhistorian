@@ -1,30 +1,25 @@
 {
-  "name": "Web Historian: Web History Visualizations",
+  "manifest_version": 2,
+  "name": "Web Historian - Web Browsing History Visualizations",
   "version": "0.0.5",
   "short_name": "Web Historian",
-  "description": "Develoment Edition - Web Historian helps you visualize the web browsing history that is already on your computer in a way you’ve never seen before.",
+  "description": "Web Historian - See your web browsing history in a new light",
   "permissions": [
     "history",
     "identity",
     "identity.email",
     "tabs"
   ],
-  "content_security_policy": "script-src 'self' 'unsafe-eval' 'https://apis.google.com; object-src 'self'",
   "browser_action": {
-    "default_icon": "images/owl48.png"
+    "default_icon": "images/star48.png"
   },
-  "icons": { "16": "images/owl16.png",
-    "48": "images/owl48.png",
-    "128": "images/owl128.png" },
+  "icons": { "16": "images/star16.png",
+    "48": "images/star48.png",
+    "128": "images/star128.png" },
   "background": {
     "scripts": ["js/app/chrome.js"]
   },
   "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv3SbqCVSchUgfdLwkrMypciVNzeSMkofPtyRzG8tCS+C35t4VXKlBJdsG3pmF1RVyo5RarSLOV9gqgWNRELmyjhafxXTXlaGMMAaTmCc/xthPgwk3Zt3ZASfVICtHLxxaZf29Wf2JpiHLyj/fbk2ChRWTy0V7B3CkA+VLPOqzgROeQPWze8gDqigoCjpv3eey+ApmmhbVEmPnU0/QtPcxBp1Phhzk0Mnv9JnR+luloK5aXuvgb96PgNL8NbAAndT772WvB3ppS4jwFseVE2X/R3He6ZMmJeD4wiA6dUoDZyJ/sAjGEcqmzCxdn1eRg0qctDU/4gKr4g9AMcUEac0qQIDAQAB",
-  "oauth2": {
-    "client_id": "581411807237-305o6q0e3s85214096p35ca4m18h3ci1.apps.googleusercontent.com",
-    "scopes": [
-      "https://www.googleapis.com/auth/devstorage.read_write"
-    ]
-  },
-  "manifest_version": 2
+  "offline_enabled": true
+  }
 }
