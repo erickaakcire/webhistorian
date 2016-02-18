@@ -19,7 +19,6 @@
   "background": {
     "scripts": ["js/app/chrome.js"]
   },
-  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAv3SbqCVSchUgfdLwkrMypciVNzeSMkofPtyRzG8tCS+C35t4VXKlBJdsG3pmF1RVyo5RarSLOV9gqgWNRELmyjhafxXTXlaGMMAaTmCc/xthPgwk3Zt3ZASfVICtHLxxaZf29Wf2JpiHLyj/fbk2ChRWTy0V7B3CkA+VLPOqzgROeQPWze8gDqigoCjpv3eey+ApmmhbVEmPnU0/QtPcxBp1Phhzk0Mnv9JnR+luloK5aXuvgb96PgNL8NbAAndT772WvB3ppS4jwFseVE2X/R3He6ZMmJeD4wiA6dUoDZyJ/sAjGEcqmzCxdn1eRg0qctDU/4gKr4g9AMcUEac0qQIDAQAB",
   "offline_enabled": true
   }
 }
