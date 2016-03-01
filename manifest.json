@@ -8,17 +8,17 @@
     "history",
     "identity",
     "identity.email",
-    "tabs"
+    "tabs",
+    "storage"
   ],
   "browser_action": {
-    "default_icon": "images/star48.png"
+    "default_icon": "images/owl48.png"
   },
-  "icons": { "16": "images/star16.png",
-    "48": "images/star48.png",
-    "128": "images/star128.png" },
+  "icons": { "16": "images/owl16.png",
+    "48": "images/owl48.png",
+    "128": "images/owl128.png" },
   "background": {
     "scripts": ["js/app/chrome.js"]
   },
   "offline_enabled": true
-  }
 }

@@ -25,15 +25,15 @@
 
 define(["spin", "moment"], function (Spinner, moment) 
 {
-	var history = {};
+    var history = {};
     history.fullData = [];
     history.timeSelection = "all";
     history.earliestTimestamp = Number.MAX_VALUE;
     history.latestTimestamp = Number.MIN_VALUE;
-	
+    
 //function wrapper() {
-	var startDate = null;
-	var endDate = null;
+    var startDate = null;
+    var endDate = null;
 
 //globals for the wrapper function
     var divName = "visual_div";
@@ -85,24 +85,24 @@ define(["spin", "moment"], function (Spinner, moment)
     {
         //gets visitItems from a supplied list of urls (as data)
         //used to determine last data element
-		var itemCount = data.length;
-		
-		var lastPercentage = "";
-		
-		var fetchVisits = function()
-		{
-			var historyItem = data.pop();
-			
-			var currentProgress = (100 * ((itemCount - data.length) / itemCount)).toFixed(1) + '%';
+        var itemCount = data.length;
+        
+        var lastPercentage = "";
+        
+        var fetchVisits = function()
+        {
+            var historyItem = data.pop();
+            
+            var currentProgress = (100 * ((itemCount - data.length) / itemCount)).toFixed(1) + '%';
 
-			if (lastPercentage != currentProgress)
-			{
-				$("#visit_progress").width(currentProgress);
-				$("#visit_progress").html(currentProgress);
-				
-				lastPercentage = currentProgress;
-			}
-		
+            if (lastPercentage != currentProgress)
+            {
+                $("#visit_progress").width(currentProgress);
+                $("#visit_progress").html(currentProgress);
+                
+                lastPercentage = currentProgress;
+            }
+        
             chrome.history.getVisits({url: historyItem.url}, function (visitItems) 
             {
                 visitItems.forEach(function(visit) 
@@ -119,35 +119,35 @@ define(["spin", "moment"], function (Spinner, moment)
                             transitionType: visit.transition
                         });
                         
-						if (visit.visitTime < history.earliestTimestamp)
-							history.earliestTimestamp = visit.visitTime;
+                        if (visit.visitTime < history.earliestTimestamp)
+                            history.earliestTimestamp = visit.visitTime;
 
-						if (visit.visitTime > history.latestTimestamp)
-							history.latestTimestamp = visit.visitTime;
+                        if (visit.visitTime > history.latestTimestamp)
+                            history.latestTimestamp = visit.visitTime;
                         
                         ids.push({id: visit.id});
                     }
                 });
                 
                 if (data.length > 1)
-                	window.setTimeout(fetchVisits, 0);
+                    window.setTimeout(fetchVisits, 0);
                 else
                 {
-					$("#visit_progress").width("100%");
-					$("#visit_progress").html("100%");
-					
+                    $("#visit_progress").width("100%");
+                    $("#visit_progress").html("100%");
+                    
                     transformData(results, callback, viz, callback2);
 
-					console.log("EARLY: " + history.earliestTimestamp);
-					console.log("LATE: " + history.latestTimestamp);
-				
-					$("input#start_date").datepicker("setDate", new Date(history.earliestTimestamp));
-					$("input#end_date").datepicker("setDate", new Date(history.latestTimestamp));
+                    console.log("EARLY: " + history.earliestTimestamp);
+                    console.log("LATE: " + history.latestTimestamp);
+                
+                    $("input#start_date").datepicker("setDate", new Date(history.earliestTimestamp));
+                    $("input#end_date").datepicker("setDate", new Date(history.latestTimestamp));
                 }
-			});		
-		};
-		
-		window.setTimeout(fetchVisits(), 0);
+            });     
+        };
+        
+        window.setTimeout(fetchVisits(), 0);
     }
 
     function transformData(data, callback, viz, callback2) {
@@ -157,143 +157,143 @@ define(["spin", "moment"], function (Spinner, moment)
             history.fullData = [];
         }
 
-		var itemCount = data.length;
-		
-		var lastPercentage = '';
-		
-		var transformDataItem = function()
-		{
-			var currentProgress = (100 * ((itemCount - data.length) / itemCount)).toFixed(0) + '%';
-			
-			if (lastPercentage != currentProgress)
-			{
-				$("#transform_progress").width(currentProgress);
-				$("#transform_progress").html(currentProgress);
-				
-				lastPercentage = currentProgress;
-			}
-			
-			var activeItems = [];
-			
-			for (var i = 0; i < 100 && data.length > 0; i++)
-			    activeItems.push(data.pop());
-			    
-			for (var i = 0; i < activeItems.length; i++)
-			{    
-				var dataItem = activeItems[i];
-			
-				var parser = document.createElement('a');
-				parser.href = dataItem.url;
-				var refId = dataItem.referringVisitId;
-				// if this ID is not in dataItem.visitID, subtract 1 from refId
-
-	//            if(refId !== 0){
-	//                console.log("" + refId);
-	 //           }
-
-				var transType = dataItem.transitionType;
-				var protocol = parser.protocol;
-				var host = parser.hostname;
-
-				var reGoogleCal = /\.google\.[a-z\.]*\/calendar\//; //run it on URL...
-				var reGoogleMaps = /\.google\.[a-z\.]*\/maps/; //run it on URL
-				var reGoogle = /\.google\.[a-z\.]*$/;
-				//dutch portals?
-				var reBing = /\.bing\.com/;
-				var reWwwGoogle = /www\.google\.[a-z\.]*$/;
-				var reAol = /\.aol\.[a-z\.]*$/;
-				var reBlogspot = /\.blogspot\.[a-z\.]*$/;
-				var reYahoo = /\.yahoo\.[a-z\.]*$/;
-				var reYahooSearchDomain = /search\.yahoo\.[a-z\.]*$/;
-				var reAsk = /\.ask\.[a-z\.]*$/;
-				var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; //parser.hostname.match(reTwoTwoThree)
-				var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; //parser.hostname.match(reDefaultDomain)
-
-				var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
-				var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
-
-				if (parser.href.match(reGoogleCal)) {
-					domain = "google calendar";
-				}
-				else if (parser.href.match(reGoogleMaps)) {
-					domain = "google maps";
-				}
-				else if (host.match(reGoogle) || host.match(reBlogspot) || host.match(reYahoo) || host.match(reAol)) {
-					domain = host;
-				}
-				else if (host.match(reTwoTwoThree)) {
-					domain = host.replace(reTwoTwoThree, "$1");
-				}
-				else {
-					domain = host.replace(reDefaultDomain, "$1");
-				}
-
-				if (host.match(reTopLevel2)) {
-					topDomain = host.replace(reTopLevel2, "$1");
-				}
-				else {
-					topDomain = host.replace(reTopLevel, "$1");
-				}
-
-				reSearch = /q=([^&]+)/;
-				reYahooSearch = /p=([^&]+)/;
-				var searchTerms = "";
-
-				if (reGoogle.test(host) || host === "duckduckgo.com" || reBing.test(host) || host === "search.aol.com" || host === reAsk.test(host)) {
-
-					if (reSearch.test(parser.href)) {
-						search = parser.href.match(reSearch, "$1");
-						if (search[1] != "")
-							var searchTerms1 = search[1];
-						var dcSearchTerms = decodeURIComponent(searchTerms1);
-						searchTerms = dcSearchTerms.replace(/\+/g, " ");
-					}
-				}
-
-				if (reYahooSearchDomain.test(host)) {
-
-					if (reYahooSearch.test(parser.href)) {
-						yahooSearch = parser.href.match(reYahooSearch, "$1");
-						if (yahooSearch[1] != "")
-							var searchTerms1 = yahooSearch[1];
-						var dcSearchTerms = decodeURIComponent(searchTerms1);
-						var searchTerms = dcSearchTerms.replace(/\+/g, " ");
-					}
-				}
-				history.fullData.push({
-					id: dataItem.visitId,
-					url: dataItem.url,
-					urlId: dataItem.id,
-					protocol: protocol,
-					domain: domain,
-					topDomain: topDomain,
-					searchTerms: searchTerms,
-					date: dataItem.visitTime,
-					transType: dataItem.transitionType,
-					refVisitId: dataItem.referringVisitId,
-					title: dataItem.title
-				});
-			}
+        var itemCount = data.length;
+        
+        var lastPercentage = '';
+        
+        var transformDataItem = function()
+        {
+            var currentProgress = (100 * ((itemCount - data.length) / itemCount)).toFixed(0) + '%';
+            
+            if (lastPercentage != currentProgress)
+            {
+                $("#transform_progress").width(currentProgress);
+                $("#transform_progress").html(currentProgress);
                 
-			if (data.length > 1)
-				window.setTimeout(transformDataItem, 0);
-			else
-			{
-				$("#transform_progress").width("100%");
-				$("#transform_progress").html("100%");
+                lastPercentage = currentProgress;
+            }
+            
+            var activeItems = [];
+            
+            for (var i = 0; i < 100 && data.length > 0; i++)
+                activeItems.push(data.pop());
+                
+            for (var i = 0; i < activeItems.length; i++)
+            {    
+                var dataItem = activeItems[i];
+            
+                var parser = document.createElement('a');
+                parser.href = dataItem.url;
+                var refId = dataItem.referringVisitId;
+                // if this ID is not in dataItem.visitID, subtract 1 from refId
 
-				console.log("fullData1: ", history.fullData.length);
-				visualData = history.fullData;
-				sortByProp(visualData,"date");
-				console.log("visualData: ", visualData.length);
-				callback2();
-				callback(visualData, viz);
-				
-				$("#progress_bars").hide();
-			}
-		};
-		
-		window.setTimeout(transformDataItem, 0);
+    //            if(refId !== 0){
+    //                console.log("" + refId);
+     //           }
+
+                var transType = dataItem.transitionType;
+                var protocol = parser.protocol;
+                var host = parser.hostname;
+
+                var reGoogleCal = /\.google\.[a-z\.]*\/calendar\//; //run it on URL...
+                var reGoogleMaps = /\.google\.[a-z\.]*\/maps/; //run it on URL
+                var reGoogle = /\.google\.[a-z\.]*$/;
+                //dutch portals?
+                var reBing = /\.bing\.com/;
+                var reWwwGoogle = /www\.google\.[a-z\.]*$/;
+                var reAol = /\.aol\.[a-z\.]*$/;
+                var reBlogspot = /\.blogspot\.[a-z\.]*$/;
+                var reYahoo = /\.yahoo\.[a-z\.]*$/;
+                var reYahooSearchDomain = /search\.yahoo\.[a-z\.]*$/;
+                var reAsk = /\.ask\.[a-z\.]*$/;
+                var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; //parser.hostname.match(reTwoTwoThree)
+                var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; //parser.hostname.match(reDefaultDomain)
+
+                var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
+                var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
+
+                if (parser.href.match(reGoogleCal)) {
+                    domain = "google calendar";
+                }
+                else if (parser.href.match(reGoogleMaps)) {
+                    domain = "google maps";
+                }
+                else if (host.match(reGoogle) || host.match(reBlogspot) || host.match(reYahoo) || host.match(reAol)) {
+                    domain = host;
+                }
+                else if (host.match(reTwoTwoThree)) {
+                    domain = host.replace(reTwoTwoThree, "$1");
+                }
+                else {
+                    domain = host.replace(reDefaultDomain, "$1");
+                }
+
+                if (host.match(reTopLevel2)) {
+                    topDomain = host.replace(reTopLevel2, "$1");
+                }
+                else {
+                    topDomain = host.replace(reTopLevel, "$1");
+                }
+
+                reSearch = /q=([^&]+)/;
+                reYahooSearch = /p=([^&]+)/;
+                var searchTerms = "";
+
+                if (reGoogle.test(host) || host === "duckduckgo.com" || reBing.test(host) || host === "search.aol.com" || host === reAsk.test(host)) {
+
+                    if (reSearch.test(parser.href)) {
+                        search = parser.href.match(reSearch, "$1");
+                        if (search[1] != "")
+                            var searchTerms1 = search[1];
+                        var dcSearchTerms = decodeURIComponent(searchTerms1);
+                        searchTerms = dcSearchTerms.replace(/\+/g, " ");
+                    }
+                }
+
+                if (reYahooSearchDomain.test(host)) {
+
+                    if (reYahooSearch.test(parser.href)) {
+                        yahooSearch = parser.href.match(reYahooSearch, "$1");
+                        if (yahooSearch[1] != "")
+                            var searchTerms1 = yahooSearch[1];
+                        var dcSearchTerms = decodeURIComponent(searchTerms1);
+                        var searchTerms = dcSearchTerms.replace(/\+/g, " ");
+                    }
+                }
+                history.fullData.push({
+                    id: dataItem.visitId,
+                    url: dataItem.url,
+                    urlId: dataItem.id,
+                    protocol: protocol,
+                    domain: domain,
+                    topDomain: topDomain,
+                    searchTerms: searchTerms,
+                    date: dataItem.visitTime,
+                    transType: dataItem.transitionType,
+                    refVisitId: dataItem.referringVisitId,
+                    title: dataItem.title
+                });
+            }
+                
+            if (data.length > 1)
+                window.setTimeout(transformDataItem, 0);
+            else
+            {
+                $("#transform_progress").width("100%");
+                $("#transform_progress").html("100%");
+
+                console.log("fullData1: ", history.fullData.length);
+                visualData = history.fullData;
+                sortByProp(visualData,"date");
+                console.log("visualData: ", visualData.length);
+                callback2();
+                callback(visualData, viz);
+                
+                $("#progress_bars").hide();
+            }
+        };
+        
+        window.setTimeout(transformDataItem, 0);
     }
 
     function findIndexByKeyValue(arrayToSearch, key, valueToSearch) {
@@ -625,7 +625,7 @@ define(["spin", "moment"], function (Spinner, moment)
         rmLoad();
     }
 
-    function submitViz(data) {
+/*     function submitViz(data) {
         console.log("submitViz");
         rmViz();
         rmOpt();
@@ -705,7 +705,7 @@ define(["spin", "moment"], function (Spinner, moment)
         
         rmLoad();
     }
-
+*/
     function noViz(data) {
         //nothing
         rmLoad();
@@ -859,17 +859,17 @@ define(["spin", "moment"], function (Spinner, moment)
         var spinner = new Spinner(opts).spin(target);
     }
 
-	function refresh()
-	{
-		if (vizSelected != null)
-			selectViz(vizSelected)	
-	}
-	
-	//Putting it all together
+    function refresh()
+    {
+        if (vizSelected != null)
+            selectViz(vizSelected)  
+    }
+    
+    //Putting it all together
     $("document").ready(function () 
     {
-		$("#navbar").hide();
-		
+        $("#navbar").hide();
+        
         //Get all data into fullData1
         getUrls(noTransform, noViz, function()
         {
@@ -879,81 +879,109 @@ define(["spin", "moment"], function (Spinner, moment)
 
             $("#load_data").click(function () 
             { //used for researcher edition
-				var fileName = prompt("Please enter the file name");
-				d3.json(fileName, function(error, root) {
-					if (root === undefined) 
-					{
-						$('#' + divName).append("<div id=\"visualization\"><h3>Error loading data, check file name and file format</h3></div>");
-					}
-					else 
-					{
-						history.fullData = [];
-						history.fullData = root.data;
-						visualData = [];
-						visualData = root.data;
-						console.log("file load success");
-						console.log("fullData1: ",history.fullData.length);
-						console.log("visualData: ",visualData.length);
-						history.timeSelection = "all";
-					}
-				});
-			});
-			
-			$('#upload_modal').on('show.bs.modal', function (e) 
-			{
-				var dayBundles = {};
-				var dayIndices = [];
-								
-				for (var i = 0; i < visualData.length; i++)
-				{
-					var date = moment(visualData[i]["date"]);
-					
-					var dayString = date.format("MMMM Do");
-					
-					var dayList = dayBundles[dayString];
-					
-					if (dayList == undefined)
-					{
-						dayList = [];
-						dayBundles[dayString] = dayList;
-						dayIndices.push(dayString);
-					}
-					
-					dayList.push(visualData[i]);
-				}
-			
-				$("#modal_overview").html(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
+                var fileName = prompt("Please enter the file name");
+                d3.json(fileName, function(error, root) {
+                    if (root === undefined) 
+                    {
+                        $('#' + divName).append("<div id=\"visualization\"><h3>Error loading data, check file name and file format</h3></div>");
+                    }
+                    else 
+                    {
+                        history.fullData = [];
+                        history.fullData = root.data;
+                        visualData = [];
+                        visualData = root.data;
+                        console.log("file load success");
+                        console.log("fullData1: ",history.fullData.length);
+                        console.log("visualData: ",visualData.length);
+                        history.timeSelection = "all";
+                    }
+                });
+            });
+            
+            $('#upload_modal').on('show.bs.modal', function (e) 
+            {
+                chrome.storage.local.get({ 'lastPdkUpload': 0 }, function (result) 
+                {
+                    var lastUpload = 0;
+                    var latest = 0;
+                    
+                    if (result.lastPdkUpload != undefined)
+                        lastUpload = Number(result.lastPdkUpload);
+                        
+                    console.log("LAST UPLOAD:" + lastUpload);
+                        
+                    var dayBundles = {};
+                    var dayIndices = [];
+                                
+                    for (var i = 0; i < visualData.length; i++)
+                    {
+                        var date = moment(visualData[i]["date"]);
+                        
+                        var unixTimestamp = date.valueOf();
 
-				$("#upload_data").click(function()
-				{
-					var bundles = [];
-					
-					for (var i = 0; i < dayIndices.length; i++)
-					{
-						bundles.push(dayBundles[dayIndices[i]]);
-					}
-					
-					var onProgress = function(index, total)
-					{
-						var percentComplete = (index / total) * 100;
-					
-						$("#upload_progress").css("width", percentComplete + "%");
-					};
-					
-					var onComplete = function()
-					{
-						$('#upload_modal').modal('hide');
-					};
-					
-					chrome.identity.getProfileUserInfo(function(userInfo)
-					{
-						requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
-						{
-							pdk.upload("http://historian.audacious-software.com/data/add-bundle.json", CryptoJS.MD5(userInfo.email).toString(), bundles, 0, onProgress, onComplete);
-						});					
-					});
-				});
-			});
+                        if (unixTimestamp > lastUpload)
+                        {
+                            var dayString = date.format("MMMM Do");
+                    
+                            var dayList = dayBundles[dayString];
+                    
+                            if (dayList == undefined)
+                            {
+                                dayList = [];
+                                dayBundles[dayString] = dayList;
+                                dayIndices.push(dayString);
+                            }
+                    
+                            dayList.push(visualData[i]);
+                            
+                            if (unixTimestamp > latest)
+                                latest = unixTimestamp;
+                        }
+                        else
+                        {
+                            // Already uploaded - ignore...
+                        }
+                    }
+            
+                    $("#modal_overview").html(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
+
+                    $("#upload_data").click(function()
+                    {
+                        var bundles = [];
+                    
+                        for (var i = 0; i < dayIndices.length; i++)
+                        {
+                        	console.log("XMITTING " + dayIndices[i] + " -- " + dayBundles[dayIndices[i]].length);
+                        	
+                            bundles.push(dayBundles[dayIndices[i]]);
+                        }
+                    
+                        var onProgress = function(index, total)
+                        {
+                            var percentComplete = (index / total) * 100;
+                    
+                            $("#upload_progress").css("width", percentComplete + "%");
+                        };
+                    
+                        var onComplete = function()
+                        {
+                            chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
+                            {
+                                $('#upload_modal').modal('hide');
+                            });
+                        };
+                    
+                        chrome.identity.getProfileUserInfo(function(userInfo)
+                        {
+                            requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
+                            {
+                                pdk.upload("http://historian.audacious-software.com/data/add-bundle.json", CryptoJS.MD5(userInfo.email).toString(), bundles, 0, onProgress, onComplete);
+                            });                 
+                        });
+                    });
+                });
+            });
 
             $("#submit").click(function() {
                 console.log("submit click");
@@ -961,11 +989,11 @@ define(["spin", "moment"], function (Spinner, moment)
                 console.log("submit click if");
                 dateForward = Infinity;
                 history.timeSelection = "all";
-                submissionData(submitViz);
+//                submissionData(submitViz);
             });
         });
     });
 
-	return history;
+    return history;
 });
 //wrapper();
