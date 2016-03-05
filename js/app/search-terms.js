@@ -166,8 +166,11 @@ define(["../app/utils", "moment"], function(utils, moment)
 
         //<p><label>Download:</label><a id="download-svg" href="#" target="_blank">SVG</a> |<a id="download-png" href="#" target="_blank">PNG</a>
 
+        var width = $("#visual_div").width();
+        var height = width;
+
         var fill = d3.scale.category20();
-        d3.layout.cloud().size([960, 500])
+        d3.layout.cloud().size([width, height])
             .words(searchWords)
             .padding(5)
             .rotate(function () {
@@ -183,11 +186,11 @@ define(["../app/utils", "moment"], function(utils, moment)
             .start();
         function draw(words) {
             d3.select("#visual_div").append("svg")
-                .attr("width", 960)
-                .attr("height", 500)
+                .attr("width", width)
+                .attr("height", height)
                 .attr("id", "visualization")
                 .append("g")
-                .attr("transform", "translate(480,250)")
+                .attr("transform", "translate(" + (width / 2) + "," + (height / 2) + ")")
                 .selectAll("text")
                 .data(words)
                 .enter().append("text")

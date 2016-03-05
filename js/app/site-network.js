@@ -120,15 +120,18 @@ define(["../app/utils", "moment"], function(utils, moment)
             }
         });
 
-        var width = 960;
-        height = 500;
+        var width = $("#visual_div").width();
+        var height = width;
 
+		$("#visual_div").height(height);
+		// $("#visual_div").css("border", "thin solid red");
+		
         var force = d3.layout.force()
             .nodes(d3.values(nodes))
             .links(edgeList)
             .size([width, height])
             .linkDistance(40)
-            .charge(-100)
+            .charge(-50)
             .on("tick", tick)
             .start();
 

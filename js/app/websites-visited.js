@@ -197,7 +197,9 @@ define(["../app/utils", "moment"], function(utils, moment) {
         d3.select("#title").append("h2").text(numDomains + " websites visited from " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY")).attr("id", "viz_subtitle");
         d3.select("#below_visual").append("p").text("A larger circle means that the website was visited more.").attr("id", "viz_p");
 
-        var r = 960,
+		$("#visual_div").height($("#visual_div").width());
+
+        var r = $("#visual_div").height(),
             format = d3.format(",d"),
             fill = d3.scale.category20();
 
