@@ -736,6 +736,8 @@ define(["spin", "moment"], function (Spinner, moment)
 
         visualData = onlyBetween(history.fullData,"date",lowVal,highVal);
         console.log("visualData: ",visualData.length);
+        
+        console.log('DATA: ' + JSON.stringify(history.fullData, 2));
     }
 
     function inputTime() {
@@ -879,6 +881,8 @@ define(["spin", "moment"], function (Spinner, moment)
             //New default, append images for visualization chooser
             $('#viz_selector').show();
             $("#navbar").show();
+
+	        console.log('DATA: ' + JSON.stringify(history.fullData, 2));
 
             $("#load_data").click(function () 
             { //used for researcher edition
