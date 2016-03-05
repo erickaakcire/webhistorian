@@ -30,8 +30,6 @@ requirejs(["bootstrap", "bootstrap-datepicker", "bootstrap-table", "d3.layout.cl
 {
 	requirejs(["../app/history"], function (history) 
 	{
-		console.log("loaded require.js");
-		
 		$("#web_visit_card").click(function()
 		{
 			$("#web_visit").click();

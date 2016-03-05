@@ -109,6 +109,8 @@ define(["spin", "moment"], function (Spinner, moment)
                 {
                     if (visit.visitTime >= dateLimit && visit.visitTime <= dateForward) 
                     {
+//                    	console.log('VISIT: ' + JSON.stringify(visit, 2));
+//                    	
                         results.push({
                             url: historyItem.url,
                             title: historyItem.title,
@@ -187,9 +189,9 @@ define(["spin", "moment"], function (Spinner, moment)
                 var refId = dataItem.referringVisitId;
                 // if this ID is not in dataItem.visitID, subtract 1 from refId
 
-    //            if(refId !== 0){
-    //                console.log("" + refId);
-     //           }
+//                if (refId !== "0") {
+//                    console.log("REF ID: " + refId);
+//                }
 
                 var transType = dataItem.transitionType;
                 var protocol = parser.protocol;
@@ -359,6 +361,7 @@ define(["spin", "moment"], function (Spinner, moment)
             var removalRecord = {timeRemoved: d.getTime(), numUrls: 1, numVisits: visits};
             storeRemovalData(removalRecord);
         }
+        
         getUrls(noTransform, noViz, function() {
 
         });

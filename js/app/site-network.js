@@ -29,11 +29,14 @@ define(["../app/utils", "moment"], function(utils, moment)
 
 		var idMap = {};
 
+// id
         for (var i = 0; i < filteredData.length; i++) {
             var dataItem = filteredData[i];
-            var refId = dataItem.refVisitId;
+//            console.log('DATA: ' + JSON.stringify(dataItem, 2));
             
-            idMap[refId] = i;
+            var refId = dataItem.id;
+                        
+            idMap["" + refId] = i;
 		}
 
         for (var i = 0; i < filteredData.length; i++) 
@@ -44,12 +47,15 @@ define(["../app/utils", "moment"], function(utils, moment)
             var domain = dataItem.domain;
             var protocol = dataItem.protocol;
             var transition = dataItem.transType;
-            var refIdInd = idMap[refId]; // findIndexByKeyValue(fullData, "id", refId);
+            var refIdInd = idMap["" + refId]; // findIndexByKeyValue(fullData, "id", refId);
 
-            if (refIdInd !== null && refId !== 0) {
+            if (refIdInd !== undefined && refId !== "0") 
+            {
                 var refDomain = filteredData[refIdInd].domain;
                 var refProtocol = filteredData[refIdInd].protocol;
-                if (domain != refDomain && refDomain != null && refDomain != "" && domain != "" && domain != null) {
+                
+                if (domain != refDomain && refDomain != null && refDomain != "" && domain != "" && domain != null) 
+                {
                     allEdges.push({sort: refDomain + domain, source: refDomain, target: domain});
                 }
             }
@@ -62,8 +68,8 @@ define(["../app/utils", "moment"], function(utils, moment)
 			if (a.sort > b.sort)
 				return 1;
 			return 0;
-		})
-		;
+		});
+		
         totalLinks = allEdges.length + 1;
 
         var countEdges = 1;
@@ -86,6 +92,8 @@ define(["../app/utils", "moment"], function(utils, moment)
                 countEdges = 1;
             }
         }
+
+// ---------------->
 
         // Network visualization based on  http://www.d3noob.org/2013/03/d3js-force-directed-graph-example-basic.html and http://bl.ocks.org/mbostock/3750558
         // temporary labeling fix: if node has more than two edges (in or out) show label, otherwise hover for label
