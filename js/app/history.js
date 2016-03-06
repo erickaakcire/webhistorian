@@ -959,8 +959,6 @@ define(["spin", "moment"], function (Spinner, moment)
                     
                         for (var i = 0; i < dayIndices.length; i++)
                         {
-                        	console.log("XMITTING " + dayIndices[i] + " -- " + dayBundles[dayIndices[i]].length);
-                        	
                             bundles.push(dayBundles[dayIndices[i]]);
                         }
                     
@@ -976,6 +974,14 @@ define(["spin", "moment"], function (Spinner, moment)
                             chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
                             {
                                 $('#upload_modal').modal('hide');
+                                
+								chrome.browserAction.setIcon({
+									path: "images/star-yellow-64.png"
+								});	
+
+								chrome.browserAction.setTitle({
+									title: "Web Historian"
+								});	
                             });
                         };
                     

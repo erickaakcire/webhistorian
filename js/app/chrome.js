@@ -1,8 +1,8 @@
 // JavaScript source code
 
-//When the user clicks on the browser action icon.
+// When the user clicks on the browser action icon.
 
-chrome.browserAction.onClicked.addListener(function (tab) 
+chrome.browserAction.onClicked.addListener(function(tab) 
 {
 	//Look to see if the extension page is open already and if not, open it.
 
@@ -25,3 +25,41 @@ chrome.browserAction.onClicked.addListener(function (tab)
     });
 });
 
+chrome.alarms.create("check-last-upload", {
+	when: 0,
+	periodInMinutes: 30
+});
+
+chrome.alarms.onAlarm.addListener(function(alarm)
+{
+	chrome.storage.local.get({ 'lastPdkUpload': 0 }, function (result) 
+	{
+		var lastUpload = 0;
+		
+		if (result.lastPdkUpload != undefined)
+			lastUpload = Number(result.lastPdkUpload);
+			
+		var now = new Date();
+		
+		if (now.getTime() - lastUpload > (1000 * 60 * 60 * 24))
+		{
+			chrome.browserAction.setIcon({
+				path: "images/star-red-64.png"
+			});	
+
+			chrome.browserAction.setTitle({
+				title: "Time to transmit data!"
+			});	
+		}
+		else
+		{
+			chrome.browserAction.setIcon({
+				path: "images/star-yellow-64.png"
+			});	
+
+			chrome.browserAction.setTitle({
+				title: "Web Historian"
+			});	
+		}
+	});
+});
