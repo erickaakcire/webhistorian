@@ -245,3 +245,8 @@ text {
   pointer-events: none;
 }
 */
+
+.datepicker-dropdown
+{
+	margin-top: 22px;
+}

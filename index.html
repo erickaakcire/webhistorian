@@ -28,6 +28,12 @@
 			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-datepicker3.css" />
 			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-table.css">
 			<script data-main="js/app/main.js" src="js/lib/require.js"></script>
+			<style>
+				.datepicker-dropdown
+				{
+					margin-top: 66px;
+				}
+			</style>
 		</head>
 		<body>
 		<div id="main">
@@ -55,8 +61,8 @@
 							<div class="form-group">
 								<div class="input-group" style="margin-right: 10px;">
 									<div class="input-group-addon"><span class="glyphicon glyphicon-chevron-left"></span></div>
-									<input class="datepicker form-control input-sm" id="start_date" placeholder="Start" data-date-format="mm/dd/yyyy" style="width: 90px;">
-									<input class="datepicker form-control input-sm" id="end_date" placeholder="End" data-date-format="mm/dd/yyyy" style="width: 90px; border-left: none;">
+									<input class="datepicker form-control input-sm" id="start_date" placeholder="Start" data-date-format="mm/dd/yyyy" data-orientation="bottom" style="width: 90px;">
+									<input class="datepicker form-control input-sm" id="end_date" placeholder="End" data-date-format="mm/dd/yyyy" data-orientation="bottom" style="width: 90px; border-left: none;">
 									<div class="input-group-addon"><span class="glyphicon glyphicon-chevron-right"></span></div>
 								</div>
 						    </div>
@@ -65,11 +71,8 @@
 				</div>
 			</nav>
 			
-			<div id="controls" style="margin-top: 60px;">
-				<div id="option_space" class="control">
-					<div id="option_items"></div>
-				</div>
-			</div>
+			<div style="margin-top: 60px;"></div>
+			
 			<div class="row" id="progress_bars">
 				<div id="progress">
 					<h6>Fetching Visit Data&#8230;</h6>
@@ -82,7 +85,7 @@
 					</div>
 				</div>
 			</div>
-			
+
 			<div id="visualizations">
 				<div class="row" id="viz_selector" style="display: none;">
 					<div class="col-sm-6 col-md-3">

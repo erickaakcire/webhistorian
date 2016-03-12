@@ -74,7 +74,7 @@ requirejs(["bootstrap", "bootstrap-datepicker", "bootstrap-table", "d3.layout.cl
 		$("#data_table").click(function() {
 			requirejs(["../app/data-table"], function(data_table) 
 			{
-				data_table.display(history, history.fullData);
+				data_table.display(history, history.fullData, "");
 			});
 		});
 

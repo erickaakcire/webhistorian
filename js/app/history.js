@@ -30,6 +30,7 @@ define(["spin", "moment"], function (Spinner, moment)
     history.timeSelection = "all";
     history.earliestTimestamp = Number.MAX_VALUE;
     history.latestTimestamp = Number.MIN_VALUE;
+    history.urlArray = [];
     
 //function wrapper() {
     var startDate = null;
@@ -66,9 +67,10 @@ define(["spin", "moment"], function (Spinner, moment)
             },
             function (historyItems) {
                 //list of hostnames
-                urlArray = [];
+                console.log("HIST LENGth: " + historyItems.length);
+                
                 for (var i = 0; i < historyItems.length; ++i) {
-                    urlArray.push({
+                    history.urlArray.push({
                         url: historyItems[i].url,
                         title: historyItems[i].title,
                         vc: historyItems[i].visitCount
@@ -77,7 +79,7 @@ define(["spin", "moment"], function (Spinner, moment)
 
                 //GetVisitsData
                 var results = [];
-                getVisitData(urlArray, results, callback, viz, callback2);
+                getVisitData(JSON.parse(JSON.stringify(history.urlArray)), results, callback, viz, callback2);
             });
     }
 
@@ -139,9 +141,6 @@ define(["spin", "moment"], function (Spinner, moment)
                     $("#visit_progress").html("100%");
                     
                     transformData(results, callback, viz, callback2);
-
-                    console.log("EARLY: " + history.earliestTimestamp);
-                    console.log("LATE: " + history.latestTimestamp);
                 
                     $("input#start_date").datepicker("setDate", new Date(history.earliestTimestamp));
                     $("input#end_date").datepicker("setDate", new Date(history.latestTimestamp));
@@ -149,7 +148,7 @@ define(["spin", "moment"], function (Spinner, moment)
             });     
         };
         
-        window.setTimeout(fetchVisits(), 0);
+        window.setTimeout(fetchVisits, 0);
     }
 
     function transformData(data, callback, viz, callback2) {
@@ -284,10 +283,10 @@ define(["spin", "moment"], function (Spinner, moment)
                 $("#transform_progress").width("100%");
                 $("#transform_progress").html("100%");
 
-                console.log("fullData1: ", history.fullData.length);
+//                console.log("fullData1: ", history.fullData.length);
                 visualData = history.fullData;
                 sortByProp(visualData,"date");
-                console.log("visualData: ", visualData.length);
+//                console.log("visualData: ", visualData.length);
                 callback2();
                 callback(visualData, viz);
                 
@@ -298,43 +297,67 @@ define(["spin", "moment"], function (Spinner, moment)
         window.setTimeout(transformDataItem, 0);
     }
 
-    function findIndexByKeyValue(arrayToSearch, key, valueToSearch) {
-        for (var i = 0; i < arrayToSearch.length; i++) {
+    function findIndexByKeyValue(arrayToSearch, key, valueToSearch) 
+    {
+//    	console.log("KEY: " + key + " -- " + JSON.stringify(arrayToSearch, null, 2) + " -- " + valueToSearch);
+    	
+        for (var i = 0; i < arrayToSearch.length; i++) 
+        {
             var item = arrayToSearch[i][key];
-            if (item === valueToSearch) {
+            
+            if (item === valueToSearch) 
+            {
                 return i;
             }
         }
+        
         return null;
     }
 
-    function findIndexArrByKeyValue(arraytosearch, key, valuetosearch) {
-        indexArray = [];
-        for (var i = 0; i < arraytosearch.length; i++) {
-            if (arraytosearch[i][key] === valuetosearch) {
+    history.findIndexArrByKeyValue = function(arraytosearch, key, valuetosearch) 
+    {
+        var indexArray = [];
+        
+        for (var i = 0; i < arraytosearch.length; i++) 
+        {
+            if (arraytosearch[i][key] === valuetosearch) 
+            {
                 indexArray.push(i);
             }
         }
+        
         return indexArray;
     }
 
-    function getSuppressedUrl(data, key, value) {
-        var index = findIndexArrByKeyValue(data, key, value);
+    history.getSuppressedUrl = function(data, key, value) 
+    {
+        var index = history.findIndexArrByKeyValue(data, key, value);
         var urlArray1 = [];
 
         index.forEach(function (a) {
+            console.log("A: " + JSON.stringify(a, null, 2));
+
             var url = data[a].url;
-            var urlInd = findIndexByKeyValue(urlArray, "url", url);
-            var vc = urlArray[urlInd].vc;
+
+            console.log("B: " + JSON.stringify(url, null, 2));
+
+            var urlInd = findIndexByKeyValue(history.urlArray, "url", url);
+
+            console.log("C: " + JSON.stringify(urlInd, null, 2));
+            
+            console.log("D: " + JSON.stringify(history.urlArray[urlInd], null, 2));
+            
+            var vc = history.urlArray[urlInd].vc;
+            
             urlArray1.push({url: url, visitCount: vc});
         });
         return urlArray1;
-    }
+    };
 
-    function removeHistory(urls, array) {
+    history.removeHistory = function(urls, isArray) {
         //urls is an array of objects (true) or a single object(false)
 
-        if (array === true) {
+        if (isArray) {
             var urlsRemovedNow = 0;
             var visitsRemovedNow = 0;
 
@@ -355,7 +378,7 @@ define(["spin", "moment"], function (Spinner, moment)
         else {
             var visits = urls.visitCount;
             var url1 = urls.url;
-            console.log(urls);
+//            console.log(urls);
             var d = new Date();
             chrome.history.deleteUrl({url: url1});
             var removalRecord = {timeRemoved: d.getTime(), numUrls: 1, numVisits: visits};
@@ -365,7 +388,7 @@ define(["spin", "moment"], function (Spinner, moment)
         getUrls(noTransform, noViz, function() {
 
         });
-    }
+    };
 
     function storeRemovalData(data) {
         //add one object (data) to chrome local storage removal log, timeRemoved: , numUrls: , numVisits:
@@ -735,9 +758,9 @@ define(["spin", "moment"], function (Spinner, moment)
         var highVal = currDate.getTime();
 
         visualData = onlyBetween(history.fullData,"date",lowVal,highVal);
-        console.log("visualData: ",visualData.length);
+        // console.log("visualData: ",visualData.length);
         
-        console.log('DATA: ' + JSON.stringify(history.fullData, 2));
+        // console.log('DATA: ' + JSON.stringify(history.fullData, 2));
     }
 
     function inputTime() {
@@ -882,7 +905,7 @@ define(["spin", "moment"], function (Spinner, moment)
             $('#viz_selector').show();
             $("#navbar").show();
 
-	        console.log('DATA: ' + JSON.stringify(history.fullData, 2));
+//	        console.log('DATA: ' + JSON.stringify(history.fullData, 2));
 
             $("#load_data").click(function () 
             { //used for researcher edition
@@ -898,9 +921,9 @@ define(["spin", "moment"], function (Spinner, moment)
                         history.fullData = root.data;
                         visualData = [];
                         visualData = root.data;
-                        console.log("file load success");
-                        console.log("fullData1: ",history.fullData.length);
-                        console.log("visualData: ",visualData.length);
+//                        console.log("file load success");
+//                        console.log("fullData1: ",history.fullData.length);
+//                        console.log("visualData: ",visualData.length);
                         history.timeSelection = "all";
                     }
                 });
@@ -916,7 +939,7 @@ define(["spin", "moment"], function (Spinner, moment)
                     if (result.lastPdkUpload != undefined)
                         lastUpload = Number(result.lastPdkUpload);
                         
-                    console.log("LAST UPLOAD:" + lastUpload);
+//                    console.log("LAST UPLOAD:" + lastUpload);
                         
                     var dayBundles = {};
                     var dayIndices = [];
