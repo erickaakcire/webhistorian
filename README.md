@@ -9,6 +9,20 @@ Web Historian runs entirely on the local browser using only client-side JavaScri
 
 For more information see http://webhistorian.org
 
+#To run the extension in Developer Mode
+
+<strong>Step1:</strong> Download the extension code to your machine <br/>
+(Using git): git clone https://github.com/erickaakcire/webhistorian.git some_directory_name <br/>
+(Download ZIP): You can also download the extension in zip format from the [Web Historian Repsitory](https://github.com/erickaakcire/webhistorian)
+
+<strong>Step2:</strong> Browse to chrome://extensions/ <br/> or navigate Window > Extensions<br/> or navigate Settings (an icon with three lines near the top right of the browser) > More Tools > Extensions
+
+<strong>Step3:</strong> Select Checkbox for "Developer Mode"
+
+<strong>Step4:</strong> Click on "Load unpacked extension"
+
+<strong>Step5:</strong> Browse to the directory where you downloaded the extension code and click "Select"
+
 # Technical Overview
 
 Web Historian is a web application created using jQuery, Bootstrap, and a number of other browser-based technologies.
