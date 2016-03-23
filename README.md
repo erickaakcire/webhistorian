@@ -36,7 +36,7 @@ On the launch of the extension, this process is followed:
 1. `index.html` loads the RequireJS library, which uses `js/app/main.js` to configure the JavaScript environment
 2. `js/app/main.js` loads `js/app/history.js` which launches a modal progress display that tracks the progress of the extension retrieving and transforming the user's browsing history for use with other upload and display components.
 3. On a successful fetch of the local browsing history, the extension dismisses the progress modal and presents the user with options to visualize or upload their data to the server.
-4. If the user chooses to upload their data, the extension loads `js/lib/passive-data-kit.js` which packages and uploads the user's web history to a Passive Data Kit server.
+4. If the user chooses to upload their data, the extension loads `js/lib/passive-data-kit.js` which packages and uploads the user's web history to a [Passive Data Kit](https://github.com/audaciouscode/PassiveDataKit-Django) server.
 
 # Visualizations Overview
 
