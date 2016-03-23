@@ -20,8 +20,6 @@
  */
 
 
-//a function to contain the whole script
-
 
 define(["spin", "moment"], function (Spinner, moment) 
 {
@@ -37,6 +35,7 @@ define(["spin", "moment"], function (Spinner, moment)
     var endDate = null;
 
 //globals for the wrapper function
+	var svy_url = "" //INSERT SURVEY URL HERE **
     var divName = "visual_div";
     var currDate = new Date();
     var timeSelect = 0; //null = 24 hours, 0 = all time
@@ -978,7 +977,12 @@ define(["spin", "moment"], function (Spinner, moment)
 
                     $("#upload_data").click(function()
                     {
-                        var bundles = [];
+                        //send user to survey
+						var myid = chrome.runtime.id;
+						var action_url = svy_url + myid;
+						chrome.tabs.create({ url: action_url });
+						
+						var bundles = [];
                     
                         for (var i = 0; i < dayIndices.length; i++)
                         {
@@ -994,7 +998,8 @@ define(["spin", "moment"], function (Spinner, moment)
                     
                         var onComplete = function()
                         {
-                            chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
+
+							chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
                             {
                                 $('#upload_modal').modal('hide');
                                 
