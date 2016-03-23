@@ -15,8 +15,6 @@
 	You should have received a copy of the GNU General Public License along
 	with this program; if not, write to the Free Software Foundation, Inc.,
 	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-
-	Original Herodotus image: https://www.flickr.com/photos/wy_jackrabbit/4338541055/?rb=1
 -->
 <html>
 	<head>
@@ -75,13 +73,9 @@
 			
 			<div class="row" id="progress_bars">
 				<div id="progress">
-					<h6>Fetching Visit Data&#8230;</h6>
+					<h6>Creating your visualizations&#8230;</h6>
 					<div class="progress">
 						<div class="progress-bar" id="visit_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
-					</div>
-					<h6>Transforming Data&#8230;</h6>
-					<div class="progress">
-						<div class="progress-bar" id="transform_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
 					</div>
 				</div>
 			</div>
@@ -95,7 +89,7 @@
 								<div class="caption">
 									<h3>Network</h3>
 									<p>
-										Links between websites browsed from - to
+										Links between websites browsed from - to.
 									</p>
 								</div>
 							</div>
@@ -134,7 +128,7 @@
 								<div class="caption">
 									<h3>Data Table</h3>
 									<p>
-										Each web visit in a table
+										See the details of each web visit with an option to delete specific records.
 									</p>
 								</div>
 							</div>
@@ -154,20 +148,19 @@
 				<div class="modal-content">
 					<div class="modal-header">
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title">Upload Data to Server</h4>
+						<h4 class="modal-title">Upload Data to the Research Project</h4>
 					</div>
 					<div class="modal-body">
 						<h6>Overview</h6>
 						<div id="modal_overview"></div>
 
-						<h6>Upload Progress</h6>
 						<div class="progress">
 							<div class="progress-bar" id="upload_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
 						</div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
-						<button type="button" class="btn btn-primary" id="upload_data">Upload</button>
+						<button type="button" class="btn btn-warning" id="upload_data">Participate</button>
 					</div>
 				</div>
 			</div>

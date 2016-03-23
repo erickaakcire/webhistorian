@@ -5,11 +5,11 @@
 	margin-right: auto;
 }
 
-img {
+#visualizations img {
    padding:1px;
    border:1px solid #888;
 }
-img:hover {
+#visualizations img:hover {
 	padding:1px;
 	border:1px solid #B40404;
 }
