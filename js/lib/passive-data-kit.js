@@ -1,7 +1,7 @@
 define(function() {
 	var pdk = {};
 	
-	pdk.upload = function(endpoint, userId, buffer, index, onProgress, onComplete)
+	pdk.upload = function(endpoint, userId, generatorId, buffer, index, onProgress, onComplete)
 	{
 		var manifest = chrome.runtime.getManifest();
 	
@@ -17,6 +17,7 @@ define(function() {
 		
 				metadata['source'] = userId;
 				metadata['generator'] = userAgent;
+				metadata['generator-id'] = generatorId;
 				metadata['timestamp'] = dayPoints[i]["date"] / 1000; // Unix timestamp
 			
 				dayPoints[i]['passive-data-metadata'] = metadata;
@@ -33,7 +34,7 @@ define(function() {
 				success: function(data, textStatus, jqXHR)
 				{
 					onProgress(index, buffer.length);
-					pdk.upload(endpoint, userId, buffer, index + 1, onProgress, onComplete);
+					pdk.upload(endpoint, userId, generatorId, buffer, index + 1, onProgress, onComplete);
 				}
 			});
 		}

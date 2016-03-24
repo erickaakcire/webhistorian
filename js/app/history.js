@@ -998,7 +998,6 @@ define(["spin", "moment"], function (Spinner, moment)
                     
                         var onComplete = function()
                         {
-
 							chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
                             {
                                 $('#upload_modal').modal('hide');
@@ -1017,7 +1016,7 @@ define(["spin", "moment"], function (Spinner, moment)
                         {
                             requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
                             {
-                                pdk.upload("http://historian.audacious-software.com/data/add-bundle.json", CryptoJS.MD5(userInfo.email).toString(), bundles, 0, onProgress, onComplete);
+                                pdk.upload("http://historian.audacious-software.com/data/add-bundle.json", CryptoJS.MD5(userInfo.email).toString(), 'web-historian', bundles, 0, onProgress, onComplete);
                             });                 
                         });
                     });
