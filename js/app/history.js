@@ -35,7 +35,8 @@ define(["spin", "moment"], function (Spinner, moment)
     var endDate = null;
 
 //globals for the wrapper function
-    var svy_url = "" //INSERT SURVEY URL HERE **
+    var svy_url = ""; //INSERT SURVEY URL HERE **
+    var serverUrl = ""; //INSERT SERVER URL HERE **
     var divName = "visual_div";
     var currDate = new Date();
     var timeSelect = 0; //null = 24 hours, 0 = all time
@@ -1016,7 +1017,7 @@ define(["spin", "moment"], function (Spinner, moment)
                         {
                             requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
                             {
-                                pdk.upload("http://historian.audacious-software.com/data/add-bundle.json", CryptoJS.MD5(userInfo.email).toString(), 'web-historian', bundles, 0, onProgress, onComplete);
+                                pdk.upload(serverUrl, CryptoJS.MD5(userInfo.email).toString(), 'web-historian', bundles, 0, onProgress, onComplete);
                             });                 
                         });
                     });
