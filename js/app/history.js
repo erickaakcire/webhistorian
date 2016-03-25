@@ -1,7 +1,7 @@
 /*
  Web Historian - see webhistorian.org for more information
 
- Copyright (C) 2015  Ericka Menchen-Trevino, info@webhistorian.org
+ Copyright (C) 2016  Ericka Menchen-Trevino, info@webhistorian.org
 
  This program is free software; you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ define(["spin", "moment"], function (Spinner, moment)
     var endDate = null;
 
 //globals for the wrapper function
-	var svy_url = "" //INSERT SURVEY URL HERE **
+    var svy_url = "" //INSERT SURVEY URL HERE **
     var divName = "visual_div";
     var currDate = new Date();
     var timeSelect = 0; //null = 24 hours, 0 = all time
