@@ -19,11 +19,10 @@
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. 
  */
 
-
-
-define(["spin", "moment"], function (Spinner, moment) 
+define(["spin", "moment", "../app/config"], function (Spinner, moment, config) 
 {
     var history = {};
+    
     history.fullData = [];
     history.timeSelection = "all";
     history.earliestTimestamp = Number.MAX_VALUE;
@@ -34,9 +33,9 @@ define(["spin", "moment"], function (Spinner, moment)
     var startDate = null;
     var endDate = null;
 
+    var manifest = chrome.runtime.getManifest();
+
 //globals for the wrapper function
-    var svy_url = ""; //INSERT SURVEY URL HERE **
-    var serverUrl = ""; //INSERT SERVER URL HERE **
     var divName = "visual_div";
     var currDate = new Date();
     var timeSelect = 0; //null = 24 hours, 0 = all time
@@ -931,95 +930,155 @@ define(["spin", "moment"], function (Spinner, moment)
             
             $('#upload_modal').on('show.bs.modal', function (e) 
             {
-                chrome.storage.local.get({ 'lastPdkUpload': 0 }, function (result) 
+                chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) 
                 {
-                    var lastUpload = 0;
-                    var latest = 0;
-                    
-                    if (result.lastPdkUpload != undefined)
-                        lastUpload = Number(result.lastPdkUpload);
-                        
-//                    console.log("LAST UPLOAD:" + lastUpload);
-                        
-                    var dayBundles = {};
-                    var dayIndices = [];
-                                
-                    for (var i = 0; i < visualData.length; i++)
-                    {
-                        var date = moment(visualData[i]["date"]);
-                        
-                        var unixTimestamp = date.valueOf();
-
-                        if (unixTimestamp > lastUpload)
-                        {
-                            var dayString = date.format("MMMM Do");
-                    
-                            var dayList = dayBundles[dayString];
-                    
-                            if (dayList == undefined)
-                            {
-                                dayList = [];
-                                dayBundles[dayString] = dayList;
-                                dayIndices.push(dayString);
-                            }
-                    
-                            dayList.push(visualData[i]);
-                            
-                            if (unixTimestamp > latest)
-                                latest = unixTimestamp;
-                        }
-                        else
-                        {
-                            // Already uploaded - ignore...
-                        }
-                    }
-            
-                    $("#modal_overview").html(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
-
-                    $("#upload_data").click(function()
-                    {
-                        //send user to survey
-						var myid = chrome.runtime.id;
-						var action_url = svy_url + myid;
-						chrome.tabs.create({ url: action_url });
+					$.get(config.actionsUrl, function(actions)
+					{
+						var lastUpload = 0;
+						var latest = 0;
+					
+						if (result.lastPdkUpload != undefined)
+							lastUpload = Number(result.lastPdkUpload);
 						
-						var bundles = [];
-                    
-                        for (var i = 0; i < dayIndices.length; i++)
-                        {
-                            bundles.push(dayBundles[dayIndices[i]]);
-                        }
-                    
-                        var onProgress = function(index, total)
-                        {
-                            var percentComplete = (index / total) * 100;
-                    
-                            $("#upload_progress").css("width", percentComplete + "%");
-                        };
-                    
-                        var onComplete = function()
-                        {
-							chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
-                            {
-                                $('#upload_modal').modal('hide');
-                                
-								chrome.browserAction.setIcon({
-									path: "images/star-yellow-64.png"
-								});	
+						var dayBundles = {};
+						var dayIndices = [];
+								
+						for (var i = 0; i < visualData.length; i++)
+						{
+							var date = moment(visualData[i]["date"]);
+						
+							var unixTimestamp = date.valueOf();
 
-								chrome.browserAction.setTitle({
-									title: "Web Historian"
-								});	
-                            });
-                        };
-                    
-                        chrome.identity.getProfileUserInfo(function(userInfo)
-                        {
-                            requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
-                            {
-                                pdk.upload(serverUrl, CryptoJS.MD5(userInfo.email).toString(), 'web-historian', bundles, 0, onProgress, onComplete);
-                            });                 
-                        });
+							if (unixTimestamp > lastUpload)
+							{
+								var dayString = date.format("MMMM Do");
+					
+								var dayList = dayBundles[dayString];
+					
+								if (dayList == undefined)
+								{
+									dayList = [];
+									dayBundles[dayString] = dayList;
+									dayIndices.push(dayString);
+								}
+					
+								dayList.push(visualData[i]);
+							
+								if (unixTimestamp > latest)
+									latest = unixTimestamp;
+							}
+							else
+							{
+								// Already uploaded - ignore...
+							}
+						}
+            
+						$("#modal_overview").html(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
+
+						var toList = [];
+					
+						for (var j = 0; j < actions.length; j++)
+						{
+							var action = actions[j];
+						
+							var complete = false;
+
+							for (var i = 0; i < result.completedActions.length; i++)
+							{
+								if (result.completedActions[i] == action["identifier"])
+									complete = true;
+							}
+
+							if (complete == false)
+								toList.push(action);
+						}
+						
+						console.log("TOLIST: " + JSON.stringify(toList)); 
+						console.log("ACTIONS: " + JSON.stringify(actions)); 
+						console.log("COMPLETED: " + JSON.stringify(result.completedActions)); 
+
+						var myid = chrome.runtime.id;
+					
+						if (toList.length == 0)
+						{
+							$("div#progress_actions").hide();
+						}
+						else
+						{
+							$("div#progress_actions").show();
+						
+							var output = "";
+						
+							for (var i = 0; i < toList.length; i++)
+							{
+								var listItem = "<li>";
+							
+								listItem += "<a href='" + toList[i].url + myid + "' target='_blank' class='wh_action' id='wh_" + toList[i].identifier + "'>" + toList[i].name + "</a>";
+							
+								listItem += "</li>";
+							
+								output += listItem;
+							}
+						
+							$("ul#progress_actions_list").html(output);
+						}
+						
+						$("a.wh_action").click(function(eventObj)
+						{
+							var actionId = $(eventObj.target).attr("id").substring(3);
+							
+							console.log("CLICK: " + actionId);
+							
+							result.completedActions.push(actionId);
+
+							console.log("SAVING: " + JSON.stringify(result.completedActions));
+							
+							chrome.storage.local.set({ 'completedActions': result.completedActions }, function (result) 
+							{
+								console.log("SAVED");
+							});
+						});
+
+						$("#upload_data").click(function()
+						{
+							var bundles = [];
+					
+							for (var i = 0; i < dayIndices.length; i++)
+							{
+								bundles.push(dayBundles[dayIndices[i]]);
+							}
+					
+							var onProgress = function(index, total)
+							{
+								var percentComplete = (index / total) * 100;
+					
+								$("#upload_progress").css("width", percentComplete + "%");
+							};
+					
+							var onComplete = function()
+							{
+								chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
+								{
+									$('#upload_modal').modal('hide');
+								
+									chrome.browserAction.setIcon({
+										path: "images/star-yellow-64.png"
+									});	
+
+									chrome.browserAction.setTitle({
+										title: "Web Historian"
+									});	
+								});
+							};
+					
+							chrome.identity.getProfileUserInfo(function(userInfo)
+							{
+								requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
+								{
+									pdk.upload(config.uploadUrl, CryptoJS.MD5(userInfo.email).toString(), 'web-historian', bundles, 0, onProgress, onComplete);
+								});                 
+							});
+                    	});
                     });
                 });
             });
