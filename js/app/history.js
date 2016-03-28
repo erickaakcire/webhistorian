@@ -981,7 +981,9 @@ define(["spin", "moment"], function (Spinner, moment)
                         //send user to survey
 						var myid = chrome.runtime.id;
 						var action_url = svy_url + myid;
-						chrome.tabs.create({ url: action_url });
+						chrome.tabs.create({ url: action_url,"active":false });
+						
+						$("#modal_overview").html("Thank you for participating in the research project! A new tab has opened the project's survey in your browser. If you could take a few minutes to take the survey while your data uploads we would greatly appreciate it!<br/><br/>" + dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
 						
 						var bundles = [];
                     
