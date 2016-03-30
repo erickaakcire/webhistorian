@@ -174,5 +174,31 @@
 				</div>
 			</div>
 		</div>
+		<div class="modal fade" tabindex="-1" role="dialog" id="identifier_modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Select Your Identifier</h4>
+					</div>
+					<div class="modal-body">
+						<p style="margin-bottom: 1em;">
+							Web Historian needs to associate your data with a unique indentifier that only you use. 
+							This allows our researchers to combine your data from this browser with other browsers where you have installed Web Historian.
+							You may use an e-mail address or other identifier for this purpose.
+						</p>
+
+						<fieldset class="form-group">
+							<input type="text" class="form-control" id="field_identifier" placeholder="Enter identifier here&#8230;" />
+						</fieldset>
+
+						<div style="font-size: smaller; font-weight: bold; padding-bottom: 1em;"><a id="load_google_identifier" class="pull-right" href="#">USE YOUR GOOGLE ACCOUNT?</a></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-info" id="chose_identifier">Continue&#8230;</button>
+					</div>
+				</div>
+			</div>
+		</div>
 	</body>
 </html>

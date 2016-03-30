@@ -290,6 +290,49 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 callback(visualData, viz);
                 
                 $("#progress_bars").hide();
+                
+                chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
+                {
+					if (result.upload_identifier == "")
+					{
+						$("#identifier_modal").modal("show");
+						
+						$("#field_identifier").val(result.upload_identifier);
+				
+						$("#load_google_identifier").click(function(eventObj)
+						{
+							eventObj.preventDefault();
+
+							chrome.identity.getProfileUserInfo(function(userInfo)
+							{
+								$("#field_identifier").val(userInfo.email);
+							});
+					
+							return false;
+						});
+				
+						$("#chose_identifier").click(function(eventObj)
+						{
+							eventObj.preventDefault();
+
+							var identifier = $("#field_identifier").val();
+	
+							if (identifier != null && identifier != "")
+							{
+								chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) 
+								{
+									$("#identifier_modal").modal("hide");
+					
+									// console.log("SAVED");
+								});
+				
+								console.log("IDENTIFIER: " + identifier);
+							}
+						
+							return false;
+						});
+					}
+				});
             }
         };
         
@@ -650,87 +693,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         rmLoad();
     }
 
-/*     function submitViz(data) {
-        console.log("submitViz");
-        rmViz();
-        rmOpt();
-
-        var stringData = JSON.stringify(data);
-
-        var access_token;
-        chrome.identity.getAuthToken(
-            {'interactive': true},
-            function(token) {access_token = token;
-                console.log (access_token);
-                if (access_token) {
-                    var PROJECT = '581411807237';
-                    var clientId = '581411807237-hi8jesii81k5725mo67q6bktc8ofi099.apps.googleusercontent.com';
-                    var apiKey = 'AIzaSyA6NwESlZ5-uHcaTr8KjaajrAX6yf94ISQ';
-                    var scopes = 'https://www.googleapis.com/auth/devstorage.read_write';
-                    var API_VERSION = 'v1';
-                    var BUCKET = 'web-historian-eu';
-                    var object = "";
-                    var GROUP =
-                        'group-00b4903a9760b6025c58662742f5a3adc6aaaedad9a94204ebd9a7e46e2ec252';
-
-                    //just for testing
-                    function listBuckets() {
-                        var request = gapi.client.storage.buckets.list({
-                            'project': PROJECT
-                        });
-                        executeRequest(request, 'listBuckets');
-                    }
-
-                    function executeRequest(request, apiRequestName) {
-                        request.execute(function(resp) {
-                            console.log(resp);
-                            //If the selected API command is not 'insertObject', pass the request
-                            //paramaters to the getCodeSnippet method call as 'request.B.rpcParams'
-                            //else pass request paramaters as 'request.B'
-                            if (apiRequestName != 'insertObject') {
-                                apiRequestCodeSnippetEntry.innerHTML =
-                                    getCodeSnippet(request.B.method, request.B.rpcParams);
-                                //Selected API Command is not 'insertObject'
-                                //hide insert object button
-                                filePicker.style.display = 'none';
-                            } else {
-                                apiRequestCodeSnippetEntry.innerHTML =
-                                    getCodeSnippet(request.B.method, request.B);
-                            }
-                        });
-                    }
-
-                    function getCodeSnippet(method, params) {
-                        var objConstruction = "// Declare your parameter object\n";
-                        objConstruction += "var params = {};";
-                        objConstruction += "\n\n";
-                        var param = "// Initialize your parameters \n";
-                        for (i in params) {
-                            param += "params['" + i + "'] = ";
-                            param += JSON.stringify(params[i], null, '\t');
-                            param += ";";
-                            param += "\n";
-                        }
-                        param += "\n";
-                        var methodCall = "// Make a request to the Google Cloud Storage API \n";
-                        methodCall += "var request = gapi.client." + method + "(params);";
-                        return objConstruction + param + methodCall;
-                    }
-
-                    $('#' + divName).append("<div id=\"visualization\"><a id=\"list_buckets\">List Buckets</a></div>");
-                    // maybe loadTime(); to show upload processing
-                    $("#list_buckets").click(function() { listBuckets(); });
-
-                }
-                else {
-                    d3.select("#"+divName).append("p").text("Not Authorized - sumission not possible").attr("id", "visualization");
-                }
-            }
-        );
-        
-        rmLoad();
-    }
-*/
     function noViz(data) {
         //nothing
         rmLoad();
@@ -973,112 +935,116 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 							}
 						}
             
-						$("#modal_overview").html(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
+            			if (dayIndices.length > 0)
+            			{
+            				if (dayIndices.length == 1)
+								$("#modal_overview").html("1 day to upload (" + dayIndices[0]+ ").");
+							else
+								$("#modal_overview").html(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
 
-						var toList = [];
+							var toList = [];
 					
-						for (var j = 0; j < actions.length; j++)
-						{
-							var action = actions[j];
-						
-							var complete = false;
-
-							for (var i = 0; i < result.completedActions.length; i++)
+							for (var j = 0; j < actions.length; j++)
 							{
-								if (result.completedActions[i] == action["identifier"])
-									complete = true;
-							}
-
-							if (complete == false)
-								toList.push(action);
-						}
+								var action = actions[j];
 						
-						console.log("TOLIST: " + JSON.stringify(toList)); 
-						console.log("ACTIONS: " + JSON.stringify(actions)); 
-						console.log("COMPLETED: " + JSON.stringify(result.completedActions)); 
+								var complete = false;
 
-						var myid = chrome.runtime.id;
+								for (var i = 0; i < result.completedActions.length; i++)
+								{
+									if (result.completedActions[i] == action["identifier"])
+										complete = true;
+								}
+
+								if (complete == false)
+									toList.push(action);
+							}
+						
+							var myid = chrome.runtime.id;
 					
-						if (toList.length == 0)
-						{
-							$("div#progress_actions").hide();
+							if (toList.length == 0)
+							{
+								$("div#progress_actions").hide();
+							}
+							else
+							{
+								$("div#progress_actions").show();
+						
+								var output = "";
+						
+								for (var i = 0; i < toList.length; i++)
+								{
+									var listItem = "<li>";
+							
+									listItem += "<a href='" + toList[i].url + myid + "' target='_blank' class='wh_action' id='wh_" + toList[i].identifier + "'>" + toList[i].name + "</a>";
+							
+									listItem += "</li>";
+							
+									output += listItem;
+								}
+						
+								$("ul#progress_actions_list").html(output);
+							}
+						
+							$("a.wh_action").click(function(eventObj)
+							{
+								var actionId = $(eventObj.target).attr("id").substring(3);
+							
+								result.completedActions.push(actionId);
+
+								chrome.storage.local.set({ 'completedActions': result.completedActions }, function (result) 
+								{
+									// console.log("SAVED");
+								});
+							});
+
+							$("#upload_data").click(function()
+							{
+								var bundles = [];
+					
+								for (var i = 0; i < dayIndices.length; i++)
+								{
+									bundles.push(dayBundles[dayIndices[i]]);
+								}
+					
+								var onProgress = function(index, total)
+								{
+									var percentComplete = (index / total) * 100;
+					
+									$("#upload_progress").css("width", percentComplete + "%");
+								};
+					
+								var onComplete = function()
+								{
+									chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
+									{
+										$('#upload_modal').modal('hide');
+								
+										chrome.browserAction.setIcon({
+											path: "images/star-yellow-64.png"
+										});	
+
+										chrome.browserAction.setTitle({
+											title: "Web Historian"
+										});	
+									});
+								};
+
+								chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
+								{
+									requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
+									{
+										pdk.upload(config.uploadUrl, CryptoJS.MD5(result.upload_identifier).toString(), 'web-historian', bundles, 0, onProgress, onComplete);
+									});                 
+								});
+							});
 						}
 						else
 						{
-							$("div#progress_actions").show();
-						
-							var output = "";
-						
-							for (var i = 0; i < toList.length; i++)
-							{
-								var listItem = "<li>";
+							$('#upload_modal').modal("hide");
 							
-								listItem += "<a href='" + toList[i].url + myid + "' target='_blank' class='wh_action' id='wh_" + toList[i].identifier + "'>" + toList[i].name + "</a>";
-							
-								listItem += "</li>";
-							
-								output += listItem;
-							}
-						
-							$("ul#progress_actions_list").html(output);
+							alert("You have already uploaded your data.");
 						}
-						
-						$("a.wh_action").click(function(eventObj)
-						{
-							var actionId = $(eventObj.target).attr("id").substring(3);
-							
-							console.log("CLICK: " + actionId);
-							
-							result.completedActions.push(actionId);
-
-							console.log("SAVING: " + JSON.stringify(result.completedActions));
-							
-							chrome.storage.local.set({ 'completedActions': result.completedActions }, function (result) 
-							{
-								console.log("SAVED");
-							});
-						});
-
-						$("#upload_data").click(function()
-						{
-							var bundles = [];
-					
-							for (var i = 0; i < dayIndices.length; i++)
-							{
-								bundles.push(dayBundles[dayIndices[i]]);
-							}
-					
-							var onProgress = function(index, total)
-							{
-								var percentComplete = (index / total) * 100;
-					
-								$("#upload_progress").css("width", percentComplete + "%");
-							};
-					
-							var onComplete = function()
-							{
-								chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
-								{
-									$('#upload_modal').modal('hide');
-								
-									chrome.browserAction.setIcon({
-										path: "images/star-yellow-64.png"
-									});	
-
-									chrome.browserAction.setTitle({
-										title: "Web Historian"
-									});	
-								});
-							};
-					
-							chrome.identity.getProfileUserInfo(function(userInfo)
-							{
-								requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
-								{
-									pdk.upload(config.uploadUrl, CryptoJS.MD5(userInfo.email).toString(), 'web-historian', bundles, 0, onProgress, onComplete);
-								});                 
-							});
-                    	});
                     });
                 });
             });
