@@ -194,7 +194,6 @@ define(["../app/utils", "moment"], function(utils, moment)
 			checkboxHeader: false,
 			toolbar: "#visits_toolbar"
 		});
-
 		
 		var updateAllRemoveButton = function()
 		{
@@ -343,7 +342,6 @@ define(["../app/utils", "moment"], function(utils, moment)
 			toolbar: "#search_toolbar"
 		});
 		
-		
 		var updateSearchesRemoveButton = function()
 		{
 			var count = visualization.searchesChecked.length;
@@ -451,6 +449,7 @@ define(["../app/utils", "moment"], function(utils, moment)
 			{
 				$("#title h1").text("Search Queries");
 				$("#title h2").text(searchData.length + " searches from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
+				$('table#search_visualization').bootstrapTable('expandRow', 0);
 			}
 			else if ($(this).attr("href") == "#domains_table")
 			{
@@ -461,6 +460,7 @@ define(["../app/utils", "moment"], function(utils, moment)
 			{
 				$("#title h1").text("All Visits");
 				$("#title h2").text(filteredData.length + " visits from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
+				$('table#all_visualization').bootstrapTable('expandRow', 0);
 			}
 
 			e.preventDefault();
