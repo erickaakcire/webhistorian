@@ -21,5 +21,5 @@
   "background": {
     "scripts": ["js/app/chrome.js"]
   },
-  "offline_enabled": true,
+  "offline_enabled": true
 }
