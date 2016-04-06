@@ -127,13 +127,14 @@ define(["../app/utils", "moment"], function(utils, moment)
 		// $("#visual_div").css("border", "thin solid red");
 		
         var force = d3.layout.force()
-            .nodes(d3.values(nodes))
-            .links(edgeList)
-            .size([width, height])
-            .linkDistance(40)
-            .charge(-50)
-            .on("tick", tick)
-            .start();
+          .nodes(d3.values(nodes))
+          .links(edgeList)
+          .size([width, height])
+          .linkDistance(150)
+          .charge(-500)
+          .gravity(0.05)
+          .on("tick", tick)
+          .start();
 
         var svg = d3.select("#visual_div").append("svg")
             .attr("width", width)
