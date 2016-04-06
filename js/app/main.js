@@ -77,6 +77,18 @@ requirejs(["bootstrap", "bootstrap-datepicker", "bootstrap-table", "d3.layout.cl
 				data_table.display(history, history.fullData, "");
 			});
 		});
+		
+		$("#habits_card").click(function()
+		{
+    			$("#habits").click();
+    		});
+
+    		$("#habits").click(function() {
+    			requirejs(["../app/habits"], function (habits)
+    			{
+  				habits.display(history, history.fullData);
+  			});
+  		});
 
 		$('[data-toggle="tooltip"]').tooltip();
 		$('.datepicker').datepicker();
