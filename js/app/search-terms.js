@@ -51,7 +51,7 @@ define(["../app/utils", "moment"], function(utils, moment)
                 nextTermId = sortedAllWords[i + 1].termId;
             }
 
-            if (nextTermId === thisTermId) 
+            if (nextTermId === thisTermId && thisWord === nextWord) 
             {
             
             }
@@ -143,7 +143,7 @@ define(["../app/utils", "moment"], function(utils, moment)
             
             countUniqueTerms++;
         }
-
+		
         var sortedAllWords = allSearchWords.sort(function (a, b) 
         {
 			if (a.word < b.word)
@@ -152,9 +152,10 @@ define(["../app/utils", "moment"], function(utils, moment)
 				return 1;
 			return 0;
 		});
-
+		console.log (JSON.stringify(uniqueTerms,null,2));
+		console.log (JSON.stringify(sortedAllWords,null,2));
         var searchWords = visualization.searchWordsFun(sortedAllWords, uniqueTerms);
-		
+		console.log (JSON.stringify(searchWords,null,2));
         // Search Words word cloud visulization based on work by Jason Davies
         //searchWords text, size, allTerms
 

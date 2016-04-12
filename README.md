@@ -11,6 +11,8 @@ For more information see http://webhistorian.org
 
 #To run the extension in Developer Mode
 
+You will be able to see  your visualizations, but you won't be able to participate in the research project when you install Web Historian using developer mode.
+
 <strong>Step1:</strong> Download the extension code to your machine <br/>
 (Using git): git clone https://github.com/erickaakcire/webhistorian.git some_directory_name <br/>
 (Download ZIP): You can also download the extension in zip format from the [Web Historian Repsitory](https://github.com/erickaakcire/webhistorian)
