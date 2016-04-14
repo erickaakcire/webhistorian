@@ -193,8 +193,9 @@ define(["../app/utils", "moment"], function(utils, moment)
 
         // add the text
         node.append("text")
-            .attr("x", 12)
-            .attr("dy", ".35em")
+          .attr("dy", ".35em")
+          .attr("text-anchor", "middle")
+          .attr("font-size", "10px")
             .text(function (d) {
                 return d.name;
             });
