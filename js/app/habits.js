@@ -121,7 +121,8 @@ define(["../app/utils", "moment"], function(utils, moment) {
             //console.log(domainAndDate[1]);
             //console.log(size);
 
-            if (utils.contains(specified, currentDomain)) {
+             if (size >= 2){
+              if (utils.contains(specified, currentDomain)) {
                 if (utils.contains(adult, currentDomain)) {
                     adultA.push({name: currentDomain, size: size});
                 }
@@ -168,6 +169,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
             else {
                 otherA.push({name: currentDomain, size: size});
             }
+          }
         }
 
         var dataset = ({
