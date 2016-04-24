@@ -1057,6 +1057,42 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 history.timeSelection = "all";
 //                submissionData(submitViz);
             });
+            
+			$("#link_access_server").click(function(eventObj)
+			{
+				eventObj.preventDefault();
+
+				chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
+				{
+					requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
+					{
+						var now = new Date();
+						
+						var month = "" + (now.getMonth() + 1);
+						var day = "" + now.getDate();
+						
+						if (month.length < 2)
+						{
+							month = '0' + month;
+						}
+
+						if (day.length < 2)
+						{
+							day = '0' + day;
+						}
+						
+						var isoDate = now.getFullYear() + '-' +  month + '-' + day;
+						
+						var sourceId = CryptoJS.MD5(CryptoJS.MD5(result.upload_identifier).toString() + isoDate).toString();
+						
+						var newURL = config.reviewUrl + sourceId;
+						chrome.tabs.create({ url: newURL });
+					});                 
+				});
+				
+				return false;
+			});
+
         });
     });
 
