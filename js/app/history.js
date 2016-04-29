@@ -198,7 +198,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 var reGoogleCal = /\.google\.[a-z\.]*\/calendar\//; //run it on URL...
                 var reGoogleMaps = /\.google\.[a-z\.]*\/maps/; //run it on URL
                 var reGoogle = /\.google\.[a-z\.]*$/;
-                //dutch portals?
                 var reBing = /\.bing\.com/;
                 var reWwwGoogle = /www\.google\.[a-z\.]*$/;
                 var reAol = /\.aol\.[a-z\.]*$/;
@@ -340,9 +339,7 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
     }
 
     function findIndexByKeyValue(arrayToSearch, key, valueToSearch) 
-    {
-//    	console.log("KEY: " + key + " -- " + JSON.stringify(arrayToSearch, null, 2) + " -- " + valueToSearch);
-    	
+    {    	
         for (var i = 0; i < arrayToSearch.length; i++) 
         {
             var item = arrayToSearch[i][key];
@@ -369,7 +366,7 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         }
         
         return indexArray;
-    }
+    };
 
     history.getSuppressedUrl = function(data, key, value) 
     {
@@ -536,21 +533,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
     }
 
 //Passing data to visualizations
-    function timeLineData(data, callback) {
-        //fullData1: id, url, urlId, protocol, domain, topDomain, searchTerms, date, transType, refVisitId, title
-        var timeLine = [];
-        var dates = [];
-        for (var i = 0; i < data.length; i++) {
-            var m = new Date(data[i].date);
-            var day = ("0" + m.getDate()).slice(-2);
-            var month = ("0" + (m.getMonth() + 1) ).slice(-2);
-            var hour = ("0" + m.getHours()).slice(-2);
-            var date = m.getFullYear() + "/" + month + "/" + day + ":" + hour;
-            dates.push({date: date});
-        }
-        timeLine = countSomething(dates, "date");
-        callback(timeLine);
-    }
 
     function submissionData(callback) {
         loadTime();
@@ -578,6 +560,45 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         rmLoad();
     }
 
+	function compareWeekVisits(startDate, data) {
+		//
+		var weekAend = startDate;
+		var weekAstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-7) );
+		var weekBstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-14) );
+		
+		var countA = 0;
+		var countB = 0;
+		var oldDomain = [];
+		var newDomain = [];
+		
+		for (var i = 0; i < data.length; i++) {
+			if (data[i].date >= weekAstart.getTime()) {countA = countA+1;}
+			if (data[i].date < weekAstart.getTime() && data[i].date >= weekBstart.getTime()){countB = countB+1};
+			
+			if (data[i].date < weekAstart.getTime()) {
+				//onlyBetween(array, property, lowVal, highVal)
+				//make an array with the "old" domains
+			}
+			
+		}
+		if (countA > countB) { percentML = "more";} 
+		if (countA < countB) { percentML = "less"; }
+		if (countA == countB) {	percentML = "the same"; }
+		
+		var percent = Math.round(Math.abs( ((countA-countB) / (countB)) * 100));
+		
+		return {
+			weekAend: weekAend,
+			weekAstart: weekAstart,
+			weekBend: weekAstart,
+			weekBstart: weekBstart,
+			percent: percent,
+			percentML: percentML,
+			topNew: topNew
+		};
+	}
+
+//Pretty sure this isn't used any more! from the old interface.
     function selectTime(time) {
         history.timeSelection = time;
         var d = new Date();
@@ -658,7 +679,7 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         d3.selectAll("#options a").classed("active", false);
         d3.select("#choose").classed("active", true);
     }
-
+//cleanup
     function listenTimeClick() {
         d3.selectAll("#options a").classed("active", false);
 
@@ -704,6 +725,7 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         $(".spinner").remove();
     }
 
+//should be able to remove this, but I know it's being called, so it's part of a larger cleanup
     function loadTime() {
         //fancy loading spinner
         var opts = {
@@ -768,8 +790,20 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 });
             });
             
-            $("#wir").html(         	
-            	"<h3>Week in review</h3><p>This week (day-day) you browsed the web []% (more/less) than last week (day-day). <p>Top 3 new domains in your browsing history this week:<ol><li>Domain.com [] visits</li>" );
+            var now = new Date();
+            var weekData = compareWeekVisits(now,visualData);
+            
+            $("#wir").html( function() {
+            	var aEnd = moment(weekData.weekAend).format("ddd MMM D");
+				var aStart = moment(weekData.weekAstart).format("ddd MMM D");
+				var bEnd = moment(weekData.weekBend).format("ddd MMM D");
+				var bStart = moment(weekData.weekBstart).format("ddd MMM D");
+				var percent = weekData.percent;
+				var percentML = weekData.percentML;
+				var topNew = weekData.topNew;
+		
+            	return "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web " + percent + "% " + percentML + " than last week (" + bStart + " to " + bEnd + ")." + "</p>Top 3 new sites visited this week:<p><ol><li><a href=\""+ topNew +"\">"+ topNew +"</a></li> <li>two</li> <li>three</li></ol></p><p>You last uploaded your browsing data on: DD/MM/YYY</p><p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
+            });
             
             $('#upload_modal').on('show.bs.modal', function (e) 
             {
@@ -936,7 +970,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 console.log("submit click if");
                 dateForward = Infinity;
                 history.timeSelection = "all";
-//                submissionData(submitViz);
             });
             
 			$("#link_access_server").click(function(eventObj)
@@ -979,4 +1012,3 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 
     return history;
 });
-//wrapper();
