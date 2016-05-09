@@ -571,19 +571,41 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 		var oldDomain = [];
 		var newDomain = [];
 		
+		//use onlyBetween(array, property, lowVal, highVal) to get 2 arrays, before this week domains (btwd) and this week domains (twd)
+		//for search terms:
+		//feed each search term, process each word (use spaces as breaks, strip punctuation and de-cap) from btwd and twd (each, separately) into an object (use stop words) -  with a count field incremented
+		//new objects swbtw (search words before this week), swtw (search words this week) properties word, count
+		//use lowHighNum(swbtw, count, false) lowHighNum(swtw, count,false) 
+		//to get stuff for domains:
+		//use countSomething(data, domain) to get unique domains with counts, forming two new arrays, (btwdu) (twdu)
+		//compare the arrays to find the ones only in this week, form a new object (otwu) 
+		//find the highest count from the comparison results using lowHighNum(otwu, count, false)
+			//return the domain to topNew
+		//find the highest count from this week lowHighNum(twdu, count, false) 
+			//return the domain to topThisWeek
+		//find the highest count from before this week lowHighNum(btwdu, count, false) 
+			//return the domain to topAllTime
+		
 		for (var i = 0; i < data.length; i++) {
-			if (data[i].date >= weekAstart.getTime()) {countA = countA+1;}
-			if (data[i].date < weekAstart.getTime() && data[i].date >= weekBstart.getTime()){countB = countB+1};
-			
-			if (data[i].date < weekAstart.getTime()) {
-				//onlyBetween(array, property, lowVal, highVal)
-				//make an array with the "old" domains
+			if (data[i].date < weekBstart.getTime()) {
+				//oldDomain
+				oldDomain.push(data[i].domain);
 			}
-			
+			if (data[i].date < weekAstart.getTime() && data[i].date >= weekBstart.getTime()){
+				countB = countB+1;
+				//oldDomain
+				}
+			if (data[i].date >= weekAstart.getTime() && data[i].date <= weekAend.getTime()) {
+				countA = countA+1;
+				//newDomain
+			}
 		}
-		if (countA > countB) { percentML = "more";} 
-		if (countA < countB) { percentML = "less"; }
-		if (countA == countB) {	percentML = "the same"; }
+		if (countA > countB) { percentML = "more than";} 
+		if (countA < countB) { percentML = "less than"; }
+		if (countA == countB) {	percentML = "the same as"; }
+		
+		//temp until it works
+		var topNew = "google.com";
 		
 		var percent = Math.round(Math.abs( ((countA-countB) / (countB)) * 100));
 		
@@ -760,6 +782,9 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
     $("document").ready(function () 
     {
         $("#navbar").hide();
+		chrome.storage.local.get('lastPdkUpload', function (result) {
+        	lastUl = result.lastPdkUpload;
+   		});
         
         //Get all data into fullData1
         getUrls(noTransform, noViz, function()
@@ -793,6 +818,8 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
             var now = new Date();
             var weekData = compareWeekVisits(now,visualData);
             
+            //hide "view on server" until they  have participated 
+            
             $("#wir").html( function() {
             	var aEnd = moment(weekData.weekAend).format("ddd MMM D");
 				var aStart = moment(weekData.weekAstart).format("ddd MMM D");
@@ -801,8 +828,13 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 				var percent = weekData.percent;
 				var percentML = weekData.percentML;
 				var topNew = weekData.topNew;
+				
+				if (lastUl > 1) {
+					lastUlD = moment(lastUl).format("MMM DD, YYYY");
+				}
+				else {lastUlD = "Never";}
 		
-            	return "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web " + percent + "% " + percentML + " than last week (" + bStart + " to " + bEnd + ")." + "</p>Top 3 new sites visited this week:<p><ol><li><a href=\""+ topNew +"\">"+ topNew +"</a></li> <li>two</li> <li>three</li></ol></p><p>You last uploaded your browsing data on: DD/MM/YYY</p><p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
+            	return "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web " + percent + "% " + percentML + " last week (" + bStart + " to " + bEnd + ")." + "</p>The new web site you visited the most this week was <a href=\""+ topNew +"\">"+ topNew +"</a></p><h3>Info</h3><p>You last uploaded your browsing data on: "+ lastUlD +"</p><p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
             });
             
             $('#upload_modal').on('show.bs.modal', function (e) 
