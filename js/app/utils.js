@@ -12,7 +12,18 @@ define(function() {
             
             return 0;
         });
-    }
+    };
+    
+    utils.sortByPropRev = function(data, sort) 
+    {
+        return data.sort(function (a, b) {
+           if (a[sort] > b[sort])
+                return -1;
+            if (a[sort] < b[sort])
+                return 1;
+            return 0;
+        });
+    };
     
     utils.countsOfProperty = function(data, property)
     {
@@ -157,26 +168,13 @@ define(function() {
             }
         }
         return uniqueTerms;
-    }
+    };
     
     utils.log10 = function(value) 
     {
         return value / Math.LN10;
-    }
-    
-    utils.sortByProperty = function(data, sort) 
-    {
-        var sorted = data.sort(function (a, b) 
-        {
-            if (a[sort] < b[sort])
-                return -1;
-            if (a[sort] > b[sort])
-                return 1;
-            return 0;
-        });
-        
-        return sorted;
-    }
+    };
+    	
     
     utils.countProperties = function(data, property) 
     {
@@ -210,7 +208,7 @@ define(function() {
         }
         
         return countArray;
-    }
+    };
     
     utils.onlyIf = function(array, property, value, notValue) 
     {
@@ -240,7 +238,7 @@ define(function() {
             }
         }
         return data;
-    }
+    };
     
     utils.removeHistory = function(urls, array) 
     {
@@ -282,7 +280,7 @@ define(function() {
     utils.getStoredData = function(key) 
     {
         return JSON.parse(localStorage.getItem(key));
-    }
+    };
 
     utils.storeRemovalData = function(data) 
     {
@@ -298,7 +296,7 @@ define(function() {
             first.push({timeRemoved: data.timeRemoved, numUrls: data.numUrls, numVisits: data.numVisits});
             localStorage.setItem("removals", JSON.stringify(first));
         }
-    }
+    };
 
     utils.findIndexByKeyValue = function(arrayToSearch, key, valueToSearch) 
     {
@@ -310,7 +308,7 @@ define(function() {
         }
         
         return null;
-    }
+    };
 
     return utils;
 });

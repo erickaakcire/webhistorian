@@ -210,7 +210,7 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; //parser.hostname.match(reTwoTwoThree)
                 var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; //parser.hostname.match(reDefaultDomain)
 
-                //porblems with top level domains! getting too much stuff!
+                //porblems with top level domains! getting too much stuff!, also blah.net.cn - misc.three.two
                 var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
                 var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
@@ -511,7 +511,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
     }
 
     function sortByProp(data, sort) {
-        loadTime();
         var sorted = data.sort(function (a, b) {
             if (a[sort] < b[sort])
                 return -1;
@@ -523,7 +522,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
     }
 
     function sortByPropRev(data, sort) {
-        loadTime();
         var sorted = data.sort(function (a, b) {
             if (a[sort] > b[sort])
                 return -1;
@@ -537,7 +535,7 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 //Passing data to visualizations
 
     function submissionData(callback) {
-        loadTime();
+//        loadTime();
         var userId = chrome.runtime.id;
         var removals = [];
         if (getStoredData("removals") != null) {
@@ -552,14 +550,13 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
     }
 
     function noTransform(data, callback) {
-        loadTime();
+//        loadTime();
         callback(data);
     }
 
 
     function noViz(data) {
         //nothing
-        rmLoad();
     }
 
 	function compareWeekVisits(startDate, data) {
@@ -626,116 +623,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 		};
 	}
 
-//Pretty sure this isn't used any more! from the old interface.
-    function selectTime(time) {
-        history.timeSelection = time;
-        var d = new Date();
-        var lowVal = 0;
-
-        if (time === "day") {
-            lowVal = d.setDate(d.getDate()-1);
-        }
-        else if (time === "week") {
-            lowVal = d.setDate(d.getDate()-7);
-        }
-        else if (time === "month") {
-            lowVal = d.setDate(d.getDate()-30);
-        }
-        else if (time === "all") {
-            lowVal = d.setDate(d.getDate()-91);
-        }
-
-        var highVal = currDate.getTime();
-
-        visualData = onlyBetween(history.fullData,"date",lowVal,highVal);
-        // console.log("visualData: ",visualData.length);
-        
-        // console.log('DATA: ' + JSON.stringify(history.fullData, 2));
-    }
-
-    function inputTime() {
-        //if date input element exists, remove
-        if (document.getElementById("input_time")) {
-            $("#input_time").remove();
-        }
-
-        var lastD = new Date();
-        var todayDay = ("0" + lastD.getDate()).slice(-2);
-        var todayMonth = ("0" + (lastD.getMonth() + 1) ).slice(-2);
-        var todayYear = lastD.getFullYear();
-        var today = todayYear + "-" + todayMonth + "-" + todayDay;
-        $('#options').append("<div id=\"input_time\"><p>From: <input type=\"date\" max=" + today + " id=\"from\" /> To: <input type=\"date\" id=\"to\" max=" + today + " /> <a id=\"go\" >Submit</a> </p></div>");
-
-        $("#go").click(function() {
-            //get the actual dates chosen into variables
-            var fromInput = $("#from").val();
-            var toInput = $("#to").val();
-            var fromD = new Date(fromInput);
-            fromD = fromD.setHours(0, 0);
-            var fromD1 = new Date(fromD);
-            var toD = new Date(toInput);
-            toD = toD.setHours(23, 59);
-            var toD1 = new Date(toD);
-            //if from is less than to, give error
-            if (fromD1 != "Invalid Date" && toD1 != "Invalid Date") {
-                if (fromD1 >= toD1) {
-                    $('#options').append("<p id =\"error\">Error: the \"From\" date must come before the \"To\" date.</p>");
-                }
-                else {
-                    //remove any error messages
-                    if (document.getElementById("error")) {
-                        $("#error").remove();
-                    }
-                    timeSelect = fromD;
-                    dateLimit.setDate(fromD);
-                    var lowVal = fromD1.getTime();
-                    console.log("lowVal: ",lowVal);
-                    var highVal = toD1.getTime();
-                    console.log("highVal: ",highVal);
-
-                    visualData = onlyBetween(history.fullData,"date",lowVal,highVal);
-                    history.timeSelection = "choose";
-                    d3.selectAll("#option_items a").classed("active", false);
-                    d3.select("#choose").classed("active", true);
-                    console.log("visualData: ",visualData.length);
-                }
-            }
-            else {
-                $('#options').append("<p id =\"error\">Error: please choose two valid dates.</p>");
-            }
-        });
-        d3.selectAll("#options a").classed("active", false);
-        d3.select("#choose").classed("active", true);
-    }
-//cleanup
-    function listenTimeClick() {
-        d3.selectAll("#options a").classed("active", false);
-
-        $("#day").click(function() {
-            dateForward = Infinity;
-            selectTime("day");
-            d3.select("#day").classed("active", true);
-        });
-        $("#week").click(function() {
-            dateForward = Infinity;
-            selectTime("week");
-            d3.select("#week").classed("active", true);
-        });
-        $("#month").click(function() {
-            dateForward = Infinity;
-            selectTime("month");
-            d3.select("#month").classed("active", true);
-        });
-        $("#all").click(function() {
-            dateForward = Infinity;
-            selectTime("all");
-            d3.select("#all").classed("active", true);
-        });
-        $("#choose").click(function() {
-            inputTime();
-        });
-    }
-
     function rmViz() {
         //remove old visualization if it exists
         $("#loader").empty();
@@ -747,35 +634,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 
     function rmOpt() {
         $("#option_items").empty();
-    }
-
-    function rmLoad() {
-        $(".spinner").remove();
-    }
-
-//should be able to remove this, but I know it's being called, so it's part of a larger cleanup
-    function loadTime() {
-        //fancy loading spinner
-        var opts = {
-            lines: 13, // The number of lines to draw
-            length: 20, // The length of each line
-            width: 10, // The line thickness
-            radius: 30, // The radius of the inner circle
-            corners: 1, // Corner roundness (0..1)
-            rotate: 0, // The rotation offset
-            direction: 1, // 1: clockwise, -1: counterclockwise
-            color: '#000', // #rgb or #rrggbb or array of colors
-            speed: 1, // Rounds per second
-            trail: 60, // Afterglow percentage
-            shadow: false, // Whether to render a shadow
-            hwaccel: false, // Whether to use hardware acceleration
-            className: 'spinner', // The CSS class to assign to the spinner
-            zIndex: 2e9, // The z-index (defaults to 2000000000)
-            top: '50%', // Top position relative to parent
-            left: '50%' // Left position relative to parent
-        };
-        var target = document.getElementById('main');
-        var spinner = new Spinner(opts).spin(target);
     }
 
     function refresh()
