@@ -20,7 +20,7 @@ define(["../app/utils", "moment"], function(utils, moment)
         }
         
         return termArray;
-    }
+    };
     
     visualization.searchWordsFun = function(words, terms) 
     {
@@ -77,7 +77,7 @@ define(["../app/utils", "moment"], function(utils, moment)
         }
         
         return searchWords;
-    }
+    };
     
     visualization.display = function(history, data) 
     {
@@ -167,7 +167,8 @@ define(["../app/utils", "moment"], function(utils, moment)
         //<p><label>Download:</label><a id="download-svg" href="#" target="_blank">SVG</a> |<a id="download-png" href="#" target="_blank">PNG</a>
 
         var width = $("#visual_div").width();
-        var height = width;
+        var height = 500;
+//        var height = width;
 
         var fill = d3.scale.category20();
         d3.layout.cloud().size([width, height])
@@ -213,7 +214,7 @@ define(["../app/utils", "moment"], function(utils, moment)
                     return d.allTerms;
                 });
         }
-    }
+    };
         
     return visualization;
 });

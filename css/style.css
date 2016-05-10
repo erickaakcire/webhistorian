@@ -5,6 +5,9 @@
 	margin-right: auto;
 }
 
+#wir {
+	padding: 25px;
+}
 #visualizations img {
    padding:1px;
    border:1px solid #888;

@@ -66,7 +66,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
             },
             function (historyItems) {
                 //list of hostnames
-                console.log("HIST LENGth: " + historyItems.length);
                 
                 for (var i = 0; i < historyItems.length; ++i) {
                     history.urlArray.push({
@@ -185,16 +184,19 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 var parser = document.createElement('a');
                 parser.href = dataItem.url;
                 var refId = dataItem.referringVisitId;
-                // if this ID is not in dataItem.visitID, subtract 1 from refId
-
-//                if (refId !== "0") {
-//                    console.log("REF ID: " + refId);
-//                }
+                // Try this for tab issues... 
+                //if this ID is not in dataItem.visitID, subtract 1 from refId
+				//    if (refId !== "0") {
+				//        console.log("REF ID: " + refId);
+				//    }
 
                 var transType = dataItem.transitionType;
                 var protocol = parser.protocol;
                 var host = parser.hostname;
-
+				
+				//need to fix google and www.google
+				//need to add something for file downloads
+				//need to add something for chrome extensions
                 var reGoogleCal = /\.google\.[a-z\.]*\/calendar\//; //run it on URL...
                 var reGoogleMaps = /\.google\.[a-z\.]*\/maps/; //run it on URL
                 var reGoogle = /\.google\.[a-z\.]*$/;
@@ -208,6 +210,7 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; //parser.hostname.match(reTwoTwoThree)
                 var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; //parser.hostname.match(reDefaultDomain)
 
+                //porblems with top level domains! getting too much stuff!
                 var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
                 var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
@@ -281,10 +284,9 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 $("#transform_progress").width("100%");
                 $("#transform_progress").html("100%");
 
-//                console.log("fullData1: ", history.fullData.length);
                 visualData = history.fullData;
                 sortByProp(visualData,"date");
-//                console.log("visualData: ", visualData.length);
+                console.log("visualData: ", visualData.length);
                 callback2();
                 callback(visualData, viz);
                 
@@ -449,10 +451,10 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         return JSON.parse(localStorage.getItem(key));
     }
 
-    function onlyBetween(array, property, lowVal, highVal) {
+    function onlyBetween(obj, property, lowVal, highVal) {
         //returns an array with only the property values between the high/low values specified
         var data = [];
-        array.forEach(function(a){
+        obj.forEach(function(a){
             var prop = a[property];
             if (prop >= lowVal && prop <= highVal) {
                 data.push(a);
@@ -571,20 +573,19 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 		var oldDomain = [];
 		var newDomain = [];
 		
-		//use onlyBetween(array, property, lowVal, highVal) to get 2 arrays, before this week domains (btwd) and this week domains (twd)
-		//for search terms:
+		var weekAendNum = weekAend.getTime();
+		var weekAstartNum = weekAstart.getTime();
+		var weekBstartNum = weekBstart.getTime();
+		
+		//before this week data array, this week data array
+		var btwd = onlyBetween(data, "date", 0, weekAstartNum);
+		var twd = onlyBetween(data, "date", weekAstartNum, weekAendNum);
 		//feed each search term, process each word (use spaces as breaks, strip punctuation and de-cap) from btwd and twd (each, separately) into an object (use stop words) -  with a count field incremented
+		
 		//new objects swbtw (search words before this week), swtw (search words this week) properties word, count
-		//use lowHighNum(swbtw, count, false) lowHighNum(swtw, count,false) 
-		//to get stuff for domains:
-		//use countSomething(data, domain) to get unique domains with counts, forming two new arrays, (btwdu) (twdu)
-		//compare the arrays to find the ones only in this week, form a new object (otwu) 
-		//find the highest count from the comparison results using lowHighNum(otwu, count, false)
-			//return the domain to topNew
-		//find the highest count from this week lowHighNum(twdu, count, false) 
-			//return the domain to topThisWeek
-		//find the highest count from before this week lowHighNum(btwdu, count, false) 
-			//return the domain to topAllTime
+		//create newSwtw - if the term isn't in swbtw push the item from swtw into the new object
+
+		
 		
 		for (var i = 0; i < data.length; i++) {
 			if (data[i].date < weekBstart.getTime()) {
@@ -603,11 +604,13 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 		if (countA > countB) { percentML = "more than";} 
 		if (countA < countB) { percentML = "less than"; }
 		if (countA == countB) {	percentML = "the same as"; }
-		
-		//temp until it works
-		var topNew = "google.com";
-		
 		var percent = Math.round(Math.abs( ((countA-countB) / (countB)) * 100));
+		
+		//until I have actual variables to put in
+		var newDomainTw = "hitthebricks.com";
+		var topDomainTw = "google.com";
+		var newTermTw = "funk";
+		var topTermTw = "javascript";
 		
 		return {
 			weekAend: weekAend,
@@ -616,7 +619,10 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 			weekBstart: weekBstart,
 			percent: percent,
 			percentML: percentML,
-			topNew: topNew
+			newDomainTw: newDomainTw,
+			topDomainTw: topDomainTw,
+			newTermTw: newTermTw,
+			topTermTw: topTermTw
 		};
 	}
 
@@ -794,7 +800,7 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
             $("#navbar").show();
 
             $("#load_data").click(function () 
-            { //used for researcher edition
+            { //used for researcher edition - adapt for demo!
                 var fileName = prompt("Please enter the file name");
                 d3.json(fileName, function(error, root) {
                     if (root === undefined) 
@@ -827,14 +833,22 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 				var bStart = moment(weekData.weekBstart).format("ddd MMM D");
 				var percent = weekData.percent;
 				var percentML = weekData.percentML;
-				var topNew = weekData.topNew;
+				var newDomainTw = weekData.newDomainTw;
+				var topDomainTw = weekData.topDomainTw;
+				var newTermTw = weekData.newTermTw;
+				var topTermTw = weekData.topTermTw;
 				
 				if (lastUl > 1) {
 					lastUlD = moment(lastUl).format("MMM DD, YYYY");
 				}
 				else {lastUlD = "Never";}
 		
-            	return "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web " + percent + "% " + percentML + " last week (" + bStart + " to " + bEnd + ")." + "</p>The new web site you visited the most this week was <a href=\""+ topNew +"\">"+ topNew +"</a></p><h3>Info</h3><p>You last uploaded your browsing data on: "+ lastUlD +"</p><p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
+            	return "<h3>Using Web Historian</h3><p>Web Historian is part of a research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>.\
+            	If you are over 18 years old and you live the U.S. we ask you to consider participating in the research project by clicking the \"Upload & Participate\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>\ above. Participating takes about 5 minutes. </p>\
+            	<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ")." + "</p> \
+            	<p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">"+ topDomainTw +"</a></strong>. The website you visited for the first time this week that you visited the most was <strong><a href=\"http://"+ newDomainTw +"\"target=\"_blank\">"+ newDomainTw +"</a></strong>. </p> \
+            	<p>The search term you used the most this week was <strong>"+ topTermTw +"</strong>. The search term you used for the first time this week that you used the most was <strong>"+ newTermTw +"</strong>.\
+            	<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p><p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
             });
             
             $('#upload_modal').on('show.bs.modal', function (e) 
