@@ -24,18 +24,15 @@ define(["../app/utils", "moment"], function(utils, moment)
         var filteredData = utils.filterByDates(data, startDate, endDate);
         var termArray = utils.generateTerms(filteredData);
 		var sortedTerms = utils.sortByProperty(termArray,"term");
-        uniqueTerms = utils.uniqueCount(sortedTerms, "term");
+        var uniqueTerms = utils.uniqueCountST(sortedTerms, "term");
 
         var allSearchWords = utils.searchTermsToWords(uniqueTerms);
-        var maxWords = Math.max.apply(Math,array.map(function(allSearchWords){return o.count;}));//write a util for this - find max value of a property
-
-		
+        
 		var sortedAllWords = utils.sortByProperty(allSearchWords, "word");
 
-        var searchWords = utils.searchWordsFun(sortedAllWords, uniqueTerms);
-
-        // Search Words word cloud visulization based on work by Jason Davies
-        //searchWords text, size, allTerms
+        var searchWords = utils.searchWordsFun(sortedAllWords, uniqueTerms);// new one
+        
+        var maxCount = Math.max.apply(Math,searchWords.map(function(searchWords){return searchWords.size;}));//find max value of a property
 
         d3.select("#" + history.timeSelection).classed("active", true);
 
