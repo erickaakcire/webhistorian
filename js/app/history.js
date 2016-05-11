@@ -19,7 +19,7 @@
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. 
  */
 
-define(["spin", "moment", "../app/config"], function (Spinner, moment, config) 
+define(["moment", "../app/config"], function (moment, config) 
 {
     var history = {};
     
@@ -184,6 +184,7 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 var parser = document.createElement('a');
                 parser.href = dataItem.url;
                 var refId = dataItem.referringVisitId;
+                var title = dataItem.title;
                 // Try this for tab issues... 
                 //if this ID is not in dataItem.visitID, subtract 1 from refId
 				//    if (refId !== "0") {
@@ -195,11 +196,10 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 var host = parser.hostname;
 				
 				//need to fix google and www.google
-				//need to add something for file downloads
-				//need to add something for chrome extensions
-                var reGoogleCal = /\.google\.[a-z\.]*\/calendar\//; //run it on URL...
-                var reGoogleMaps = /\.google\.[a-z\.]*\/maps/; //run it on URL
+                var reGoogleCal = /\.google\.[a-z\.]*\/calendar\//;
+                var reGoogleMaps = /\.google\.[a-z\.]*\/maps/;
                 var reGoogle = /\.google\.[a-z\.]*$/;
+                var reGoogleOnly = /^google\.[a-z\.]*$/;
                 var reBing = /\.bing\.com/;
                 var reWwwGoogle = /www\.google\.[a-z\.]*$/;
                 var reAol = /\.aol\.[a-z\.]*$/;
@@ -217,8 +217,20 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 if (parser.href.match(reGoogleCal)) {
                     domain = "google calendar";
                 }
+                else if (protocol === "chrome-extension:") {
+                	if (title != ""){
+                		domain = title;
+                	}
+                	else {domain = "Chrome Extension";}  	
+                }
+                else if (protocol === "file:") {
+                	domain = "file";
+                }
+                else if (host.match(reWwwGoogle) || host.match(reGoogleOnly)) {
+                	domain = "Google";
+                }
                 else if (parser.href.match(reGoogleMaps)) {
-                    domain = "google maps";
+                    domain = "Google Maps";
                 }
                 else if (host.match(reGoogle) || host.match(reBlogspot) || host.match(reYahoo) || host.match(reAol)) {
                     domain = host;
@@ -419,7 +431,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         else {
             var visits = urls.visitCount;
             var url1 = urls.url;
-//            console.log(urls);
             var d = new Date();
             chrome.history.deleteUrl({url: url1});
             var removalRecord = {timeRemoved: d.getTime(), numUrls: 1, numVisits: visits};

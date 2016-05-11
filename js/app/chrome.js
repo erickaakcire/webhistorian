@@ -51,6 +51,7 @@ chrome.alarms.onAlarm.addListener(function(alarm)
 				title: "Time to transmit data!"
 			});	
 			//put in a special message asking for more data
+			//do a special case if they have uploaded but not completed the survey
 		}
 		else
 		{

@@ -197,7 +197,9 @@ define(["../app/utils", "moment"], function(utils, moment)
 		});
 		
 		$('table#all_visualization').bootstrapTable('expandRow', 0);
-		
+		$("#title h1").text("All Visits");
+		$("#title h2").text(data.length + " visits from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
+
 		var updateAllRemoveButton = function()
 		{
 			var count = visualization.allChecked.length;
