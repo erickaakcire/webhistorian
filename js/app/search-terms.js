@@ -1,4 +1,4 @@
-define(["../app/utils", "moment"], function(utils, moment) 
+define(["../app/utils", "moment","../app/search-term-utils"], function(utils, moment, search-term-utils) 
 {
     var visualization = {};
   	
@@ -22,15 +22,15 @@ define(["../app/utils", "moment"], function(utils, moment)
         var startDate = utils.startDate();
         var endDate = utils.endDate();
         var filteredData = utils.filterByDates(data, startDate, endDate);
-        var termArray = utils.generateTerms(filteredData);
+        var termArray = st-utils.generateTerms(filteredData);
 		var sortedTerms = utils.sortByProperty(termArray,"term");
-        var uniqueTerms = utils.uniqueCountST(sortedTerms, "term");
+        var uniqueTerms = st-utils.uniqueCountST(sortedTerms, "term");
 
-        var allSearchWords = utils.searchTermsToWords(uniqueTerms);
+        var allSearchWords = st-utils.searchTermsToWords(uniqueTerms);
         
 		var sortedAllWords = utils.sortByProperty(allSearchWords, "word");
 
-        var searchWords = utils.searchWordsFun(sortedAllWords, uniqueTerms);// new one
+        var searchWords = st-utils.searchWordsFun(sortedAllWords, uniqueTerms);// new one
         
         var maxCount = Math.max.apply(Math,searchWords.map(function(searchWords){return searchWords.size;}));//find max value of a property
 

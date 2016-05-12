@@ -142,7 +142,33 @@ define(function() {
         return null;
     };
     
-    //pull in old uniqueCount function for more general application
+    utils.uniqueCount = function(data, key) 
+    {
+        var countTerms = 1;
+        var uniqueTerms = [];
+        var term = key;
+
+        for (i = 0; i < data.length; i++) 
+        {
+            var thisTerm = data[i].term;
+            var prevTerm = "";
+            
+            if (i > 0) 
+            {
+                prevTerm = data[i - 1].term;
+            }
+
+            if (thisTerm === prevTerm) 
+            {
+                countTerms++;
+            }
+            else 
+            {
+                uniqueTerms.push({term: thisTerm, value: countTerms});
+            }
+        }
+        return uniqueTerms;
+    };
     
     //unique count function for search terms
     utils.uniqueCountST = function(data, key) 

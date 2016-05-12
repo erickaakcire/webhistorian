@@ -207,10 +207,12 @@ define(["moment", "../app/config"], function (moment, config)
                 var reYahoo = /\.yahoo\.[a-z\.]*$/;
                 var reYahooSearchDomain = /search\.yahoo\.[a-z\.]*$/;
                 var reAsk = /\.ask\.[a-z\.]*$/;
-                var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; //parser.hostname.match(reTwoTwoThree)
-                var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; //parser.hostname.match(reDefaultDomain)
+                //also blah.net.cn - misc.three.two
+                var reThreeTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
+                var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; 
+                var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; 
 
-                //porblems with top level domains! getting too much stuff!, also blah.net.cn - misc.three.two
+                //porblems with top level domains! getting too much stuff!, 
                 var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
                 var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
@@ -234,6 +236,9 @@ define(["moment", "../app/config"], function (moment, config)
                 }
                 else if (host.match(reGoogle) || host.match(reBlogspot) || host.match(reYahoo) || host.match(reAol)) {
                     domain = host;
+                }
+                else if (host.match(reThreeTwoThree)) {
+                	domain = host.replace(reTwoTwoThree, "$1");
                 }
                 else if (host.match(reTwoTwoThree)) {
                     domain = host.replace(reTwoTwoThree, "$1");
@@ -352,6 +357,7 @@ define(["moment", "../app/config"], function (moment, config)
         window.setTimeout(transformDataItem, 0);
     }
 
+    //I think this is in utils...
     function findIndexByKeyValue(arrayToSearch, key, valueToSearch) 
     {    	
         for (var i = 0; i < arrayToSearch.length; i++) 
@@ -366,7 +372,7 @@ define(["moment", "../app/config"], function (moment, config)
         
         return null;
     }
-
+	//in utils?
     history.findIndexArrByKeyValue = function(arraytosearch, key, valuetosearch) 
     {
         var indexArray = [];
@@ -381,7 +387,7 @@ define(["moment", "../app/config"], function (moment, config)
         
         return indexArray;
     };
-
+	
     history.getSuppressedUrl = function(data, key, value) 
     {
         var index = history.findIndexArrByKeyValue(data, key, value);
@@ -520,7 +526,7 @@ define(["moment", "../app/config"], function (moment, config)
             return last;
         }
     }
-
+	//def in utils
     function sortByProp(data, sort) {
         var sorted = data.sort(function (a, b) {
             if (a[sort] < b[sort])
@@ -531,7 +537,7 @@ define(["moment", "../app/config"], function (moment, config)
         });
         return sorted;
     }
-
+	//def in utils
     function sortByPropRev(data, sort) {
         var sorted = data.sort(function (a, b) {
             if (a[sort] > b[sort])
@@ -588,9 +594,13 @@ define(["moment", "../app/config"], function (moment, config)
 		//before this week data array, this week data array
 		var btwd = onlyBetween(data, "date", 0, weekAstartNum);
 		var twd = onlyBetween(data, "date", weekAstartNum, weekAendNum);
-		//feed each search term, process each word (use spaces as breaks, strip punctuation and de-cap) from btwd and twd (each, separately) into an object (use stop words) -  with a count field incremented
+		//search terms array (for each input)
+		//unique search terms array (for each)
+		//search words array (for each)
+		//unique search words, cleaned and counted (for each input) - swbtw (search words before this week), swtw (search words this week) properties word, count
+		//var swbtw = utils. ;
+		//var swtw = utils. ;
 		
-		//new objects swbtw (search words before this week), swtw (search words this week) properties word, count
 		//create newSwtw - if the term isn't in swbtw push the item from swtw into the new object
 
 		
@@ -668,27 +678,33 @@ define(["moment", "../app/config"], function (moment, config)
             $('#viz_selector').show();
             $("#navbar").show();
 
-            $("#load_data").click(function () 
-            { //used for researcher edition - adapt for demo!
-                var fileName = prompt("Please enter the file name");
-                d3.json(fileName, function(error, root) {
-                    if (root === undefined) 
-                    {
-                        $('#' + divName).append("<div id=\"visualization\"><h3>Error loading data, check file name and file format</h3></div>");
-                    }
-                    else 
-                    {
-                        history.fullData = [];
-                        history.fullData = root.data;
-                        visualData = [];
-                        visualData = root.data;
+            $("#left_logo").click(function () 
+            { 
+                //get existing data
+                //call the 
+            });
+
+           // $("#load_data").click(function () 
+            //{ //used for researcher edition - adapt for demo!
+              //  var fileName = prompt("Please enter the file name");
+                //d3.json(fileName, function(error, root) {
+                  //  if (root === undefined) 
+                    //{
+                      //  $('#' + divName).append("<div id=\"visualization\"><h3>Error loading data, check file name and file format</h3></div>");
+                   // }
+                   // else 
+                   // {
+                     //   history.fullData = [];
+                       // history.fullData = root.data;
+                   //     visualData = [];
+                     //   visualData = root.data;
 //                        console.log("file load success");
 //                        console.log("fullData1: ",history.fullData.length);
 //                        console.log("visualData: ",visualData.length);
-                        history.timeSelection = "all";
-                    }
-                });
-            });
+                    //    history.timeSelection = "all";
+                   // }
+               // });
+           // });
             
             var now = new Date();
             var weekData = compareWeekVisits(now,visualData);
@@ -713,7 +729,7 @@ define(["moment", "../app/config"], function (moment, config)
 				else {lastUlD = "Never";}
 		
             	return "<h3>Using Web Historian</h3><p>Web Historian is part of a research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>.\
-            	If you are over 18 years old and you live the U.S. we ask you to consider participating in the research project by clicking the \"Upload & Participate\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>\ above. Participating takes about 5 minutes. </p>\
+            	If you are over 18 years old and you live the U.S. we ask you to consider participating in the research project by clicking the \"Upload & Participate\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>\ above. Participating takes about 5 minutes and supports a research project based on partnering with users through informed consent to analyze important data that helps us understand our online world, rather than partnering with corporations that obscure consent in lengthy terms of service agreements. </p>\
             	<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ")." + "</p> \
             	<p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">"+ topDomainTw +"</a></strong>. The website you visited for the first time this week that you visited the most was <strong><a href=\"http://"+ newDomainTw +"\"target=\"_blank\">"+ newDomainTw +"</a></strong>. </p> \
             	<p>The search term you used the most this week was <strong>"+ topTermTw +"</strong>. The search term you used for the first time this week that you used the most was <strong>"+ newTermTw +"</strong>.\
