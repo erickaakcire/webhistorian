@@ -1,8 +1,6 @@
-define(["../app/utils", "moment","../app/search-term-utils"], function(utils, moment, search-term-utils) 
+define(["../app/utils", "moment", "../app/search-term-utils"], function(utils, moment, search-term-utils) 
 {
     var visualization = {};
-  	
-  	
   	
     visualization.display = function(history, data) 
     {
