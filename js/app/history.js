@@ -19,7 +19,7 @@
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. 
  */
 
-define(["moment", "../app/config"], function (moment, config) 
+define(["moment", "../app/config", "../app/utils"], function (moment, config, utils) 
 {
     var history = {};
     
@@ -196,7 +196,6 @@ define(["moment", "../app/config"], function (moment, config)
                 var host = parser.hostname;
 				
 				//need to fix google and www.google
-                var reGoogleCal = /\.google\.[a-z\.]*\/calendar\//;
                 var reGoogleMaps = /\.google\.[a-z\.]*\/maps/;
                 var reGoogle = /\.google\.[a-z\.]*$/;
                 var reGoogleOnly = /^google\.[a-z\.]*$/;
@@ -216,8 +215,8 @@ define(["moment", "../app/config"], function (moment, config)
                 var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
                 var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
-                if (parser.href.match(reGoogleCal)) {
-                    domain = "google calendar";
+                if (parser.href.match(reGoogleMaps)) {
+                    domain = "Google Maps";
                 }
                 else if (protocol === "chrome-extension:") {
                 	if (title != ""){
@@ -226,13 +225,10 @@ define(["moment", "../app/config"], function (moment, config)
                 	else {domain = "Chrome Extension";}  	
                 }
                 else if (protocol === "file:") {
-                	domain = "file";
+                	domain = "Local File";
                 }
                 else if (host.match(reWwwGoogle) || host.match(reGoogleOnly)) {
                 	domain = "Google";
-                }
-                else if (parser.href.match(reGoogleMaps)) {
-                    domain = "Google Maps";
                 }
                 else if (host.match(reGoogle) || host.match(reBlogspot) || host.match(reYahoo) || host.match(reAol)) {
                     domain = host;
@@ -577,58 +573,64 @@ define(["moment", "../app/config"], function (moment, config)
     }
 
 	function compareWeekVisits(startDate, data) {
-		//
 		var weekAend = startDate;
 		var weekAstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-7) );
 		var weekBstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-14) );
-		
-		var countA = 0;
-		var countB = 0;
-		var oldDomain = [];
-		var newDomain = [];
 		
 		var weekAendNum = weekAend.getTime();
 		var weekAstartNum = weekAstart.getTime();
 		var weekBstartNum = weekBstart.getTime();
 		
 		//before this week data array, this week data array
-		var btwd = onlyBetween(data, "date", 0, weekAstartNum);
 		var twd = onlyBetween(data, "date", weekAstartNum, weekAendNum);
+		var lwd = onlyBetween(data, "date", weekBstartNum ,weekAstartNum);
+		var countA = twd.length;
+		var countB = lwd.length;
 		//search terms array (for each input)
+		var stTwd = utils.generateTerms(twd);
+		var stLwd = utils.generateTerms(lwd);
+		//sort terms array
+		var sStTwd = utils.sortByProperty(stTwd,"term");
+		var sStLwd = utils.sortByProperty(stLwd,"term");
 		//unique search terms array (for each)
+		var ustTwd = utils.uniqueCountST(sStTwd, "term");
+		var ustLwd = utils.uniqueCountST(sStLwd, "term");
 		//search words array (for each)
+		var swTwd = utils.searchTermsToWords(ustTwd);
+		var swLwd = utils.searchTermsToWords(ustLwd);
+		//sort words
+		var sSwTwd = utils.sortByProperty(swTwd, "word");
+		var sSwLwd = utils.sortByProperty(swLwd, "word");
 		//unique search words, cleaned and counted (for each input) - swbtw (search words before this week), swtw (search words this week) properties word, count
-		//var swbtw = utils. ;
-		//var swtw = utils. ;
+		var swlw = utils.searchWordsFun(sSwLwd, ustLwd);
+		var swtw = utils.searchWordsFun(sSwTwd, ustTwd);
+		var maxCountLwSize = Math.max.apply(Math,swlw.map(function(swlw){return swlw.size;}));
+		var indexMaxCountLwSize = utils.findIndexByKeyValue(swlw,"size",maxCountLwSize);
+		var maxCountTwSize = Math.max.apply(Math,swtw.map(function(swtw){return swtw.size;}));
+		var indexMaxCountTwSize = utils.findIndexByKeyValue(swtw,"size",maxCountTwSize);
 		
-		//create newSwtw - if the term isn't in swbtw push the item from swtw into the new object
-
 		
-		
-		for (var i = 0; i < data.length; i++) {
-			if (data[i].date < weekBstart.getTime()) {
-				//oldDomain
-				oldDomain.push(data[i].domain);
-			}
-			if (data[i].date < weekAstart.getTime() && data[i].date >= weekBstart.getTime()){
-				countB = countB+1;
-				//oldDomain
-				}
-			if (data[i].date >= weekAstart.getTime() && data[i].date <= weekAend.getTime()) {
-				countA = countA+1;
-				//newDomain
-			}
-		}
-		if (countA > countB) { percentML = "more than";} 
+		//sort arrays by domain (this week data sorted domain)
+		var lwdSd = utils.sortByProperty(lwd,"domain");
+		var twdSd = utils.sortByProperty(twd,"domain");
+		//unique domains with count (domains this week, domains last week)
+		var dlw = utils.countsOfProperty(lwdSd, "domain");
+		var dtw = utils.countsOfProperty(twdSd, "domain");
+		//find the max value
+		var maxDlw = Math.max.apply(Math,dlw.map(function(dlw){return dlw.count;}));
+		var maxDtw = Math.max.apply(Math,dtw.map(function(dtw){return dtw.count;}));
+		//find the index of the item with the max value
+		var indexMaxCountLwDs = utils.findIndexByKeyValue(dlw,"count",maxDlw);
+		var indexMaxCountTwDs = utils.findIndexByKeyValue(dtw, "count", maxDtw);
+		//displaying results
+		if (countA >countB) { percentML = "more than";} 
 		if (countA < countB) { percentML = "less than"; }
 		if (countA == countB) {	percentML = "the same as"; }
 		var percent = Math.round(Math.abs( ((countA-countB) / (countB)) * 100));
-		
-		//until I have actual variables to put in
-		var newDomainTw = "hitthebricks.com";
-		var topDomainTw = "google.com";
-		var newTermTw = "funk";
-		var topTermTw = "javascript";
+		var topDomainLw = dlw[indexMaxCountLwDs].counter;
+		var topDomainTw = dtw[indexMaxCountTwDs].counter;
+		var topTermLw = swlw[indexMaxCountLwSize].text;
+		var topTermTw = swtw[indexMaxCountTwSize].text;
 		
 		return {
 			weekAend: weekAend,
@@ -637,9 +639,9 @@ define(["moment", "../app/config"], function (moment, config)
 			weekBstart: weekBstart,
 			percent: percent,
 			percentML: percentML,
-			newDomainTw: newDomainTw,
+			topDomainLw: topDomainLw,
 			topDomainTw: topDomainTw,
-			newTermTw: newTermTw,
+			topTermLw: topTermLw,
 			topTermTw: topTermTw
 		};
 	}
@@ -718,22 +720,50 @@ define(["moment", "../app/config"], function (moment, config)
 				var bStart = moment(weekData.weekBstart).format("ddd MMM D");
 				var percent = weekData.percent;
 				var percentML = weekData.percentML;
-				var newDomainTw = weekData.newDomainTw;
+				var topDomainLw = weekData.topDomainLw;
 				var topDomainTw = weekData.topDomainTw;
-				var newTermTw = weekData.newTermTw;
+				var topTermLw = weekData.topTermLw;
+				//var topTermListLw = weekData.topTermListLw;
+				//problems with tooltips... 
 				var topTermTw = weekData.topTermTw;
+				//var topTermListTw = weekData.topTermListTw;
 				
 				if (lastUl > 1) {
 					lastUlD = moment(lastUl).format("MMM DD, YYYY");
 				}
 				else {lastUlD = "Never";}
-		
-            	return "<h3>Using Web Historian</h3><p>Web Historian is part of a research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>.\
-            	If you are over 18 years old and you live the U.S. we ask you to consider participating in the research project by clicking the \"Upload & Participate\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>\ above. Participating takes about 5 minutes and supports a research project based on partnering with users through informed consent to analyze important data that helps us understand our online world, rather than partnering with corporations that obscure consent in lengthy terms of service agreements. </p>\
-            	<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ")." + "</p> \
-            	<p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">"+ topDomainTw +"</a></strong>. The website you visited for the first time this week that you visited the most was <strong><a href=\"http://"+ newDomainTw +"\"target=\"_blank\">"+ newDomainTw +"</a></strong>. </p> \
-            	<p>The search term you used the most this week was <strong>"+ topTermTw +"</strong>. The search term you used for the first time this week that you used the most was <strong>"+ newTermTw +"</strong>.\
-            	<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p><p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
+				
+				if (topTermLw === topTermTw){
+					topTermLwD = "the same";
+				}
+				else {topTermLwD = "<strong>" + topTermLw + " </strong>";}
+				
+				if (topDomainTw === "Google") {
+					topDomainTw = "google.com";
+				} else if (topDomainTw === "Google Maps") {
+					topDomainTw = "google.com/maps";
+				}
+				if (topDomainLw === "Google") {
+					topDomainLw = "google.com";
+				} else if (topDomainLw === "Google Maps") {
+					topDomainLw = "google.com/maps";
+				}
+				
+				if (topDomainTw === topDomainLw) {
+					topDomainLwD = "the same";
+				}
+				else { topDomainLwD = "<strong><a href=\"http://" + topDomainLw + "\" target=\"_blank\">" + topDomainLw + "</a></strong>";}
+				
+				var researchAd = "<div id=\"research\"><h3>Using Web Historian</h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps us understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span> above. Participating takes about 5 minutes and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to share using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a> above.</p></div>";
+				var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p>";
+				//Your central jumping-off point for exploring the web this week was * this week. It was * last week.
+				var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
+				var thanks = "<h3>Thank you for participating!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and further studies <a href=\"https://american.co1.qualtrics.com/SE/?SID=SV_3BNk0sU18jdrmct\" target=\"_blank\">click here to sign up</a></p>";
+				
+            	if (lastUl === "Never") {
+            		return weekInReview + thanks + footer;
+            	}
+            	else { return researchAd + weekInReview + footer; }            	 
             });
             
             $('#upload_modal').on('show.bs.modal', function (e) 

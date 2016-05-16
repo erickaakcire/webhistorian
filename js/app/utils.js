@@ -1,6 +1,7 @@
 define(function() {
     var utils = {};
-
+    
+	//does this work??
     utils.sortByProperty = function(data, sort) 
     {
         return data.sort(function (a, b) 
@@ -399,6 +400,7 @@ define(function() {
             var thisWord = words[i].word;
             var thisTermId = words[i].termId;
             var thisTerm = "";
+            var domain = words[i].domain;
             
             if (terms[thisTermId - 1].term) 
             {
