@@ -18,7 +18,7 @@
  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. 
  */
 
-define(["spin", "moment", "../app/config"], function (Spinner, moment, config) 
+define(["moment", "../app/config", "../app/utils"], function (moment, config, utils) 
 {
     var history = {};
     
@@ -65,7 +65,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
             },
             function (historyItems) {
                 //list of hostnames
-                console.log("HIST LENGth: " + historyItems.length);
                 
                 for (var i = 0; i < historyItems.length; ++i) {
                     history.urlArray.push({
@@ -184,20 +183,21 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 var parser = document.createElement('a');
                 parser.href = dataItem.url;
                 var refId = dataItem.referringVisitId;
-                // if this ID is not in dataItem.visitID, subtract 1 from refId
-
-//                if (refId !== "0") {
-//                    console.log("REF ID: " + refId);
-//                }
+                var title = dataItem.title;
+                // Try this for tab issues... 
+                //if this ID is not in dataItem.visitID, subtract 1 from refId
+				//    if (refId !== "0") {
+				//        console.log("REF ID: " + refId);
+				//    }
 
                 var transType = dataItem.transitionType;
                 var protocol = parser.protocol;
                 var host = parser.hostname;
-
-                var reGoogleCal = /\.google\.[a-z\.]*\/calendar\//; //run it on URL...
-                var reGoogleMaps = /\.google\.[a-z\.]*\/maps/; //run it on URL
+				
+				//need to fix google and www.google
+                var reGoogleMaps = /\.google\.[a-z\.]*\/maps/;
                 var reGoogle = /\.google\.[a-z\.]*$/;
-                //dutch portals?
+                var reGoogleOnly = /^google\.[a-z\.]*$/;
                 var reBing = /\.bing\.com/;
                 var reWwwGoogle = /www\.google\.[a-z\.]*$/;
                 var reAol = /\.aol\.[a-z\.]*$/;
@@ -205,20 +205,35 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 var reYahoo = /\.yahoo\.[a-z\.]*$/;
                 var reYahooSearchDomain = /search\.yahoo\.[a-z\.]*$/;
                 var reAsk = /\.ask\.[a-z\.]*$/;
-                var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; //parser.hostname.match(reTwoTwoThree)
-                var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; //parser.hostname.match(reDefaultDomain)
+                //also blah.net.cn - misc.three.two
+                var reThreeTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
+                var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; 
+                var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; 
 
+                //porblems with top level domains! getting too much stuff!, 
                 var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
                 var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
-                if (parser.href.match(reGoogleCal)) {
-                    domain = "google calendar";
+                if (parser.href.match(reGoogleMaps)) {
+                    domain = "Google Maps";
                 }
-                else if (parser.href.match(reGoogleMaps)) {
-                    domain = "google maps";
+                else if (protocol === "chrome-extension:") {
+                	if (title != ""){
+                		domain = title;
+                	}
+                	else {domain = "Chrome Extension";}  	
+                }
+                else if (protocol === "file:") {
+                	domain = "Local File";
+                }
+                else if (host.match(reWwwGoogle) || host.match(reGoogleOnly)) {
+                	domain = "Google";
                 }
                 else if (host.match(reGoogle) || host.match(reBlogspot) || host.match(reYahoo) || host.match(reAol)) {
                     domain = host;
+                }
+                else if (host.match(reThreeTwoThree)) {
+                	domain = host.replace(reTwoTwoThree, "$1");
                 }
                 else if (host.match(reTwoTwoThree)) {
                     domain = host.replace(reTwoTwoThree, "$1");
@@ -281,10 +296,9 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 $("#transform_progress").width("100%");
                 $("#transform_progress").html("100%");
 
-//                console.log("fullData1: ", history.fullData.length);
                 visualData = history.fullData;
                 sortByProp(visualData,"date");
-//                console.log("visualData: ", visualData.length);
+                console.log("visualData: ", visualData.length);
                 callback2();
                 callback(visualData, viz);
                 
@@ -338,10 +352,9 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         window.setTimeout(transformDataItem, 0);
     }
 
+    //I think this is in utils...
     function findIndexByKeyValue(arrayToSearch, key, valueToSearch) 
-    {
-//    	console.log("KEY: " + key + " -- " + JSON.stringify(arrayToSearch, null, 2) + " -- " + valueToSearch);
-    	
+    {    	
         for (var i = 0; i < arrayToSearch.length; i++) 
         {
             var item = arrayToSearch[i][key];
@@ -354,7 +367,7 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         
         return null;
     }
-
+	//in utils?
     history.findIndexArrByKeyValue = function(arraytosearch, key, valuetosearch) 
     {
         var indexArray = [];
@@ -368,8 +381,8 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         }
         
         return indexArray;
-    }
-
+    };
+	
     history.getSuppressedUrl = function(data, key, value) 
     {
         var index = history.findIndexArrByKeyValue(data, key, value);
@@ -419,7 +432,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         else {
             var visits = urls.visitCount;
             var url1 = urls.url;
-//            console.log(urls);
             var d = new Date();
             chrome.history.deleteUrl({url: url1});
             var removalRecord = {timeRemoved: d.getTime(), numUrls: 1, numVisits: visits};
@@ -451,10 +463,10 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         return JSON.parse(localStorage.getItem(key));
     }
 
-    function onlyBetween(array, property, lowVal, highVal) {
+    function onlyBetween(obj, property, lowVal, highVal) {
         //returns an array with only the property values between the high/low values specified
         var data = [];
-        array.forEach(function(a){
+        obj.forEach(function(a){
             var prop = a[property];
             if (prop >= lowVal && prop <= highVal) {
                 data.push(a);
@@ -509,9 +521,8 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
             return last;
         }
     }
-
+	//def in utils
     function sortByProp(data, sort) {
-        loadTime();
         var sorted = data.sort(function (a, b) {
             if (a[sort] < b[sort])
                 return -1;
@@ -521,9 +532,8 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         });
         return sorted;
     }
-
+	//def in utils
     function sortByPropRev(data, sort) {
-        loadTime();
         var sorted = data.sort(function (a, b) {
             if (a[sort] > b[sort])
                 return -1;
@@ -535,24 +545,9 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
     }
 
 //Passing data to visualizations
-    function timeLineData(data, callback) {
-        //fullData1: id, url, urlId, protocol, domain, topDomain, searchTerms, date, transType, refVisitId, title
-        var timeLine = [];
-        var dates = [];
-        for (var i = 0; i < data.length; i++) {
-            var m = new Date(data[i].date);
-            var day = ("0" + m.getDate()).slice(-2);
-            var month = ("0" + (m.getMonth() + 1) ).slice(-2);
-            var hour = ("0" + m.getHours()).slice(-2);
-            var date = m.getFullYear() + "/" + month + "/" + day + ":" + hour;
-            dates.push({date: date});
-        }
-        timeLine = countSomething(dates, "date");
-        callback(timeLine);
-    }
 
     function submissionData(callback) {
-        loadTime();
+//        loadTime();
         var userId = chrome.runtime.id;
         var removals = [];
         if (getStoredData("removals") != null) {
@@ -567,244 +562,88 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
     }
 
     function noTransform(data, callback) {
-        loadTime();
+//        loadTime();
         callback(data);
     }
 
 
-    function timeLineViz(dataset) {
-        // based on Mike Bostock's example: http://bl.ocks.org/mbostock/1667367
-
-        d3.select("#title").append("h1").text("Time Line: Volume of web history").attr("id", "viz_title");
-
-        var margin = {top: 10, right: 10, bottom: 100, left: 40},
-            margin2 = {top: 430, right: 10, bottom: 20, left: 40},
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom,
-            height2 = 500 - margin2.top - margin2.bottom;
-
-        var parseDate = d3.time.format("%Y/%m/%d:%H").parse;
-
-        var x = d3.time.scale().range([0, width]),
-            x2 = d3.time.scale().range([0, width]),
-            y = d3.scale.linear().range([height, 0]),
-            y2 = d3.scale.linear().range([height2, 0]);
-
-        var xAxis = d3.svg.axis().scale(x).orient("bottom"),
-            xAxis2 = d3.svg.axis().scale(x2).orient("bottom"),
-            yAxis = d3.svg.axis().scale(y).orient("left");
-
-        var brush = d3.svg.brush()
-            .x(x2)
-            .on("brush", brushed);
-
-        var area = d3.svg.area()
-            .interpolate("monotone")
-            .x(function (d) {
-                return x(d.day);
-            })
-            .y0(height)
-            .y1(function (d) {
-                return y(d.count);
-            });
-
-        var area2 = d3.svg.area()
-            .interpolate("monotone")
-            .x(function (d) {
-                return x2(d.day);
-            })
-            .y0(height2)
-            .y1(function (d) {
-                return y2(d.count);
-            });
-
-        var svg = d3.select("#" + divName).append("svg")
-            .attr("width", width + margin.left + margin.right)
-            .attr("height", height + margin.top + margin.bottom)
-            .attr("id", "visualization");
-
-        svg.append("defs").append("clipPath")
-            .attr("id", "clip")
-            .append("rect")
-            .attr("width", width)
-            .attr("height", height);
-
-        var focus = svg.append("g")
-            .attr("class", "focus")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        var context = svg.append("g")
-            .attr("class", "context")
-            .attr("transform", "translate(" + margin2.left + "," + margin2.top + ")");
-
-        for (var i = 0; i < dataset.length; i++) {
-            data = dataset[i];
-            type(data);
-            x.domain(d3.extent(data.map(data.counter)));
-            y.domain([0, d3.max(data.map(data.count))]);
-            x2.domain(x.domain());
-            y2.domain(y.domain());
-
-            focus.append("path")
-                .datum(data)
-                .attr("class", "area")
-                .attr("d", area);
-
-            focus.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
-
-            focus.append("g")
-                .attr("class", "y axis")
-                .call(yAxis);
-
-            context.append("path")
-                .datum(data)
-                .attr("class", "area")
-                .attr("d", area2);
-
-            context.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height2 + ")")
-                .call(xAxis2);
-
-            context.append("g")
-                .attr("class", "x brush")
-                .call(brush)
-                .selectAll("rect")
-                .attr("y", -6)
-                .attr("height", height2 + 7);
-        }
-
-        function brushed() {
-            x.domain(brush.empty() ? x2.domain() : brush.extent());
-            focus.select(".area").attr("d", area);
-            focus.select(".x.axis").call(xAxis);
-        }
-
-        function type(d) {
-            d.counter = parseDate(d.counter);
-            d.count = +d.count;
-            return d;
-        }
-
-        rmLoad();
-    }
-
     function noViz(data) {
         //nothing
-        rmLoad();
     }
 
-    function selectTime(time) {
-        history.timeSelection = time;
-        var d = new Date();
-        var lowVal = 0;
-
-        if (time === "day") {
-            lowVal = d.setDate(d.getDate()-1);
-        }
-        else if (time === "week") {
-            lowVal = d.setDate(d.getDate()-7);
-        }
-        else if (time === "month") {
-            lowVal = d.setDate(d.getDate()-30);
-        }
-        else if (time === "all") {
-            lowVal = d.setDate(d.getDate()-91);
-        }
-
-        var highVal = currDate.getTime();
-
-        visualData = onlyBetween(history.fullData,"date",lowVal,highVal);
-        // console.log("visualData: ",visualData.length);
-        
-        // console.log('DATA: ' + JSON.stringify(history.fullData, 2));
-    }
-
-    function inputTime() {
-        //if date input element exists, remove
-        if (document.getElementById("input_time")) {
-            $("#input_time").remove();
-        }
-
-        var lastD = new Date();
-        var todayDay = ("0" + lastD.getDate()).slice(-2);
-        var todayMonth = ("0" + (lastD.getMonth() + 1) ).slice(-2);
-        var todayYear = lastD.getFullYear();
-        var today = todayYear + "-" + todayMonth + "-" + todayDay;
-        $('#options').append("<div id=\"input_time\"><p>From: <input type=\"date\" max=" + today + " id=\"from\" /> To: <input type=\"date\" id=\"to\" max=" + today + " /> <a id=\"go\" >Submit</a> </p></div>");
-
-        $("#go").click(function() {
-            //get the actual dates chosen into variables
-            var fromInput = $("#from").val();
-            var toInput = $("#to").val();
-            var fromD = new Date(fromInput);
-            fromD = fromD.setHours(0, 0);
-            var fromD1 = new Date(fromD);
-            var toD = new Date(toInput);
-            toD = toD.setHours(23, 59);
-            var toD1 = new Date(toD);
-            //if from is less than to, give error
-            if (fromD1 != "Invalid Date" && toD1 != "Invalid Date") {
-                if (fromD1 >= toD1) {
-                    $('#options').append("<p id =\"error\">Error: the \"From\" date must come before the \"To\" date.</p>");
-                }
-                else {
-                    //remove any error messages
-                    if (document.getElementById("error")) {
-                        $("#error").remove();
-                    }
-                    timeSelect = fromD;
-                    dateLimit.setDate(fromD);
-                    var lowVal = fromD1.getTime();
-                    console.log("lowVal: ",lowVal);
-                    var highVal = toD1.getTime();
-                    console.log("highVal: ",highVal);
-
-                    visualData = onlyBetween(history.fullData,"date",lowVal,highVal);
-                    history.timeSelection = "choose";
-                    d3.selectAll("#option_items a").classed("active", false);
-                    d3.select("#choose").classed("active", true);
-                    console.log("visualData: ",visualData.length);
-                }
-            }
-            else {
-                $('#options').append("<p id =\"error\">Error: please choose two valid dates.</p>");
-            }
-        });
-        d3.selectAll("#options a").classed("active", false);
-        d3.select("#choose").classed("active", true);
-    }
-
-    function listenTimeClick() {
-        d3.selectAll("#options a").classed("active", false);
-
-        $("#day").click(function() {
-            dateForward = Infinity;
-            selectTime("day");
-            d3.select("#day").classed("active", true);
-        });
-        $("#week").click(function() {
-            dateForward = Infinity;
-            selectTime("week");
-            d3.select("#week").classed("active", true);
-        });
-        $("#month").click(function() {
-            dateForward = Infinity;
-            selectTime("month");
-            d3.select("#month").classed("active", true);
-        });
-        $("#all").click(function() {
-            dateForward = Infinity;
-            selectTime("all");
-            d3.select("#all").classed("active", true);
-        });
-        $("#choose").click(function() {
-            inputTime();
-        });
-    }
+	function compareWeekVisits(startDate, data) {
+		var weekAend = startDate;
+		var weekAstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-7) );
+		var weekBstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-14) );
+		
+		var weekAendNum = weekAend.getTime();
+		var weekAstartNum = weekAstart.getTime();
+		var weekBstartNum = weekBstart.getTime();
+		
+		//before this week data array, this week data array
+		var twd = onlyBetween(data, "date", weekAstartNum, weekAendNum);
+		var lwd = onlyBetween(data, "date", weekBstartNum ,weekAstartNum);
+		var countA = twd.length;
+		var countB = lwd.length;
+		//search terms array (for each input)
+		var stTwd = utils.generateTerms(twd);
+		var stLwd = utils.generateTerms(lwd);
+		//sort terms array
+		var sStTwd = utils.sortByProperty(stTwd,"term");
+		var sStLwd = utils.sortByProperty(stLwd,"term");
+		//unique search terms array (for each)
+		var ustTwd = utils.uniqueCountST(sStTwd, "term");
+		var ustLwd = utils.uniqueCountST(sStLwd, "term");
+		//search words array (for each)
+		var swTwd = utils.searchTermsToWords(ustTwd);
+		var swLwd = utils.searchTermsToWords(ustLwd);
+		//sort words
+		var sSwTwd = utils.sortByProperty(swTwd, "word");
+		var sSwLwd = utils.sortByProperty(swLwd, "word");
+		//unique search words, cleaned and counted (for each input) - swbtw (search words before this week), swtw (search words this week) properties word, count
+		var swlw = utils.searchWordsFun(sSwLwd, ustLwd);
+		var swtw = utils.searchWordsFun(sSwTwd, ustTwd);
+		var maxCountLwSize = Math.max.apply(Math,swlw.map(function(swlw){return swlw.size;}));
+		var indexMaxCountLwSize = utils.findIndexByKeyValue(swlw,"size",maxCountLwSize);
+		var maxCountTwSize = Math.max.apply(Math,swtw.map(function(swtw){return swtw.size;}));
+		var indexMaxCountTwSize = utils.findIndexByKeyValue(swtw,"size",maxCountTwSize);
+		
+		
+		//sort arrays by domain (this week data sorted domain)
+		var lwdSd = utils.sortByProperty(lwd,"domain");
+		var twdSd = utils.sortByProperty(twd,"domain");
+		//unique domains with count (domains this week, domains last week)
+		var dlw = utils.countsOfProperty(lwdSd, "domain");
+		var dtw = utils.countsOfProperty(twdSd, "domain");
+		//find the max value
+		var maxDlw = Math.max.apply(Math,dlw.map(function(dlw){return dlw.count;}));
+		var maxDtw = Math.max.apply(Math,dtw.map(function(dtw){return dtw.count;}));
+		//find the index of the item with the max value
+		var indexMaxCountLwDs = utils.findIndexByKeyValue(dlw,"count",maxDlw);
+		var indexMaxCountTwDs = utils.findIndexByKeyValue(dtw, "count", maxDtw);
+		//displaying results
+		if (countA >countB) { percentML = "more than";} 
+		if (countA < countB) { percentML = "less than"; }
+		if (countA == countB) {	percentML = "the same as"; }
+		var percent = Math.round(Math.abs( ((countA-countB) / (countB)) * 100));
+		var topDomainLw = dlw[indexMaxCountLwDs].counter;
+		var topDomainTw = dtw[indexMaxCountTwDs].counter;
+		var topTermLw = swlw[indexMaxCountLwSize].text;
+		var topTermTw = swtw[indexMaxCountTwSize].text;
+		
+		return {
+			weekAend: weekAend,
+			weekAstart: weekAstart,
+			weekBend: weekAstart,
+			weekBstart: weekBstart,
+			percent: percent,
+			percentML: percentML,
+			topDomainLw: topDomainLw,
+			topDomainTw: topDomainTw,
+			topTermLw: topTermLw,
+			topTermTw: topTermTw
+		};
+	}
 
     function rmViz() {
         //remove old visualization if it exists
@@ -819,34 +658,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
         $("#option_items").empty();
     }
 
-    function rmLoad() {
-        $(".spinner").remove();
-    }
-
-    function loadTime() {
-        //fancy loading spinner
-        var opts = {
-            lines: 13, // The number of lines to draw
-            length: 20, // The length of each line
-            width: 10, // The line thickness
-            radius: 30, // The radius of the inner circle
-            corners: 1, // Corner roundness (0..1)
-            rotate: 0, // The rotation offset
-            direction: 1, // 1: clockwise, -1: counterclockwise
-            color: '#000', // #rgb or #rrggbb or array of colors
-            speed: 1, // Rounds per second
-            trail: 60, // Afterglow percentage
-            shadow: false, // Whether to render a shadow
-            hwaccel: false, // Whether to use hardware acceleration
-            className: 'spinner', // The CSS class to assign to the spinner
-            zIndex: 2e9, // The z-index (defaults to 2000000000)
-            top: '50%', // Top position relative to parent
-            left: '50%' // Left position relative to parent
-        };
-        var target = document.getElementById('main');
-        var spinner = new Spinner(opts).spin(target);
-    }
-
     function refresh()
     {
         if (vizSelected != null)
@@ -857,36 +668,101 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
     $("document").ready(function () 
     {
         $("#navbar").hide();
+		chrome.storage.local.get('lastPdkUpload', function (result) {
+        	lastUl = result.lastPdkUpload;
+   		});
         
         //Get all data into fullData1
         getUrls(noTransform, noViz, function()
         {
-            //New default, append images for visualization chooser
+            //append images for visualization chooser
             $('#viz_selector').show();
             $("#navbar").show();
 
-//	        console.log('DATA: ' + JSON.stringify(history.fullData, 2));
+            $("#left_logo").click(function () 
+            { 
+                //get existing data
+                //call the 
+            });
 
-            $("#load_data").click(function () 
-            { //used for researcher edition
-                var fileName = prompt("Please enter the file name");
-                d3.json(fileName, function(error, root) {
-                    if (root === undefined) 
-                    {
-                        $('#' + divName).append("<div id=\"visualization\"><h3>Error loading data, check file name and file format</h3></div>");
-                    }
-                    else 
-                    {
-                        history.fullData = [];
-                        history.fullData = root.data;
-                        visualData = [];
-                        visualData = root.data;
+           // $("#load_data").click(function () 
+            //{ //used for researcher edition - adapt for demo!
+              //  var fileName = prompt("Please enter the file name");
+                //d3.json(fileName, function(error, root) {
+                  //  if (root === undefined) 
+                    //{
+                      //  $('#' + divName).append("<div id=\"visualization\"><h3>Error loading data, check file name and file format</h3></div>");
+                   // }
+                   // else 
+                   // {
+                     //   history.fullData = [];
+                       // history.fullData = root.data;
+                   //     visualData = [];
+                     //   visualData = root.data;
 //                        console.log("file load success");
 //                        console.log("fullData1: ",history.fullData.length);
 //                        console.log("visualData: ",visualData.length);
-                        history.timeSelection = "all";
-                    }
-                });
+                    //    history.timeSelection = "all";
+                   // }
+               // });
+           // });
+            
+            var now = new Date();
+            var weekData = compareWeekVisits(now,visualData);
+            
+            //hide "view on server" until they  have participated 
+            
+            $("#wir").html( function() {
+            	var aEnd = moment(weekData.weekAend).format("ddd MMM D");
+				var aStart = moment(weekData.weekAstart).format("ddd MMM D");
+				var bEnd = moment(weekData.weekBend).format("ddd MMM D");
+				var bStart = moment(weekData.weekBstart).format("ddd MMM D");
+				var percent = weekData.percent;
+				var percentML = weekData.percentML;
+				var topDomainLw = weekData.topDomainLw;
+				var topDomainTw = weekData.topDomainTw;
+				var topTermLw = weekData.topTermLw;
+				//var topTermListLw = weekData.topTermListLw;
+				//problems with tooltips... 
+				var topTermTw = weekData.topTermTw;
+				//var topTermListTw = weekData.topTermListTw;
+				
+				if (lastUl > 1) {
+					lastUlD = moment(lastUl).format("MMM DD, YYYY");
+				}
+				else {lastUlD = "Never";}
+				
+				if (topTermLw === topTermTw){
+					topTermLwD = "the same";
+				}
+				else {topTermLwD = "<strong>" + topTermLw + " </strong>";}
+				
+				if (topDomainTw === "Google") {
+					topDomainTw = "google.com";
+				} else if (topDomainTw === "Google Maps") {
+					topDomainTw = "google.com/maps";
+				}
+				if (topDomainLw === "Google") {
+					topDomainLw = "google.com";
+				} else if (topDomainLw === "Google Maps") {
+					topDomainLw = "google.com/maps";
+				}
+				
+				if (topDomainTw === topDomainLw) {
+					topDomainLwD = "the same";
+				}
+				else { topDomainLwD = "<strong><a href=\"http://" + topDomainLw + "\" target=\"_blank\">" + topDomainLw + "</a></strong>";}
+				
+				var researchAd = "<div id=\"research\"><h3>Using Web Historian</h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps us understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span> above. Participating takes about 5 minutes and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to share using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a> above.</p></div>";
+				var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p>";
+				//Your central jumping-off point for exploring the web this week was * this week. It was * last week.
+				var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
+				var thanks = "<h3>Thank you for participating!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and further studies <a href=\"https://american.co1.qualtrics.com/SE/?SID=SV_3BNk0sU18jdrmct\" target=\"_blank\">click here to sign up</a></p>";
+				
+            	if (lastUl === "Never") {
+            		return weekInReview + thanks + footer;
+            	}
+            	else { return researchAd + weekInReview + footer; }            	 
             });
             
             $('#upload_modal').on('show.bs.modal', function (e) 
@@ -1054,7 +930,6 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
                 console.log("submit click if");
                 dateForward = Infinity;
                 history.timeSelection = "all";
-//                submissionData(submitViz);
             });
             
 			$("#link_access_server").click(function(eventObj)
@@ -1097,4 +972,3 @@ define(["spin", "moment", "../app/config"], function (Spinner, moment, config)
 
     return history;
 });
-//wrapper();

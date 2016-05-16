@@ -12,7 +12,6 @@ define(["../app/utils", "moment"], function(utils, moment)
         var table = document.createElement('table');
         table.id = "domain_visualization";
         
-        console.log("domains");
         document.getElementById("domains_table").appendChild(table);
         
         var tableData = [];
@@ -25,8 +24,10 @@ define(["../app/utils", "moment"], function(utils, moment)
         	
         	tableData.push(dataObj);
         }
+        var data = utils.sortByPropRev(tableData, "visits");
 
 		$('table#domain_visualization').bootstrapTable({
+			
 			columns: [{
 				field: 'remove',
 				title: '<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>',
@@ -35,13 +36,13 @@ define(["../app/utils", "moment"], function(utils, moment)
 			}, {
 				field: 'visits',
 				title: 'Visits',
-				sortable: true
+				sortable: true,
 			}, {
 				field: 'domain',
 				title: 'Domain',
 				sortable: true
 			}],
-			data: tableData,
+			data: data,
 			striped: true,
 			pagination: true,
 			search: true,
@@ -95,7 +96,7 @@ define(["../app/utils", "moment"], function(utils, moment)
         var startDate = utils.startDate();
         var endDate = utils.endDate();
 
-		data = utils.sortByProperty(historyData, "date");
+		data = utils.sortByPropRev(historyData, "date");
 
         //build table
         var table = document.createElement('table');
@@ -195,6 +196,10 @@ define(["../app/utils", "moment"], function(utils, moment)
 			toolbar: "#visits_toolbar"
 		});
 		
+		$('table#all_visualization').bootstrapTable('expandRow', 0);
+		$("#title h1").text("All Visits");
+		$("#title h2").text(data.length + " visits from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
+
 		var updateAllRemoveButton = function()
 		{
 			var count = visualization.allChecked.length;
@@ -235,152 +240,6 @@ define(["../app/utils", "moment"], function(utils, moment)
 		});
     };
 
-    visualization.buildSearchTable = function(historyData)
-    {
-        var startDate = utils.startDate();
-        var endDate = utils.endDate();
-
-        var headSearchTerms = "<b>Search Terms</b>";
-        var headDate = "<b>Date</b>";
-
-		var filtered = utils.onlyIf(historyData, "searchTerms", "", true);
-		data = utils.sortByProperty(filtered, "searchTerms");
-
-        //build table
-        var table = document.createElement('table');
-        table.id = "search_visualization";
-
-        console.log("search_table " + document.getElementById("search_table"));
-        document.getElementById("search_table").appendChild(table);
-
-        console.log("search_table 2");
-        
-        var tableData = [];
-
-        for (var i = 0; i < data.length; ++i) {
-            var row = {};
-            var d = moment(data[i].date);
-            
-            row['remove'] = "isSuppressed_" + i;
-            row['domain'] = data[i].domain;
-            row['date'] = "<span style='display: none;'>" + d.format() + "</span>" + d.format("MMM D, YYYY - h:mma");
-            row['terms'] = "<a href='" + data[i].url + "' target='_blank'>" + data[i].searchTerms + "</a>";
-            row['id'] = data[i].id;
-            row['reference_id'] = data[i].refVisitId;
-            row['transition'] = data[i].transType;
-            row['url'] = data[i].url;
-            row['title'] = data[i].title;
-            
-            tableData.push(row);
-        }
-        
-        var searchDetail = function(index, row, element) 
-        {
-        	var output = "<div class='row'>" +
-        				 "  <div class='col-md-2'><strong class='pull-right'>Search Terms:</strong></div>" + 
-        				 "  <div class='col-md-10'>" + row["terms"] + "</div>" + 
-        				 "</div>" +
-        				 "<div class='row'>" +
-        				 "  <div class='col-md-2'><strong class='pull-right'>Domain:</strong></div>" + 
-        				 "  <div class='col-md-10'>" + row["domain"] + "</div>" + 
-        				 "</div>" +
-        				 "<div class='row'>" +
-        				 "  <div class='col-md-2'><strong class='pull-right'>Title:</strong></div>" + 
-        				 "  <div class='col-md-10'>" + row["title"] + "</div>" + 
-        				 "</div>" +
-        				 "<div class='row'>" +
-        				 "  <div class='col-md-2'><strong class='pull-right'>Date:</strong></div>" + 
-        				 "  <div class='col-md-10'>" + row["date"] + "</div>" + 
-        				 "</div>" +
-        				 "<div class='row'>" +
-        				 "  <div class='col-md-2'><strong class='pull-right'>URL:</strong></div>" + 
-        				 "  <div class='col-md-10'><a href='" + row["url"] + "' target='_blank'>" +  row["url"] + "</a></div>" + 
-        				 "</div>" +
-        				 "<div class='row'>" +
-        				 "  <div class='col-md-2'><strong class='pull-right'>ID:</strong></div>" + 
-        				 "  <div class='col-md-10'>" + row["id"] + "</div>" + 
-        				 "</div>" +
-        				 "<div class='row'>" +
-        				 "  <div class='col-md-2'><strong class='pull-right'>Reference ID:</strong></div>" + 
-        				 "  <div class='col-md-10'>" + row["reference_id"] + "</div>" + 
-        				 "</div>" +
-        				 "<div class='row'>" +
-        				 "  <div class='col-md-2'><strong class='pull-right'>Transition:</strong></div>" + 
-        				 "  <div class='col-md-10'>" + row["transition"] + "</div>" + 
-        				 "</div>";
-			
-			return output;
-		};	
-
-		$('table#search_visualization').bootstrapTable({
-			columns: [{
-				field: 'remove',
-				title: '<span class="glyphicon glyphicon-trash" aria-hidden="true"></span>',
-				checkbox: true,
-				sortable: false
-			}, {
-				field: 'date',
-				title: 'Date',
-				sortable: true
-			}, {
-				field: 'domain',
-				title: 'Domain',
-				sortable: true
-			}, {
-				field: 'terms',
-				title: 'Search Terms',
-				sortable: true
-			}],
-			data: tableData,
-			detailView: true,
-			detailFormatter: searchDetail,
-			striped: true,
-			pagination: true,
-			search: true,
-			sortable: true,
-			checkboxHeader: false,
-			toolbar: "#search_toolbar"
-		});
-		
-		var updateSearchesRemoveButton = function()
-		{
-			var count = visualization.searchesChecked.length;
-			
-			if (count > 0)
-				$("#remove_searches").prop("disabled", false);
-			else
-				$("#remove_searches").prop("disabled", true);
-			
-			if (count == 1)
-				$("#label_searches_remove").text("Remove 1 Checked Search");
-			else
-				$("#label_searches_remove").text("Remove " + count + " Checked Searches");
-		};
-		
-		$('#search_visualization').on('check.bs.table', function (e, row, element) 
-		{
-			var id = row['id'];
-			
-			if ($.inArray(id, visualization.searchesChecked) == -1)
-			{
-				visualization.searchesChecked.push(id);
-				updateSearchesRemoveButton();
-			}
-		});
-
-		$('#search_visualization').on('uncheck.bs.table', function (e, row, element) 
-		{
-			var id = row['id'];
-			
-			var index = $.inArray(id, visualization.searchesChecked);
-			
-			if (index != -1)
-			{
-				visualization.searchesChecked.splice(index, 1);
-				updateSearchesRemoveButton();
-			}
-		});
-    };
     
     visualization.display = function(history, data, tab) 
     {
@@ -405,24 +264,17 @@ define(["../app/utils", "moment"], function(utils, moment)
         var countData = utils.countProperties(filteredData, "domain");
 
 		var tabs = "<ul class='nav nav-tabs'>" +
-				   "  <li role='presentation' class='active'><a href='#domains_table'>Domains</a></li>" + 
-				   "  <li role='presentation'><a href='#search_table'>Search Queries</a></li>" +
-				   "  <li role='presentation'><a href='#all_visits_table'>All Visits</a></li>" + 
+				   "  <li role='presentation' class='active'><a href='#all_visits_table'>All Visits</a></li>" +
+				   "  <li role='presentation'><a href='#domains_table'>Domains</a></li>" + 
 				   "</ul>" + 
 				   "<div class='tab-content'>" + 
-				   "  <div role='tabpanel' class='tab-pane active' id='domains_table'>" +
+				   "  <div role='tabpanel' class='tab-pane' id='domains_table'>" +
 				   "    <div id='domains_toolbar'>" +
 				   "      <button id='remove_domains' class='btn btn-danger' disabled>" +
 				   "      <i class='glyphicon glyphicon-remove'></i> <span id='label_domains_remove'>Delete</span></button>" + 
 				   "    </div>" +
 				   "  </div>" + 
-				   "  <div role='tabpanel' class='tab-pane' id='search_table'>" + 
-				   "    <div id='search_toolbar'>" +
-				   "      <button id='remove_searches' class='btn btn-danger' disabled>" +
-				   "      <i class='glyphicon glyphicon-remove'></i> <span id='label_searches_remove'>Delete</span></button>" + 
-				   "    </div>" +
-				   "  </div>" + 
-				   "  <div role='tabpanel' class='tab-pane' id='all_visits_table'>" + 
+				   "  <div role='tabpanel' class='tab-pane active' id='all_visits_table'>" + 
 				   "    <div id='visits_toolbar'>" +
 				   "      <button id='remove_visits' class='btn btn-danger' disabled>" +
 				   "      <i class='glyphicon glyphicon-remove'></i> <span id='label_visits_remove'>Delete</span></button>" + 
@@ -440,18 +292,11 @@ define(["../app/utils", "moment"], function(utils, moment)
 		var searchData = utils.onlyIf(filteredData, "searchTerms", "", true);
 
         visualization.buildDomainTable(countData);
-        visualization.buildSearchTable(searchData);
         visualization.buildAllTable(filteredData);
 
 		$('ul.nav-tabs a').click(function (e) 
 		{
-			if ($(this).attr("href") == "#search_table")
-			{
-				$("#title h1").text("Search Queries");
-				$("#title h2").text(searchData.length + " searches from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
-				$('table#search_visualization').bootstrapTable('expandRow', 0);
-			}
-			else if ($(this).attr("href") == "#domains_table")
+			if ($(this).attr("href") == "#domains_table")
 			{
 				$("#title h1").text("Domains Visited");
 				$("#title h2").text(countData.length + " websites visited from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
@@ -466,7 +311,7 @@ define(["../app/utils", "moment"], function(utils, moment)
 			e.preventDefault();
 			
 			$(this).tab('show');
-		})
+		});
 
 		$("#remove_domains").off("click");
 		$("#remove_domains").click(function(eventObj)
@@ -505,48 +350,6 @@ define(["../app/utils", "moment"], function(utils, moment)
             }
 		});
 		
-		$("#remove_searches").off("click");
-		$("#remove_searches").click(function(eventObj)
-		{
-            if (confirm('Do you want to permanently remove all checked items from your browser history?')) 
-            {
-                for (var i = 0; i < visualization.searchesChecked.length; i++) 
-                {
-                	var id = visualization.searchesChecked[i];
-
-					console.log("ID: " + id);
-                	
-					var toRemove = history.getSuppressedUrl(history.fullData, "id", id);
-					
-					console.log("TO REMOVE: " + JSON.stringify(toRemove, null, 2));
-
-                    history.removeHistory(toRemove, true);
-
-                    toRemove.forEach(function(a)
-                    {
-						var vdi = history.findIndexArrByKeyValue(history.fullData, "url", a["url"]);
-						
-						console.log("VDI: " + vdi);
-						
-						if (vdi) 
-						{
-							vdi.forEach(function(v)
-							{
-								console.log("RM: " + JSON.stringify(history.fullData[v], null, 2));
-							
-								console.log("visualDataPre",history.fullData.length);
-								history.fullData.splice(v,1);
-								console.log("visualDataPost",history.fullData.length);
-							}); 
-                    	}
-                    });
-                }
-                
-                visualization.searchesChecked = [];
-
-				visualization.display(history, history.fullData, "#search_table");
-            }
-		});
 
 		$("#remove_visits").off("click");
 		$("#remove_visits").click(function(eventObj)

@@ -48,11 +48,11 @@
 					</div>
 					<div id="navbar" style="display: none;">
 						<ul class="nav navbar-nav navbar-right">
-							<li id="nav_network"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Network" id="network"><span class="glyphicon glyphicon-cloud"></span></a></li>
-							<li id="nav_sites_visited"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Websites Visited" id="web_visit"><span class="glyphicon glyphicon-globe"></span></a></li>
+							<li id="nav_sites_visited"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Web Visits" id="web_visit"><span class="glyphicon glyphicon-globe"></span></a></li>
 							<li id="nav_search_terms"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Search Terms" id="search_words"><span class="glyphicon glyphicon-search"></span></a></li>
-							<li id="nav_all_data"><a href="#" data-toggle="tooltip" data-placement="bottom" title="All Data" id="data_table"><span class="glyphicon glyphicon-list"></span></a></li>
-							<li id="nav_upload" data-toggle="tooltip" data-placement="bottom" title="Upload &amp; Participate"><a href="#" data-toggle="modal" id="submit" data-target="#upload_modal"><span class="glyphicon glyphicon-cloud-upload"></span></a></li>
+							<li id="nav_network"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Network" id="network"><span class="glyphicon glyphicon-link"></span></a></li>
+							<li id="nav_all_data"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Data Table" id="data_table"><span class="glyphicon glyphicon-list"></span></a></li>
+							<li id="nav_upload" data-toggle="tooltip" data-placement="bottom" title="Participate in Research"><a href="#" data-toggle="modal" id="submit" data-target="#upload_modal"><span class="glyphicon glyphicon-cloud-upload"></span></a></li>
 							<li id="nav_review"><a href="#" id="link_access_server" data-toggle="tooltip" data-placement="bottom" title="View on Server"><span class="glyphicon glyphicon-export"></span></a></li>
 						</ul>
 
@@ -84,19 +84,6 @@
 			<div id="visualizations">
 				<div class="row" id="viz_selector" style="display: none;">
 					<div class="col-sm-6 col-md-3">
-						<a id="network_card">
-							<div class="thumbnail">
-								<img src="images/network.png" alt="Network" />
-								<div class="caption">
-									<h3>Network</h3>
-									<p>
-										Links between websites browsed from - to.
-									</p>
-								</div>
-							</div>
-						</a>
-					</div>
-					<div class="col-sm-6 col-md-3">
 						<a id="web_visit_card">
 							<div class="thumbnail">
 								<img src="images/visit.png" alt="Web Visits" />
@@ -109,14 +96,27 @@
 							</div>
 						</a>
 					</div>
-					<div class="col-sm-6 col-md-3">
+				<div class="col-sm-6 col-md-3">
 						<a id="search_words_card">
 							<div class="thumbnail">
 								<img src="images/wordCloud.png" alt="Search Words" />
 								<div class="caption">
-									<h3>Search Words</h3>
+									<h3>Search Terms</h3>
 									<p>
 										Words used in multiple web searches.
+									</p>
+								</div>
+							</div>
+						</a>
+					</div>
+					<div class="col-sm-6 col-md-3">
+						<a id="network_card">
+							<div class="thumbnail">
+								<img src="images/network.png" alt="Network" />
+								<div class="caption">
+									<h3>Network</h3>
+									<p>
+										Links between websites browsed from - to.
 									</p>
 								</div>
 							</div>
@@ -134,7 +134,9 @@
 								</div>
 							</div>
 						</a>
+						
 					</div>
+					<div id="wir" class="thumbnail"></div>
 				</div>
 
 				<div id="loader"></div>
@@ -185,15 +187,15 @@
 					<div class="modal-body">
 						<p style="margin-bottom: 1em;">
 							Web Historian needs to associate your data with a unique indentifier that only you use. 
-							This allows our researchers to combine your data from this browser with other browsers where you have installed Web Historian.
-							You may use an e-mail address or other identifier for this purpose.
+							This allows you to combine your data from this browser with other browsers where you have installed Web Historian.
+							You may use an e-mail address or other unique identifier for this purpose.
 						</p>
 
 						<fieldset class="form-group">
 							<input type="text" class="form-control" id="field_identifier" placeholder="Enter identifier here&#8230;" />
 						</fieldset>
 
-						<div style="font-size: smaller; font-weight: bold; padding-bottom: 1em;"><a id="load_google_identifier" class="pull-right" href="#">USE YOUR GOOGLE ACCOUNT?</a></div>
+						<div style="font-size: smaller; font-weight: bold; padding-bottom: 1em;"><a id="load_google_identifier" class="pull-right" href="#">Use your Google account's email address?</a></div>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-info" id="chose_identifier">Continue&#8230;</button>

@@ -41,7 +41,7 @@ chrome.alarms.onAlarm.addListener(function(alarm)
 			
 		var now = new Date();
 		
-		if (now.getTime() - lastUpload > (1000 * 60 * 60 * 24))
+		if (now.getTime() - lastUpload > (1000 * 60 * 60 * 720))
 		{
 			chrome.browserAction.setIcon({
 				path: "images/star-red-64.png"
@@ -50,6 +50,8 @@ chrome.alarms.onAlarm.addListener(function(alarm)
 			chrome.browserAction.setTitle({
 				title: "Time to transmit data!"
 			});	
+			//put in a special message asking for more data
+			//do a special case if they have uploaded but not completed the survey
 		}
 		else
 		{
