@@ -759,7 +759,8 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 				var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
 				var thanks = "<h3>Thank you for participating!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and further studies <a href=\"https://american.co1.qualtrics.com/SE/?SID=SV_3BNk0sU18jdrmct\" target=\"_blank\">click here to sign up</a></p>";
 				
-            	if (lastUl === "Never") {
+				//change to === for testing original view
+            	if (lastUl !== "Never") {
             		return weekInReview + thanks + footer;
             	}
             	else { return researchAd + weekInReview + footer; }            	 
