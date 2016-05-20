@@ -70,6 +70,7 @@ define(function() {
         $("#below_visual").empty();
         $("#visual_div").empty();
         $("#viz_selector").empty();
+        $("#above_visual").empty();
     };
     
     utils.clearOptions = function() 
