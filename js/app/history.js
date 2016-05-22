@@ -308,41 +308,36 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 {
 					if (result.upload_identifier == "")
 					{
-						$("#identifier_modal").modal("show");
+						requirejs(["historian", "../app/config"], function (historian, config) 
+						{
+							historian.fetchUserId(config.fetchIdUrl, function(user_id) {
+								console.log("1: " + user_id);
+								
+								$("#identifier_modal").modal("show");
 						
-						$("#field_identifier").val(result.upload_identifier);
+								$("#field_identifier").val(user_id);
 				
-						$("#load_google_identifier").click(function(eventObj)
-						{
-							eventObj.preventDefault();
-
-							chrome.identity.getProfileUserInfo(function(userInfo)
-							{
-								$("#field_identifier").val(userInfo.email);
-							});
-					
-							return false;
-						});
-				
-						$("#chose_identifier").click(function(eventObj)
-						{
-							eventObj.preventDefault();
-
-							var identifier = $("#field_identifier").val();
-	
-							if (identifier != null && identifier != "")
-							{
-								chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) 
+								$("#chose_identifier").click(function(eventObj)
 								{
-									$("#identifier_modal").modal("hide");
+									eventObj.preventDefault();
+
+									var identifier = $("#field_identifier").val();
+	
+									if (identifier != null && identifier != "")
+									{
+										chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) 
+										{
+											$("#identifier_modal").modal("hide");
 					
-									// console.log("SAVED");
-								});
+											// console.log("SAVED");
+										});
 				
-								console.log("IDENTIFIER: " + identifier);
-							}
+										console.log("IDENTIFIER: " + identifier);
+									}
 						
-							return false;
+									return false;
+								});
+							});
 						});
 					}
 				});
