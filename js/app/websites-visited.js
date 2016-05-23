@@ -1,51 +1,7 @@
 define(["../app/utils", "moment"], function(utils, moment) {
     var visualization = {};
     
-    visualization.getCats = function(data, callback) {
-
-    	var categories = $.getJSON('https://dl.dropboxusercontent.com/u/3755456/categories.json', function(cat) {
-            var cats = [];
-            //console.log(cat.children);
-            for (var j in cat.children) {
-            	cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
-         	}
-         	return cats;
-         });
-         //write a fail-safe if it doesn't find categories!
-         
-         return callback(data, categories);
-    };
-    
-    //visualization.compileVisitData = function(data)
-    
-    visualization.compileHabitData = function(data) {
-    	var biggestSize = 0;
-        var biggestDomain = "";
-		//to do
-    };
-    
-    visualization.display = function(history, data)
-    {
-        $("input#start_date").datepicker().on("changeDate", function(e)
-        {
-            visualization.display(history, data);
-        });
-
-        $("input#end_date").datepicker().on("changeDate", function(e)
-        {
-            visualization.display(history, data);
-        });
-
-        d3.selectAll("#viz_selector a").classed("active", false);
-        d3.select("#web_visit").classed("active", true);
-        vizSelected = "web_visit";
-
-        utils.clearVisualization();
-        utils.clearOptions();
-        var startDate = utils.startDate();
-		var endDate = utils.endDate();
-        
-        var dataset = visualization.getCats(data, function(data, categories) {
+    visualization.getVisitData = function(data, categories) {
 	    	var startDate = utils.startDate();
 			var endDate = utils.endDate();
 		    var filteredData = utils.filterByDates(data, startDate, endDate);
@@ -89,8 +45,50 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	         
 	        
 	        return dataFake; 
-	    });
-        //var dataset = visualization.compileVisitData(filteredData);
+	    };
+    
+    visualization.getCats = function(){
+	    	$.getJSON('https://dl.dropboxusercontent.com/u/3755456/categories.json', function (cat) {		         
+		        var cats = [];
+		        $.each( cat, function( key, val ) {
+    				cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
+  				});
+		        console.log("cats 1: " + cats); 
+		        });
+		         //write a fail-safe if it doesn't find categories!
+		     console.log("cats 2: "+ cats);
+		     return cats;
+	   };
+    
+    visualization.compileHabitData = function(data) {
+    	var biggestSize = 0;
+        var biggestDomain = "";
+		//to do
+    };
+    
+    visualization.display = function(history, data)
+    {
+        $("input#start_date").datepicker().on("changeDate", function(e)
+        {
+            visualization.display(history, data);
+        });
+
+        $("input#end_date").datepicker().on("changeDate", function(e)
+        {
+            visualization.display(history, data);
+        });
+
+        d3.selectAll("#viz_selector a").classed("active", false);
+        d3.select("#web_visit").classed("active", true);
+        vizSelected = "web_visit";
+
+        utils.clearVisualization();
+        utils.clearOptions();
+        var startDate = utils.startDate();
+		var endDate = utils.endDate();
+		var categories = visualization.getCats();
+        
+        var dataset = visualization.compileVisitData(filteredData, categories);
                 
         var numDomains = utils.countUniqueProperty(data, "domain");
         
