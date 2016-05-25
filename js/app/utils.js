@@ -1,7 +1,6 @@
 define(function() {
     var utils = {};
     
-	//does this work??
     utils.sortByProperty = function(data, sort) 
     {
         return data.sort(function (a, b) 
@@ -56,6 +55,59 @@ define(function() {
         }
         
         return counts;
+    };
+    
+    //special countsOfProperties for creating domain object
+    utils.countPropDomains = function(data, property)
+    {
+        var valueCounts = {};
+        
+        for (var i = 0; i < data.length; i++) 
+        {
+            var item = data[i];
+            
+            var value = data[i][property];
+            //var topD = data[i]["topDomain"];
+            
+            if (valueCounts[value] == undefined)
+                valueCounts[value] = 0;
+                
+            valueCounts[value] += 1;
+        }
+        
+        var counts = [];
+        
+        for (var key in valueCounts)
+        {
+            if (valueCounts.hasOwnProperty(key))
+            {
+                counts.push({
+                    "domain": key,
+                    "count": valueCounts[key]
+                });
+            }
+        }
+        
+        var countD = [];
+        
+        for (var i in counts) {
+            var reTopLevel = /^[^.]*\.(.*)$/;
+            var topD = "";
+            
+            if (counts[i].domain === "google.com/maps") {
+                   topD = "com";
+                }
+            else if (counts[i].domain.match(reTopLevel)){
+            	topD = counts[i].domain.replace(reTopLevel, "$1");
+            }
+            countD.push({
+            	"domain": counts[i].domain,
+            	"count": counts[i].count,
+            	"topD": topD
+            });
+        }
+        
+        return countD;
     };
     
     utils.countUniqueProperty = function(data, property) 

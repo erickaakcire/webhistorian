@@ -211,17 +211,16 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 var reYahoo = /\.yahoo\.[a-z\.]*$/;
                 var reYahooSearchDomain = /search\.yahoo\.[a-z\.]*$/;
                 var reAsk = /\.ask\.[a-z\.]*$/;
-                //also blah.net.cn - misc.three.two
                 var reThreeTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
                 var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; 
                 var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; 
 
-                //porblems with top level domains! getting too much stuff!, 
+                //problems with top level domains! getting too much stuff!, 
                 var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
                 var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
                 if (parser.href.match(reGoogleMaps)) {
-                    domain = "Google Maps";
+                    domain = "google.com/maps";
                 }
                 else if (protocol === "chrome-extension:") {
                 	if (title != ""){
@@ -233,9 +232,9 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 	domain = "Local File";
                 }
                 else if (host.match(reWwwGoogle) || host.match(reGoogleOnly)) {
-                	domain = "Google";
+                	domain = "google.com";
                 }
-                else if (host.match(reGoogle) || host.match(reBlogspot) || host.match(reYahoo) || host.match(reAol)) {
+                else if (host.match(reGoogle) || host.match(reBlogspot)) {
                     domain = host;
                 }
                 else if (host.match(reThreeTwoThree)) {
@@ -727,17 +726,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 					topTermLwD = "the same";
 				}
 				else {topTermLwD = "<strong>" + topTermLw + " </strong>";}
-				
-				if (topDomainTw === "Google") {
-					topDomainTw = "google.com";
-				} else if (topDomainTw === "Google Maps") {
-					topDomainTw = "google.com/maps";
-				}
-				if (topDomainLw === "Google") {
-					topDomainLw = "google.com";
-				} else if (topDomainLw === "Google Maps") {
-					topDomainLw = "google.com/maps";
-				}
 				
 				if (topDomainTw === topDomainLw) {
 					topDomainLwD = "the same";

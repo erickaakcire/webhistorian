@@ -2,8 +2,9 @@ define(["../app/utils", "moment"], function(utils, moment) {
     var visualization = {};
     
     visualization.getVisitData = function(data, categories) {
-	    var domains = utils.countsOfProperty(data, "domain");
+	    var domains = utils.countPropDomains(data, "domain");
 	    var catU = utils.countsOfProperty(categories, "category");
+	   	
 	   	var realData = {name: "Domains", children: []};
 	   	for (var i in catU) {
 	   		realData.children.push({
@@ -11,30 +12,46 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	   			children: []
 	   		});
 	   	}
-	   	var specified = [];
+	   
+	   	var specified = []; //domainExact
+	   	var top = []; //topDomainExact
+	   	var domS = []; //domainSearch
+	   	
 	   	for (var i in categories){
 	   		if (categories[i].search === "domainExact"){
 	   			specified.push({domain: categories[i].value, category: categories[i].category});
 	   		}
-	   		else {console.log(categories[i]);}
-	   		//urlExact, topDomainExact, domainSearch
+	   		else if (categories[i].search === "topDomainExact") {
+	   			top.push({value: categories[i].value, category: categories[i].category});
+	   		}
 	   	}
+	   	
 	   	for (var count in domains) {
-	   		var domainName = domains[count].counter;
+	   		var domainName = domains[count].domain;
             var size = domains[count].count;
+            var topD = domains[count].topD;
 	   		if (utils.objContains(specified,"domain",domainName)) {
 	   			for (var i in specified) {
 	   				if (domainName === specified[i].domain) {
 	   					var catId = utils.findIndexByKeyValue(realData.children, "name", specified[i].category);
 	   					realData.children[catId].children.push({name: domainName, size: size});
 	   				}
-	   				
 	   			}
-	   		}
-	   		else {
-	   					//var catId1 = utils.findIndexByKeyValue(realData.children, "name", "Other");
-	   					realData.children[0].children.push({name: domainName, size: size});
+	   		} 
+	   		else if (utils.objContains(top,"value",topD)){
+	   			for (var i in top) {
+	   				if(topD === top[i].value) {
+	   					var catId = utils.findIndexByKeyValue(realData.children, "name", top[i].category);
+	   					realData.children[catId].children.push({name: domainName, size: size});
 	   				}
+	   			}
+	   			//console.log(domainName);
+	   		}
+	   		else { 
+	   			var catId1 = utils.findIndexByKeyValue(realData.children, "name", "Other");
+	   			realData.children[catId1].children.push({name: domainName, size: size}); 
+	   		}
+	   		
 	   	}
 
         return realData; 
@@ -48,7 +65,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
 			}
 		
         }).fail(function(){
-        	console.log("error JSON file not found!");
+        	console.log("Error! JSON file not found or invalid formatting");
         	cats.push({search: "domainExact", category: "Other", value: " "});
         	callback(cats);
         }).done(function() {
@@ -97,7 +114,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	        d3.select("#below_visual").append("p").text("A larger circle means that the website was visited more.").attr("id", "viz_p");
 	
 			$("#visual_div").height($("#visual_div").width());
-	
+			$("#visual_div").html("<div id = \"tooltip\" class = \"hidden\"> <p><strong>Important Label Heading</strong></p><p><span id = \"value\">100</span></p>");
 	        var r = $("#visual_div").height(),
 	            format = d3.format(",d"),
 	            fill = d3.scale.category20();
@@ -124,12 +141,13 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	            .attr("class", "node")
 	            .attr("transform", function (d) {
 	                return "translate(" + d.x + "," + d.y + ")";
+	            
 	            });
 	
-	        node.append("title")
-	            .text(function (d) {
-	                return d.className + ": " + format(d.value);
-	            });
+	        //node.append("title")
+	        //    .text(function (d) {
+	         //       return d.className + " visits: " + format(d.value) + " category: " + d.packageName;
+	          //  });
 	
 	        node.append("circle")
 	            .attr("r", function (d) {
