@@ -7,7 +7,6 @@
   "permissions": [
     "history",
     "identity",
-    "identity.email",
     "tabs",
     "storage",
     "alarms"
