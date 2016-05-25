@@ -2,49 +2,43 @@ define(["../app/utils", "moment"], function(utils, moment) {
     var visualization = {};
     
     visualization.getVisitData = function(data, categories) {
-		    console.log("categories "+categories);
-		    console.log("domain"+domain);
-		    var domains = utils.countsOfProperty(data, "domain");
-		    var catU = utils.countsOfProperty(categories, "category");
-		    console.log(catU.length + " " + domains.length);
-		   	
-        
-	        for (var i = 0; i < domains.length; i++) {
-	            var hit = 0;
-	            var domain = domains[i].counter;
-	            var size = domains[i].count;
-	            
-	            //urlExact, domainExact,  topDomainExact, domainSearch
-	            
-	            //if (utils.contains(specified, domain)) {
-	            //	console.log(domain);
-	            //}
-	         }
+	    var domains = utils.countsOfProperty(data, "domain");
+	    var catU = utils.countsOfProperty(categories, "category");
+	   	var realData = {name: "Domains", children: []};
+	   	for (var i in catU) {
+	   		realData.children.push({
+	   			name: catU[i].counter,
+	   			children: []
+	   		});
+	   	}
+	   	var specified = [];
+	   	for (var i in categories){
+	   		if (categories[i].search === "domainExact"){
+	   			specified.push({domain: categories[i].value, category: categories[i].category});
+	   		}
+	   		else {console.log(categories[i]);}
+	   		//urlExact, topDomainExact, domainSearch
+	   	}
+	   	for (var count in domains) {
+	   		var domainName = domains[count].counter;
+            var size = domains[count].count;
+	   		if (utils.objContains(specified,"domain",domainName)) {
+	   			for (var i in specified) {
+	   				if (domainName === specified[i].domain) {
+	   					var catId = utils.findIndexByKeyValue(realData.children, "name", specified[i].category);
+	   					realData.children[catId].children.push({name: domainName, size: size});
+	   				}
+	   				
+	   			}
+	   		}
+	   		else {
+	   					//var catId1 = utils.findIndexByKeyValue(realData.children, "name", "Other");
+	   					realData.children[0].children.push({name: domainName, size: size});
+	   				}
+	   	}
 
-	            
-	        var dataFake = (		{
-	            name: "Domains", children: 
-	            [
-	                {
-	                	name: "Blog", 
-	                	children: [
-	                	{name: "wordpress.com", size: 15},
-	                	{name: "blogspot.com", size: 5}
-	                	], 
-	                },
-	                {
-	                	name: "Video", 
-	                	children: [
-	                	{name: "youtube.com", size: 124},
-	                	{name: "hulu.com", size: 2}
-	                	]
-	                }
-	            ]
-	        });
-	         
-	        
-	        return dataFake; 
-	    };
+        return realData; 
+    };
 
 	function catAsync(callback) {
 		var cats = [];
@@ -52,8 +46,14 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	        for (var j in cat.children) {
 				cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
 			}
-		callback(cats);
-        });
+		
+        }).fail(function(){
+        	console.log("error JSON file not found!");
+        	var cats = ({search: "domainExact", category: "Other", value: " "});
+        	callback(cats);
+        }).done(function() {
+    		callback(cats);
+  		});
 	}
     
     visualization.compileHabitData = function(data) {
@@ -82,7 +82,6 @@ define(["../app/utils", "moment"], function(utils, moment) {
         utils.clearOptions();
 
 		catAsync(function(categories) {
-		    console.log("these are the categories: "+categories);
 		    
 		    var startDate = utils.startDate();
 			var endDate = utils.endDate();

@@ -111,6 +111,16 @@ define(function() {
         return false;
     };
     
+   utils.objContains = function(obj, prop, value) {
+        for (var i = 0; i < obj.length; i++) {
+            if (obj[i][prop] === value) {
+                return true;
+            }
+        }
+        
+        return false;
+    };
+ 
     utils.classes = function(root) {
         //for webVisitViz to flatten heierarchy
         var classes = [];
