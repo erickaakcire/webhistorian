@@ -228,7 +228,7 @@ text {
 }
 
 text:hover {
-	fill: red;
+	fill: 444444;
 }
 
 path.link {

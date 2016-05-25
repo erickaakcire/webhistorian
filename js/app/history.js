@@ -20,6 +20,12 @@
 
 define(["moment", "../app/config", "../app/utils"], function (moment, config, utils) 
 {
+    //Possibly do this, disable it on upload.
+    //window.onbeforeunload = function (e) {
+    //e = e || window.event;
+    //return 'Will you consider opting-in to the research project? Click the cloud icon.';
+	//};
+    
     var history = {};
     
     history.fullData = [];
@@ -640,15 +646,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 		};
 	}
 
-    function rmViz() {
-        //remove old visualization if it exists
-        $("#loader").empty();
-        $("#title").empty();
-        $("#below_visual").empty();
-        $("#visual_div").empty();
-        $("#viz_selector").empty();
-    }
-
     function rmOpt() {
         $("#option_items").empty();
     }
@@ -676,8 +673,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 
             $("#left_logo").click(function () 
             { 
-                //get existing data
-                //call the 
+                //call the main page functions
             });
 
            // $("#load_data").click(function () 
