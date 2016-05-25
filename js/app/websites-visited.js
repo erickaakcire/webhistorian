@@ -49,7 +49,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
 		
         }).fail(function(){
         	console.log("error JSON file not found!");
-        	var cats = ({search: "domainExact", category: "Other", value: " "});
+        	cats.push({search: "domainExact", category: "Other", value: " "});
         	callback(cats);
         }).done(function() {
     		callback(cats);
