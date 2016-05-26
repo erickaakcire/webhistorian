@@ -20,11 +20,13 @@
 
 define(["moment", "../app/config", "../app/utils"], function (moment, config, utils) 
 {
-    //Possibly do this, disable it on upload.
-    //window.onbeforeunload = function (e) {
-    //e = e || window.event;
-    //return 'Will you consider opting-in to the research project? Click the cloud icon.';
-	//};
+    //disable on upload. 
+    //if (last upoad date === never) {
+	    //window.onbeforeunload = function (e) {
+	    //e = e || window.event;
+	    //return 'Will you consider opting-in to the research project? Click the cloud icon.';
+		//};
+	//}
     
     var history = {};
     
@@ -34,13 +36,12 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
     history.latestTimestamp = Number.MIN_VALUE;
     history.urlArray = [];
     
-//function wrapper() {
     var startDate = null;
     var endDate = null;
 
     var manifest = chrome.runtime.getManifest();
 
-//globals for the wrapper function
+//globals 
     var divName = "visual_div";
     var currDate = new Date();
     var timeSelect = 0; //null = 24 hours, 0 = all time
@@ -56,8 +57,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 
 //Getting data from Chrome History & creating the base dataset
     function getUrls(callback, viz, callback2) {
-//        loadTime();
-        // get all urls from history for the specified time period (startTime)
         var end = currDate.getTime();
         if (dateForward != Infinity) {
             end = dateForward;
@@ -113,9 +112,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 visitItems.forEach(function(visit) 
                 {
                     if (visit.visitTime >= dateLimit && visit.visitTime <= dateForward) 
-                    {
-//                    	console.log('VISIT: ' + JSON.stringify(visit, 2));
-//                    	
+                    {                    	
                         results.push({
                             url: historyItem.url,
                             title: historyItem.title,
@@ -200,7 +197,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 var protocol = parser.protocol;
                 var host = parser.hostname;
 				
-				//need to fix google and www.google
                 var reGoogleMaps = /\.google\.[a-z\.]*\/maps/;
                 var reGoogle = /\.google\.[a-z\.]*$/;
                 var reGoogleOnly = /^google\.[a-z\.]*$/;
@@ -215,16 +211,12 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; 
                 var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; 
 
-                //problems with top level domains! getting too much stuff!, 
-                var reTopLevel2 = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
-                var reTopLevel = /^.*\.[\w\d_-]*\.([a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
-
                 if (parser.href.match(reGoogleMaps)) {
                     domain = "google.com/maps";
                 }
                 else if (protocol === "chrome-extension:") {
                 	if (title != ""){
-                		domain = title;
+                		domain = title + " Extension";
                 	}
                 	else {domain = "Chrome Extension";}  	
                 }
@@ -245,13 +237,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 }
                 else {
                     domain = host.replace(reDefaultDomain, "$1");
-                }
-
-                if (host.match(reTopLevel2)) {
-                    topDomain = host.replace(reTopLevel2, "$1");
-                }
-                else {
-                    topDomain = host.replace(reTopLevel, "$1");
                 }
 
                 reSearch = /q=([^&]+)/;
@@ -285,7 +270,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                     urlId: dataItem.id,
                     protocol: protocol,
                     domain: domain,
-                    topDomain: topDomain,
                     searchTerms: searchTerms,
                     date: dataItem.visitTime,
                     transType: dataItem.transitionType,
@@ -302,7 +286,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 $("#transform_progress").html("100%");
 
                 visualData = history.fullData;
-                sortByProp(visualData,"date");
+                utils.sortByProperty(visualData,"date");
                 console.log("visualData: ", visualData.length);
                 callback2();
                 callback(visualData, viz);
@@ -352,22 +336,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         window.setTimeout(transformDataItem, 0);
     }
 
-    //I think this is in utils...
-    function findIndexByKeyValue(arrayToSearch, key, valueToSearch) 
-    {    	
-        for (var i = 0; i < arrayToSearch.length; i++) 
-        {
-            var item = arrayToSearch[i][key];
-            
-            if (item === valueToSearch) 
-            {
-                return i;
-            }
-        }
-        
-        return null;
-    }
-	//in utils?
     history.findIndexArrByKeyValue = function(arraytosearch, key, valuetosearch) 
     {
         var indexArray = [];
@@ -395,7 +363,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 
             console.log("B: " + JSON.stringify(url, null, 2));
 
-            var urlInd = findIndexByKeyValue(history.urlArray, "url", url);
+            var urlInd = utils.findIndexByKeyValue(history.urlArray, "url", url);
 
             console.log("C: " + JSON.stringify(urlInd, null, 2));
             
@@ -475,29 +443,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         return data;
     }
 
-    function countSomething(data, countIt) {
-        //count a property value of an object, return array with unique property values (counter), and count of that value (count)
-        countArray = [];
-        var sorted = sortByProp(data, countIt);
-        var counter = 1;
-        for (var i = 0; i < sorted.length; i++) {
-            var dataItem = sorted[i];
-            var countThing = sorted[i][countIt];
-            var nextCountThing = "";
-            if (i < sorted.length - 1) {
-                nextCountThing = sorted[i + 1][countIt];
-            }
-            if (countThing === nextCountThing) {
-                counter++;
-            }
-            else {
-                countArray.push({counter: countThing, count: counter});
-                counter = 1;
-            }
-        }
-        return countArray;
-    }
-
     function lowHighNum(objArr, prop, low) {
         //for object properties in arrays that contain numbers, get the lowest number if low === true, highest if not
         if (low) {
@@ -520,28 +465,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             }
             return last;
         }
-    }
-	//def in utils
-    function sortByProp(data, sort) {
-        var sorted = data.sort(function (a, b) {
-            if (a[sort] < b[sort])
-                return -1;
-            if (a[sort] > b[sort])
-                return 1;
-            return 0;
-        });
-        return sorted;
-    }
-	//def in utils
-    function sortByPropRev(data, sort) {
-        var sorted = data.sort(function (a, b) {
-            if (a[sort] > b[sort])
-                return -1;
-            if (a[sort] < b[sort])
-                return 1;
-            return 0;
-        });
-        return sorted;
     }
 
 //Passing data to visualizations
@@ -644,16 +567,58 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 			topTermTw: topTermTw
 		};
 	}
-
-    function rmOpt() {
-        $("#option_items").empty();
-    }
-
-    function refresh()
-    {
-        if (vizSelected != null)
-            selectViz(vizSelected);
-    }
+    
+    history.display = function(history, data){
+    	utils.clearVisualization();
+    	chrome.storage.local.get('lastPdkUpload', function (result) {
+        	lastUl = result.lastPdkUpload;
+   		});
+   		
+        var now = new Date();
+        var weekData = compareWeekVisits(now,visualData);
+        $("#wir").html( function() {
+            	var aEnd = moment(weekData.weekAend).format("ddd MMM D");
+				var aStart = moment(weekData.weekAstart).format("ddd MMM D");
+				var bEnd = moment(weekData.weekBend).format("ddd MMM D");
+				var bStart = moment(weekData.weekBstart).format("ddd MMM D");
+				var percent = weekData.percent;
+				var percentML = weekData.percentML;
+				var topDomainLw = weekData.topDomainLw;
+				var topDomainTw = weekData.topDomainTw;
+				var topTermLw = weekData.topTermLw;
+				//var topTermListLw = weekData.topTermListLw;
+				//problems with tooltips... 
+				var topTermTw = weekData.topTermTw;
+				//var topTermListTw = weekData.topTermListTw;
+				
+				if (lastUl > 1) {
+					lastUlD = moment(lastUl).format("MMM DD, YYYY");
+				}
+				else {lastUlD = "Never";}
+				
+				if (topTermLw === topTermTw){
+					topTermLwD = "the same";
+				}
+				else {topTermLwD = "<strong>" + topTermLw + " </strong>";}
+				
+				if (topDomainTw === topDomainLw) {
+					topDomainLwD = "the same";
+				}
+				else { topDomainLwD = "<strong><a href=\"http://" + topDomainLw + "\" target=\"_blank\">" + topDomainLw + "</a></strong>";}
+				
+				var researchAd = "<div id=\"research\"><h3>Using Web Historian</h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps us understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span> above. Participating takes about 5 minutes and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to share using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a> above.</p></div>";
+				var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p>";
+				//Your central jumping-off point for browsing the web this week was * this week. It was * last week.
+				var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
+				var thanks = "<h3>Thank you for participating!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and further studies <a href=\"https://american.co1.qualtrics.com/SE/?SID=SV_3BNk0sU18jdrmct\" target=\"_blank\">click here to sign up</a></p>";
+				
+				//change to === for testing original view
+            	if (lastUl !== "Never") {
+            		return weekInReview + thanks + footer;
+            	}
+            	else { return researchAd + weekInReview + footer; }            	 
+            });
+    };
     
     //Putting it all together
     $("document").ready(function () 
@@ -670,10 +635,12 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             $('#viz_selector').show();
             $("#navbar").show();
 
-            $("#left_logo").click(function () 
-            { 
+            //$(".navbar-brand").click(function () 
+            //{ 
+            //    utils.clearVisualization();
+                
                 //call the main page functions
-            });
+            //});
 
            // $("#load_data").click(function () 
             //{ //used for researcher edition - adapt for demo!
@@ -700,7 +667,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             var now = new Date();
             var weekData = compareWeekVisits(now,visualData);
             
-            //hide "view on server" until they  have participated 
+            //hide "view on server" on toolbar until they  have participated 
             
             $("#wir").html( function() {
             	var aEnd = moment(weekData.weekAend).format("ddd MMM D");
@@ -734,7 +701,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 				
 				var researchAd = "<div id=\"research\"><h3>Using Web Historian</h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps us understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span> above. Participating takes about 5 minutes and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to share using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a> above.</p></div>";
 				var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p>";
-				//Your central jumping-off point for exploring the web this week was * this week. It was * last week.
+				//Your central jumping-off point for browsing the web this week was * this week. It was * last week.
 				var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
 				var thanks = "<h3>Thank you for participating!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and further studies <a href=\"https://american.co1.qualtrics.com/SE/?SID=SV_3BNk0sU18jdrmct\" target=\"_blank\">click here to sign up</a></p>";
 				

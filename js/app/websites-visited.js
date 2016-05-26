@@ -15,7 +15,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	   
 	   	var specified = []; //domainExact
 	   	var top = []; //topDomainExact
-	   	var domS = []; //domainSearch
+	   	var domS = []; //domainSearch- if needed
 	   	
 	   	for (var i in categories){
 	   		if (categories[i].search === "domainExact"){
@@ -45,15 +45,12 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	   					realData.children[catId].children.push({name: domainName, size: size});
 	   				}
 	   			}
-	   			//console.log(domainName);
 	   		}
 	   		else { 
 	   			var catId1 = utils.findIndexByKeyValue(realData.children, "name", "Other");
 	   			realData.children[catId1].children.push({name: domainName, size: size}); 
 	   		}
-	   		
 	   	}
-
         return realData; 
     };
 
@@ -132,6 +129,18 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	            .attr("class", "bubble")
 	            .attr("id", "visualization");
 	
+	        var tooltip = d3.select("body")
+			    .append("div")
+			    .style("position", "absolute")
+			    .style("z-index", "10")
+			    .style("visibility", "hidden")
+			    .style("color", "white")
+			    .style("padding", "8px")
+			    .style("background-color", "rgba(0, 0, 0, 0.75)")
+			    .style("border-radius", "6px")
+			    .style("font", "12px sans-serif")
+			    .text("tooltip");
+	        
 	        var node = vis.selectAll("g.node")
 	            .data(bubble.nodes(siteClasses)
 	                .filter(function (d) {
@@ -141,13 +150,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	            .attr("class", "node")
 	            .attr("transform", function (d) {
 	                return "translate(" + d.x + "," + d.y + ")";
-	            
 	            });
-	
-	        //node.append("title")
-	        //    .text(function (d) {
-	         //       return d.className + " visits: " + format(d.value) + " category: " + d.packageName;
-	          //  });
 	
 	        node.append("circle")
 	            .attr("r", function (d) {
@@ -155,14 +158,31 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	            })
 	            .style("fill", function (d) {
 	                return fill(d.packageName);
-	            });
+	            })
+	            .on("mouseover", function(d) {
+		              tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName);
+		              tooltip.style("visibility", "visible");
+			      })
+			      .on("mousemove", function() {
+			          return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
+			      })
+			      .on("mouseout", function(){return tooltip.style("visibility", "hidden");})
+	            ;
 	
 	        node.append("text")
 	            .attr("text-anchor", "middle")
 	            .attr("dy", ".3em")
 	            .text(function (d) {
 	            return d.className.substring(0, d.r / 3);
-            });
+            })
+            	.on("mouseover", function(d) {
+		              tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName);
+		              tooltip.style("visibility", "visible");
+			      })
+			     .on("mousemove", function() {
+			          return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
+			      })
+			     .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
 		});
     };
     

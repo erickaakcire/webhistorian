@@ -217,7 +217,7 @@ define(["../app/utils", "moment"], function(utils, moment)
                     return "translate(" + d.x + "," + d.y + ")";
                 });
         }
-    }
+    };
         
     return visualization;
 });

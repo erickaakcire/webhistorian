@@ -42,8 +42,17 @@ define(["../app/utils", "moment"], function(utils, moment)
 
         var width = $("#visual_div").width();
         var height = 500;
-//        var height = width;
-
+		var tooltip = d3.select("body")
+			    .append("div")
+			    .style("position", "absolute")
+			    .style("z-index", "10")
+			    .style("visibility", "hidden")
+			    .style("color", "white")
+			    .style("padding", "8px")
+			    .style("background-color", "rgba(0, 0, 0, 0.75)")
+			    .style("border-radius", "6px")
+			    .style("font", "12px sans-serif")
+			    .text("tooltip");
         var fill = d3.scale.category20();
         d3.layout.cloud().size([width, height])
             .words(searchWords)
@@ -83,10 +92,19 @@ define(["../app/utils", "moment"], function(utils, moment)
                 .text(function (d) {
                     return d.text;
                 })
-                .append("svg:title")
-                .text(function (d) {
-                    return d.allTerms;
-                });
+                //.append("svg:title")
+                //.text(function (d) {
+                //    return d.allTerms;
+                //})
+                .on("mouseover", function(d) {
+		              tooltip.text("Search terms indluding \"" + d.text + "\": " + d.allTerms);
+		              tooltip.style("visibility", "visible");
+			      })
+			      .on("mousemove", function() {
+			          return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
+			      })
+			      .on("mouseout", function(){return tooltip.style("visibility", "hidden");})
+                ;
         }
     };
         

@@ -46,7 +46,7 @@ chrome.alarms.onAlarm.addListener(function(alarm)
 				path: "images/star-red-64.png"
 			});
 			chrome.browserAction.setTitle({
-				title: "Consider participating in a research project!"
+				title: "Consider participating in our research project!"
 			});	
 		}
 		else if (now.getTime() - lastUpload > (1000 * 60 * 60 * 720))

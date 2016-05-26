@@ -44,6 +44,13 @@ requirejs(["bootstrap", "bootstrap-datepicker", "bootstrap-table", "d3.layout.cl
 				websites_visited.display(history, history.fullData);
 			});
 		});
+		
+		$(".navbar-brand").click(function () {
+            requirejs(["../app/history"], function (history) 
+			{
+				history.display(history, history.fullData);
+			});
+		});
 
 		$("#search_words_card").click(function()
 		{
