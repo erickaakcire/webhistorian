@@ -78,6 +78,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
     
     visualization.display = function(history, data)
     {
+
         $("input#start_date").datepicker().on("changeDate", function(e)
         {
             visualization.display(history, data);
@@ -92,10 +93,10 @@ define(["../app/utils", "moment"], function(utils, moment) {
         d3.select("#web_visit").classed("active", true);
         vizSelected = "web_visit";
 
-        utils.clearVisualization();
-        utils.clearOptions();
-
 		catAsync(function(categories) {
+			
+			utils.clearVisualization();
+       		utils.clearOptions();
 		    
 		    var startDate = utils.startDate();
 			var endDate = utils.endDate();

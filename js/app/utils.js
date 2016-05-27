@@ -123,6 +123,7 @@ define(function() {
         $("#visual_div").empty();
         $("#viz_selector").empty();
         $("#above_visual").empty();
+        $("#cards").empty();
     };
     
     utils.clearOptions = function() 

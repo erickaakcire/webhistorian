@@ -6,7 +6,11 @@
 }
 
 #wir {
-	padding: 25px;
+	padding-right: 20px;
+	padding-left: 20px;
+}
+#wir h3 {
+	margin-top:0px;
 }
 #visualizations img {
    padding:1px;
@@ -19,7 +23,6 @@
 #viz_selector a {
 	text-decoration:none;
 }
-
 
 #title h1 {
 	margin-bottom: 5px;
@@ -155,7 +158,11 @@ text {
 }
 
 text:hover {
-	fill: 444444;
+	fill: #4A68B8;
+}
+
+#visualization.bubble text:hover {
+	fill: #000;
 }
 
 path.link {
@@ -170,14 +177,14 @@ marker.marker {
 
 circle.network  {
   cursor: move;
-  fill: #ccc;
+  fill: white;
   stroke: #fff;
   stroke-width: 1.5px;
 }
 
-circle.network:hover {
+/*circle.network:hover {
 	stroke: red;
-}
+}*/
 
 .fixed {
   fill: red;
@@ -188,14 +195,29 @@ circle.network:hover {
   font: 10px sans-serif;
 }
 
-circle text:hover {
+/*circle text:hover {
   stroke: red;
-}
+}*/
 
 /* timeline */
 svg {
   font: 10px sans-serif;
 }
+
+
+.node text {
+  display: inline;
+  font: 13px sans-serif;
+}
+/*
+.node:hover circle {
+  fill: #000;
+}
+
+.node:hover text {
+  display: inline;
+}
+*/
 
 .area {
   fill: steelblue;

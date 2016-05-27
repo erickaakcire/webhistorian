@@ -1,37 +1,22 @@
-requirejs.config({
-    shim: {
-        "jquery": {
-            exports: "$"
-        },
-        "bootstrap": {
-            deps: ["jquery"]
-        },
-        "bootstrap-datepicker": {
-            deps: ["bootstrap"]
-        },
-        "bootstrap-table": {
-            deps: ["bootstrap"]
-        },
-        "d3": {
-            exports: "d3"
-        },
-        "d3.layout.cloud": {
-            deps: ["d3"]
-        },
-        "crypto-js-md5": {
-            exports: "CryptoJS"
-        },
-        "historian": {
-            deps: ["jquery"]
-        }
-    },
-    baseUrl: "js/lib",
-});
-
-// Start the main app logic.
-requirejs(["bootstrap", "bootstrap-datepicker", "bootstrap-table", "d3.layout.cloud"], function (bs, bsdp, bst, d3lc, moment) 
+define(["../app/utils", "moment"], function(utils, moment) 
 {
-	requirejs(["../app/history"], function (history) 
+    var visualization = {};
+    visualization.display = function(history, data){
+		utils.clearVisualization();
+        $("input#start_date").datepicker().on("changeDate", function(e)
+        {
+            visualization.display(history, data);
+        });
+
+        $("input#end_date").datepicker().on("changeDate", function(e)
+        {
+            visualization.display(history, data);
+        });
+        var startDate = utils.startDate();
+        var endDate = utils.endDate();
+        var filteredData = utils.filterByDates(data, startDate, endDate);
+        
+        	requirejs(["../app/history"], function (history) 
 	{
 		$("#web_visit_card").click(function()
 		{
@@ -91,6 +76,11 @@ requirejs(["bootstrap", "bootstrap-datepicker", "bootstrap-table", "d3.layout.cl
 		$('[data-toggle="tooltip"]').tooltip();
 		$('.datepicker').datepicker();
 	});
+        
+        
+   		history.insertCards();
+   		$('#viz_selector').show();
+   		history.compareWeekVisits(endDate, filteredData, history.wir);
+    };
+	return visualization;
 });
-
-

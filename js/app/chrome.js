@@ -1,7 +1,4 @@
-// JavaScript source code
-
 // When the user clicks on the browser action icon.
-
 chrome.browserAction.onClicked.addListener(function(tab) 
 {
 	//Look to see if the extension page is open already and if not, open it.
@@ -49,14 +46,14 @@ chrome.alarms.onAlarm.addListener(function(alarm)
 				title: "Consider participating in our research project!"
 			});	
 		}
-		else if (now.getTime() - lastUpload > (1000 * 60 * 60 * 720))
+		else if (now.getTime() - lastUpload > (1000 * 60 * 60 * 1440))
 		{
 			chrome.browserAction.setIcon({
 				path: "images/star-red-64.png"
 			});	
 
 			chrome.browserAction.setTitle({
-				title: "Time to upload browsing data!"
+				title: "Time to upload additional browsing data!"
 			});	
 			//put in a special message asking for more data
 			//do a special case if they have uploaded but not completed the survey

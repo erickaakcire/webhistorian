@@ -20,7 +20,6 @@
 
 define(["moment", "../app/config", "../app/utils"], function (moment, config, utils) 
 {
-    //disable on upload. 
     //if (last upoad date === never) {
 	    //window.onbeforeunload = function (e) {
 	    //e = e || window.event;
@@ -43,10 +42,10 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 
 //globals 
     var divName = "visual_div";
-    var currDate = new Date();
+    var now = new Date();
     var timeSelect = 0; //null = 24 hours, 0 = all time
-    var dateLimit = new Date(currDate.getTime());
-    dateLimit.setDate(currDate.getDate() - 91);
+    var dateLimit = new Date(now.getTime());
+    dateLimit.setDate(now.getDate() - 91);
     var dateForward = Infinity;
 
     var vizSelected = null;
@@ -57,7 +56,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 
 //Getting data from Chrome History & creating the base dataset
     function getUrls(callback, viz, callback2) {
-        var end = currDate.getTime();
+        var end = now.getTime();
         if (dateForward != Infinity) {
             end = dateForward;
         }
@@ -494,7 +493,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         //nothing
     }
 
-	function compareWeekVisits(startDate, data) {
+	history.compareWeekVisits = function(startDate, data, callback) {
 		var weekAend = startDate;
 		var weekAstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-7) );
 		var weekBstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-14) );
@@ -530,8 +529,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 		var indexMaxCountLwSize = utils.findIndexByKeyValue(swlw,"size",maxCountLwSize);
 		var maxCountTwSize = Math.max.apply(Math,swtw.map(function(swtw){return swtw.size;}));
 		var indexMaxCountTwSize = utils.findIndexByKeyValue(swtw,"size",maxCountTwSize);
-		
-		
+
 		//sort arrays by domain (this week data sorted domain)
 		var lwdSd = utils.sortByProperty(lwd,"domain");
 		var twdSd = utils.sortByProperty(twd,"domain");
@@ -554,7 +552,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 		var topTermLw = swlw[indexMaxCountLwSize].text;
 		var topTermTw = swtw[indexMaxCountTwSize].text;
 		
-		return {
+		var weekCompareData = {
 			weekAend: weekAend,
 			weekAstart: weekAstart,
 			weekBend: weekAstart,
@@ -566,16 +564,11 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 			topTermLw: topTermLw,
 			topTermTw: topTermTw
 		};
-	}
+		callback(weekCompareData);
+	};
     
-    history.display = function(history, data){
-    	utils.clearVisualization();
-    	chrome.storage.local.get('lastPdkUpload', function (result) {
-        	lastUl = result.lastPdkUpload;
-   		});
-   		
-        var now = new Date();
-        var weekData = compareWeekVisits(now,visualData);
+    history.wir = function(weekData) {
+        $("#cards").append("<div id=\"wir\"></div>");
         $("#wir").html( function() {
             	var aEnd = moment(weekData.weekAend).format("ddd MMM D");
 				var aStart = moment(weekData.weekAstart).format("ddd MMM D");
@@ -587,7 +580,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 				var topDomainTw = weekData.topDomainTw;
 				var topTermLw = weekData.topTermLw;
 				//var topTermListLw = weekData.topTermListLw;
-				//problems with tooltips... 
+				//problems implementing tooltips for this
 				var topTermTw = weekData.topTermTw;
 				//var topTermListTw = weekData.topTermListTw;
 				
@@ -620,6 +613,72 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             });
     };
     
+    //insert the code for the cards, but doesn't display them (display: none)
+    history.insertCards = function (){
+    	$("#cards").html("<div class=\"row\" id=\"viz_selector\" style=\"display: none;\">\
+					<div class=\"col-sm-6 col-md-3\">\
+						<a id=\"web_visit_card\">\
+							<div class=\"thumbnail\">\
+								<img src=\"images/visit.png\" alt=\"Web Visits\" />\
+								<div class=\"caption\">\
+									<h3>Web Visits</h3>\
+									<p>\
+										Circles sized by number of visits.\
+									</p>\
+								</div>\
+							</div>\
+						</a>\
+					</div>\
+				<div class=\"col-sm-6 col-md-3\">\
+						<a id=\"search_words_card\">\
+							<div class=\"thumbnail\">\
+								<img src=\"images/wordCloud.png\" alt=\"Search Words\" />\
+								<div class=\"caption\">\
+									<h3>Search Terms</h3>\
+									<p>\
+										Words used in multiple web searches.\
+									</p>\
+								</div>\
+							</div>\
+						</a>\
+					</div>\
+					<div class=\"col-sm-6 col-md-3\">\
+						<a id=\"network_card\">\
+							<div class=\"thumbnail\">\
+								<img src=\"images/network.png\" alt=\"Network\" />\
+								<div class=\"caption\">\
+									<h3>Network</h3>\
+									<p>\
+										Links between websites browsed from - to.\
+									</p>\
+								</div>\
+							</div>\
+						</a>\
+					</div>\
+					<div class=\"col-sm-6 col-md-3\">\
+						<a id=\"data_table_card\">\
+							<div class=\"thumbnail\">\
+								<img src=\"images/table.png\" alt=\"Data Table\" />\
+								<div class=\"caption\">\
+									<h3>Data Table</h3>\
+									<p>\
+										See the details of each web visit with an option to delete specific records.\
+									</p>\
+								</div>\
+							</div>\
+						</a>\
+					</div>");
+    };
+    
+    //for click on logo
+   // history.display = function(hist, data){
+   // 	utils.clearVisualization();
+   //		history.insertCards();
+   //		$('#viz_selector').show();
+   //		history.compareWeekVisits(now, data, history.wir);
+//		return history.display;
+  //  };
+    
     //Putting it all together
     $("document").ready(function () 
     {
@@ -627,7 +686,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 		chrome.storage.local.get('lastPdkUpload', function (result) {
         	lastUl = result.lastPdkUpload;
    		});
-        
+        history.insertCards();
         //Get all data into fullData1
         getUrls(noTransform, noViz, function()
         {
@@ -635,83 +694,8 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             $('#viz_selector').show();
             $("#navbar").show();
 
-            //$(".navbar-brand").click(function () 
-            //{ 
-            //    utils.clearVisualization();
-                
-                //call the main page functions
-            //});
+			history.compareWeekVisits(now, visualData, history.wir);
 
-           // $("#load_data").click(function () 
-            //{ //used for researcher edition - adapt for demo!
-              //  var fileName = prompt("Please enter the file name");
-                //d3.json(fileName, function(error, root) {
-                  //  if (root === undefined) 
-                    //{
-                      //  $('#' + divName).append("<div id=\"visualization\"><h3>Error loading data, check file name and file format</h3></div>");
-                   // }
-                   // else 
-                   // {
-                     //   history.fullData = [];
-                       // history.fullData = root.data;
-                   //     visualData = [];
-                     //   visualData = root.data;
-//                        console.log("file load success");
-//                        console.log("fullData1: ",history.fullData.length);
-//                        console.log("visualData: ",visualData.length);
-                    //    history.timeSelection = "all";
-                   // }
-               // });
-           // });
-            
-            var now = new Date();
-            var weekData = compareWeekVisits(now,visualData);
-            
-            //hide "view on server" on toolbar until they  have participated 
-            
-            $("#wir").html( function() {
-            	var aEnd = moment(weekData.weekAend).format("ddd MMM D");
-				var aStart = moment(weekData.weekAstart).format("ddd MMM D");
-				var bEnd = moment(weekData.weekBend).format("ddd MMM D");
-				var bStart = moment(weekData.weekBstart).format("ddd MMM D");
-				var percent = weekData.percent;
-				var percentML = weekData.percentML;
-				var topDomainLw = weekData.topDomainLw;
-				var topDomainTw = weekData.topDomainTw;
-				var topTermLw = weekData.topTermLw;
-				//var topTermListLw = weekData.topTermListLw;
-				//problems with tooltips... 
-				var topTermTw = weekData.topTermTw;
-				//var topTermListTw = weekData.topTermListTw;
-				
-				if (lastUl > 1) {
-					lastUlD = moment(lastUl).format("MMM DD, YYYY");
-				}
-				else {lastUlD = "Never";}
-				
-				if (topTermLw === topTermTw){
-					topTermLwD = "the same";
-				}
-				else {topTermLwD = "<strong>" + topTermLw + " </strong>";}
-				
-				if (topDomainTw === topDomainLw) {
-					topDomainLwD = "the same";
-				}
-				else { topDomainLwD = "<strong><a href=\"http://" + topDomainLw + "\" target=\"_blank\">" + topDomainLw + "</a></strong>";}
-				
-				var researchAd = "<div id=\"research\"><h3>Using Web Historian</h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps us understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span> above. Participating takes about 5 minutes and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to share using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a> above.</p></div>";
-				var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p>";
-				//Your central jumping-off point for browsing the web this week was * this week. It was * last week.
-				var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
-				var thanks = "<h3>Thank you for participating!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and further studies <a href=\"https://american.co1.qualtrics.com/SE/?SID=SV_3BNk0sU18jdrmct\" target=\"_blank\">click here to sign up</a></p>";
-				
-				//change to === for testing original view
-            	if (lastUl !== "Never") {
-            		return weekInReview + thanks + footer;
-            	}
-            	else { return researchAd + weekInReview + footer; }            	 
-            });
-            
             $('#upload_modal').on('show.bs.modal', function (e) 
             {
                 chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) 
@@ -872,9 +856,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             });
 
             $("#submit").click(function() {
-                console.log("submit click");
                 d3.selectAll("#viz_selector a").classed("active", false);
-                console.log("submit click if");
                 dateForward = Infinity;
                 history.timeSelection = "all";
             });

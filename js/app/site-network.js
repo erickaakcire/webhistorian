@@ -130,8 +130,9 @@ define(["../app/utils", "moment"], function(utils, moment)
             .nodes(d3.values(nodes))
             .links(edgeList)
             .size([width, height])
-            .linkDistance(40)
-            .charge(-50)
+            .linkDistance(90)
+            .charge(-350)
+            .gravity(0.05)
             .on("tick", tick)
             .start();
 
@@ -192,8 +193,9 @@ define(["../app/utils", "moment"], function(utils, moment)
 
         // add the text
         node.append("text")
-            .attr("x", 12)
-            .attr("dy", ".35em")
+          .attr("dy", ".35em")
+          .attr("text-anchor", "left")
+          .attr("font-size", "10px")
             .text(function (d) {
                 return d.name;
             });
