@@ -441,31 +441,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         });
         return data;
     }
-
-    function lowHighNum(objArr, prop, low) {
-        //for object properties in arrays that contain numbers, get the lowest number if low === true, highest if not
-        if (low) {
-            var first = Infinity;
-            for (var i = 0; i < objArr.length; i++) {
-                eval = objArr[i][prop];
-                if (eval < first) {
-                    first = eval;
-                }
-            }
-            return first;
-        }
-        else {
-            var last = 0;
-            for (var i = 0; i < objArr.length; i++) {
-                eval = objArr[i][prop];
-                if (eval > last) {
-                    last = eval;
-                }
-            }
-            return last;
-        }
-    }
-
 //Passing data to visualizations
 
     function submissionData(callback) {

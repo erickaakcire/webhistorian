@@ -453,6 +453,35 @@ define(function() {
 	};
     
     
+    utils.lowHighNum = function (objArr, prop, low) {
+        //for object properties in arrays that contain numbers, get the lowest number if low === true, highest if not
+        //returns the index of the object
+        var index =0;
+        if (low) {
+            var first = Infinity;
+            for (var i = 0; i < objArr.length; i++) {
+                eval = objArr[i][prop];
+                if (eval < first) {
+                    first = eval;
+                    index = i;
+                }
+            }
+            return index;
+        }
+        else {
+            var last = 0;
+            for (var i = 0; i < objArr.length; i++) {
+                eval = objArr[i][prop];
+                if (eval > last) {
+                    last = eval;
+                    index = i;
+                }
+            }
+            return index;
+        }
+    };
+
+    
     utils.searchWordsFun = function(words, terms) 
     {
         var countWords = 1;
