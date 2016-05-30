@@ -34,6 +34,12 @@
 	margin-top: 5px;
 }
 
+#title h3 {
+	color:#444;
+    font: 14pt sans-serif;
+	margin-top: 5px;
+}
+
 #viz_p h4 {
 	color: red;	
 }

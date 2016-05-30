@@ -3,11 +3,8 @@ define(["../app/utils", "moment"], function(utils, moment) {
     
     //default view
     var habits = 0;
-    var change = 0;
     
     visualization.catData = function(data, categories, callback){
-    	utils.clearVisualization();
-    	
     	var specified = []; //domainExact
 	   	var domS = []; //domainSearch - not yet implemented
 	   	var top = []; //topDomainExact
@@ -29,7 +26,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	   	
     	return callback(data, catObj, intoData);
     };
-    
+    //get the data from different view options into the tree/flare type object
     function intoData (catObj, domains) {
     	var realData = {name: "Domains", children: []};
 	   	for (var i in catObj.catU) {
@@ -65,12 +62,12 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	   	}
 	   return realData;	
     }
-    
+    //simplest view, just a count of visits
     function getVisitData(data, catObj, callback) {
 	    var domains = utils.countPropDomains(data, "domain");
         return callback(catObj, domains); 
     };
-
+	//habits view needs processing to segment by day
 	function getHabitData (data, catObj, callback) {
 		var biggestSize = 0;
         var biggestDomain = "";
@@ -109,8 +106,8 @@ define(["../app/utils", "moment"], function(utils, moment) {
             		"domain": currentDomain,
             		"count": size,
             		"topD": currentTopD
-            //	});
-            }); // if if exists just }
+            	});
+            //} 
            }
            var startDate = utils.startDate();
 		   var endDate = utils.endDate();
@@ -119,12 +116,13 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	       var utcEnd = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
 	       var diffDays = Math.ceil((utcEnd - utcStart) / oneDay);
            
-           $("#title").append("<h2 style=\"display:none\">You visited " + biggestDomain + " the most for " + biggestSize + " days out of " + diffDays + ". (" + Math.round(biggestSize / diffDays * 100) + "%)</h2>");
+           $("#title").append("<h2 style=\"display:none\">You visited " + biggestDomain + " the most, " + biggestSize + " days out of " + diffDays + ". (" + Math.round(biggestSize / diffDays * 100) + "%)</h2>");
    			
         return callback(catObj, domainDay2);         
     };
-    
+    //fetch the remote categories json file
     function catAsync(callback) {
+		$("#visualization").html("<h1>One moment please!f</h1><p>Fetching website categories.</p>");
 		var cats = [];
 	   	$.getJSON('https://dl.dropboxusercontent.com/u/3755456/categories.json', function (cat) {		  
 	        for (var j in cat.children) {
@@ -139,153 +137,185 @@ define(["../app/utils", "moment"], function(utils, moment) {
     		callback(cats);
   		});
 	}
-	
-	function changeBubble(dataset, habits) {
-		$("#visual_div").height($("#visual_div").width());
-        var r = $("#visual_div").height(),
-            format = d3.format(",d"),
-            fill = d3.scale.category20();
 
-        var bubble = d3.layout.pack()
-            .sort(null)
-            .size([r, r])
-            .padding(1.5);
-            
-        var siteClasses = utils.classes(dataset);//dataset
-            
-        var vis = d3.select("#visual_div").append("svg")
-            .attr("width", r)
-            .attr("height", r)
-            .attr("class", "bubble")
-            .attr("id", "visualization");
-
-        var tooltip = d3.select("body")
-		    .append("div")
-		    .style("position", "absolute")
-		    .style("z-index", "10")
-		    .style("visibility", "hidden")
-		    .style("color", "white")
-		    .style("padding", "8px")
-		    .style("background-color", "rgba(0, 0, 0, 0.75)")
-		    .style("border-radius", "6px")
-		    .style("font", "12px sans-serif")
-		    .text("tooltip");
-        
-        var node = vis.selectAll("g.node")
-            .data(bubble.nodes(siteClasses)//from dataset
-                .filter(function (d) {
-                    return !d.children;
-                }))
-            .enter().append("g")
-            .attr("class", "node")
-            .attr("transform", function (d) {
-                return "translate(" + d.x + "," + d.y + ")";
-            });
-
-        node.append("circle")
-            .attr("r", function (d) {
-                return d.r;
-            })
-            .style("fill", function (d) {
-                return fill(d.packageName);
-            })
-            .on("mouseover", function(d) {
-	              if (habits===0){
-	              	tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName);
-	              }
-	              else if (habits===1){
-	              	tooltip.text(d.className + ", Days: " + format(d.value) + ", Category: " + d.packageName);
-	              }
-	              
-	              tooltip.style("visibility", "visible");
-	          })
-		      
-		      .on("mousemove", function() {
-		          return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
-		      })
-		      .on("mouseout", function(){
-		      	return tooltip.style("visibility", "hidden");
-		      	})
-            ;
-
-        node.append("text")
-            .attr("text-anchor", "middle")
-            .attr("dy", ".3em")
-            .text(function (d) {
-            return d.className.substring(0, d.r / 3);
-        })
-        	.on("mouseover", function(d) {
-        		if(habits===0){
-        			tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName);
-        		}
-        		else if (habits===1){
-        			tooltip.text(d.className + ", Days: " + format(d.value) + ", Category: " + d.packageName);
-        		}
-	              
-	              tooltip.style("visibility", "visible");
-		      })
-		     .on("mousemove", function() {
-		          return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
-		      })
-		     .on("mouseout", function(){return tooltip.style("visibility", "hidden");})
-		     ;
-	}
-    
     visualization.display = function(history, data)
     {
-
-        $("input#start_date").datepicker().on("changeDate", function(e)
-        {
-            visualization.display(history, data);
-        });
-
-        $("input#end_date").datepicker().on("changeDate", function(e)
-        {
-            visualization.display(history, data);
-        });
+		utils.clearVisualization();
+		function listenDate (){
+			$("input#start_date").datepicker().on("changeDate", function(e)
+	        { visualization.display(history, data); });
+	
+	        $("input#end_date").datepicker().on("changeDate", function(e)
+	        { visualization.display(history, data); });
+		}
+		listenDate();
 
         d3.selectAll("#viz_selector a").classed("active", false);
         d3.select("#web_visit").classed("active", true);
         vizSelected = "web_visit";
 
 		catAsync(function(categories) {
-		    
+		    //set up all the datasets
 		    var startDate = utils.startDate();
 			var endDate = utils.endDate();
 			var filteredData = utils.filterByDates(data, startDate, endDate);
-
-			var numDomains = utils.countUniqueProperty(data, "domain");
-			
 			var datasetV = visualization.catData(filteredData, categories, getVisitData);
 			var datasetH = visualization.catData(filteredData, categories, getHabitData);
 			
-			if (habits === 0) {
+			//constant visual elements
+			$("#visual_div").height($("#visual_div").width());
+	        var r = $("#visual_div").height(),
+	            format = d3.format(",d"),
+	            fill = d3.scale.category20();
+	
+	        var bubble = d3.layout.pack()
+	            .sort(null)
+	            .size([r, r])
+	            .padding(1.5);
+            
+            var tooltip = d3.select("body")
+			    .append("div")
+			    .style("position", "absolute")
+			    .style("z-index", "10")
+			    .style("visibility", "hidden")
+			    .style("color", "white")
+			    .style("padding", "8px")
+			    .style("background-color", "rgba(0, 0, 0, 0.75)")
+			    .style("border-radius", "6px")
+			    .style("font", "12px sans-serif")
+			    .text("tooltip");
+			
+			var vis = d3.select("#visual_div").append("svg")
+	            .attr("width", r)
+	            .attr("height", r)
+	            .attr("class", "bubble")
+	            .attr("id", "visualization");
+	            
+	        function showVisits(){
+    			habits = 0;
+	        	var numDomains = utils.countUniqueProperty(data, "domain");
 				d3.select("#title").append("h1").text("What websites do you visit most?").attr("id", "viz_title");
-				d3.select("#title").append("h2").text(numDomains + " websites visited from " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY")).attr("id", "viz_subtitle");
+				d3.select("#title").append("h3").text(numDomains + " websites visited from " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY")).attr("id", "viz_subtitle");
 	       		$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary active\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\" checked> All Visits  </label> <label class=\"btn btn-primary\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\"> Daily Habits  </label></div>");
-				changeBubble(datasetV, habits);
-	        	} 
-	        	else if (habits === 1) {
+				changeBubble(datasetV);
+	        }
+	        function showHabits (){
+	        	habits = 1;
 				$("#title").prepend("<h1>What websites do you visit regularly</h1>");
 				$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label></div>");
-				$("#title h2").css("display","block");
-				changeBubble(datasetH, habits);
-			}
+				changeBubble(datasetH);
+	        }
+	        //default option
+	        showHabits();
+	        $("#title h2").css("display","block");
 
-	        
-		    $("input[name='options']").on("change", function () {
-		        if (this.id === "habits"){
-		        	habits = 1;
-		        	change = 1;
-		        	visualization.display(history, filteredData);
-		        }
-		        else if (this.id === "visits")  {
-		        	habits = 0;
-		        	change = 1;
-		        	visualization.display(history, filteredData);
-		        }
-		    });
-    
+	        //listen for changes in dataset
+	        function listenView(){
+		        $("input[name='options']").on("change", function () {
+			        if (this.id === "habits"){
+			        	$("#title h1").empty();
+			        	$("#title h2").css("display","block");
+			        	$("#title h3").empty();
+			        	$("#above_visual").empty();
+			        	showHabits();
+			        }
+			        else if (this.id === "visits")  {
+			        	$("#title h1").empty();
+			        	$("#title h2").css("display","none");
+			        	$("#title h3").empty();
+			        	$("#above_visual").empty();
+						showVisits();
+			        }
+			    });
+	        }
+	        listenView();
+
+    		//update function
+    		function changeBubble(dataset) {
+    			listenView();
+    			listenDate();
+		        var siteClasses = utils.classes(dataset);//dataset
+		        
+		        var node = vis.selectAll(".node")
+		            .data(bubble.nodes(siteClasses)//from dataset
+		                .filter(function (d) {
+		                    return !d.children;
+		                }),function(d) {return d.className;});
+
+				var nodeEnter = node.enter()
+			        .append("g")
+			        .attr("class", "node")
+			        .attr("transform", function (d) {
+			            return "translate(" + d.x + "," + d.y + ")";
+			        });
+		        nodeEnter
+		        	.append("circle")
+		            .attr("r", function (d) {
+		                return d.r;
+		            })
+		            .style("fill", function (d) {
+		                return fill(d.packageName);
+		            })
+		            .on("mouseover", function(d) {
+			              if (habits===0){
+			              	tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName);
+			              }
+			              else if (habits===1){
+			              	tooltip.text(d.className + ", Days: " + format(d.value) + ", Category: " + d.packageName);
+			              }
+			              
+			              tooltip.style("visibility", "visible");
+			          })
+				      
+				      .on("mousemove", function() {
+				          return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
+				      })
+				      .on("mouseout", function(){
+				      	return tooltip.style("visibility", "hidden");
+				      	});
+		
+		          nodeEnter
+		          	.append("text")
+		            .attr("text-anchor", "middle")
+		            .attr("dy", ".3em")
+		            .text(function (d) {
+		            	return d.className.substring(0, d.r / 3);
+		        	})
+		        	.on("mouseover", function(d) {
+		        		if(habits===0){
+		        			tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName);
+		        		}
+		        		else if (habits===1){
+		        			tooltip.text(d.className + ", Days: " + format(d.value) + ", Category: " + d.packageName);
+		        		}
+			              
+			              tooltip.style("visibility", "visible");
+				      })
+				     .on("mousemove", function() {
+				          return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
+				      })
+				     .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+				
+			    node.transition().attr("class", "node")
+			        .transition().duration(5000)
+			        .attr("transform", function (d) {
+				        return "translate(" + d.x + "," + d.y + ")";
+				    });
+			    node.select("circle")
+			        .transition().duration(2000)
+			        .attr("r", function (d) {
+			             return d.r;
+			        });
+			    node.select("text")
+			        .transition().duration(5000)
+			        .attr("text-anchor", "middle")
+		            .attr("dy", ".3em")
+		            .text(function (d) {
+		            	return d.className.substring(0, d.r / 3);
+		        	});
+					
+				node.exit().remove();
+			}
 
 
 		});

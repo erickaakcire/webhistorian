@@ -92,10 +92,6 @@ define(["../app/utils", "moment"], function(utils, moment)
                 .text(function (d) {
                     return d.text;
                 })
-                //.append("svg:title")
-                //.text(function (d) {
-                //    return d.allTerms;
-                //})
                 .on("mouseover", function(d) {
 		              tooltip.text("Search terms indluding \"" + d.text + "\": " + d.allTerms);
 		              tooltip.style("visibility", "visible");
