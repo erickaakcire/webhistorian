@@ -1,4 +1,4 @@
-define(["../app/utils", "moment"], function(utils, moment) {
+define(["../app/utils", "../app/config", "moment"], function(utils, config, moment) {
     var visualization = {};
     
     //default view
@@ -115,16 +115,16 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	       var utcStart = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
 	       var utcEnd = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
 	       var diffDays = Math.ceil((utcEnd - utcStart) / oneDay);
-           
+           $("#title h2").empty();
            $("#title").append("<h2 style=\"display:none\">You visited " + biggestDomain + " the most, " + biggestSize + " days out of " + diffDays + ". (" + Math.round(biggestSize / diffDays * 100) + "%)</h2>");
    			
         return callback(catObj, domainDay2);         
     };
     //fetch the remote categories json file
     function catAsync(callback) {
-		$("#visualization").html("<h1>One moment please!f</h1><p>Fetching website categories.</p>");
 		var cats = [];
-	   	$.getJSON('https://dl.dropboxusercontent.com/u/3755456/categories.json', function (cat) {		  
+		$("#visual_div").html("<h1>One moment please...</h1><p>Fetching website categories.</p>");
+	   	$.getJSON(config.categoriesUrl, function (cat) {		  
 	        for (var j in cat.children) {
 				cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
 			}
@@ -137,20 +137,29 @@ define(["../app/utils", "moment"], function(utils, moment) {
     		callback(cats);
   		});
 	}
-
+	
     visualization.display = function(history, data)
     {
 		utils.clearVisualization();
+		console.log("viz display");
 		function listenDate (){
 			$("input#start_date").datepicker().on("changeDate", function(e)
-	        { visualization.display(history, data); });
+	        { 
+	        	//utils.clearVisualization();
+	        	console.log("start date");
+	        	visualization.display(history, data); 
+	        	});
 	
 	        $("input#end_date").datepicker().on("changeDate", function(e)
-	        { visualization.display(history, data); });
+	        { 
+	        	utils.clearVisualization();
+	        	visualization.display(history, data); 
+	        	});
 		}
 		listenDate();
 
         d3.selectAll("#viz_selector a").classed("active", false);
+        
         d3.select("#web_visit").classed("active", true);
         vizSelected = "web_visit";
 
@@ -162,6 +171,8 @@ define(["../app/utils", "moment"], function(utils, moment) {
 			var datasetV = visualization.catData(filteredData, categories, getVisitData);
 			var datasetH = visualization.catData(filteredData, categories, getHabitData);
 			
+			$("#visual_div h1").empty();
+			$("#visual_div p").empty();
 			//constant visual elements
 			$("#visual_div").height($("#visual_div").width());
 	        var r = $("#visual_div").height(),
@@ -201,13 +212,18 @@ define(["../app/utils", "moment"], function(utils, moment) {
 	        }
 	        function showHabits (){
 	        	habits = 1;
+	        	$("#title h2").css("display","block");
 				$("#title").prepend("<h1>What websites do you visit regularly</h1>");
 				$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label></div>");
 				changeBubble(datasetH);
 	        }
 	        //default option
-	        showHabits();
-	        $("#title h2").css("display","block");
+	        $("#title h1").empty();
+			$("#title h2").css("display","block");
+			$("#title h3").empty();
+			$("#above_visual").empty();
+			
+			showHabits();
 
 	        //listen for changes in dataset
 	        function listenView(){

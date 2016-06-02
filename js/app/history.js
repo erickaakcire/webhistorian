@@ -20,10 +20,10 @@
 
 define(["moment", "../app/config", "../app/utils"], function (moment, config, utils) 
 {
-    //if (last upoad date === never) {
+    //if (lastUlD === "Never" && used 3 times or more) {
 	    //window.onbeforeunload = function (e) {
 	    //e = e || window.event;
-	    //return 'Will you consider opting-in to the research project? Click the cloud icon.';
+	    //return 'Will you consider opting-in to the research project? Click the cloud icon in the the top right corner.';
 		//};
 	//}
     
@@ -209,6 +209,16 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 var reThreeTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
                 var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; 
                 var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; 
+                
+                //comleted study survey
+                if (dataItem.url === "http://www.webhistorian.org/studyend/") {
+					var noStudy = {timeStored: now.getTime(), endType: 0};
+					storeSvyEnd(noStudy);
+				}
+				if (dataItem.url === "https://american.co1.qualtrics.com/SE/?SID=SV_3BNk0sU18jdrmct") {
+					var study = {timeStored: now.getTime(), endType: 1};
+					storeSvyEnd(study);
+				}
 
                 if (parser.href.match(reGoogleMaps)) {
                     domain = "google.com/maps";
@@ -334,7 +344,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         
         window.setTimeout(transformDataItem, 0);
     }
-
+	
     history.findIndexArrByKeyValue = function(arraytosearch, key, valuetosearch) 
     {
         var indexArray = [];
@@ -409,7 +419,13 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 
         });
     };
-
+	
+    function storeSvyEnd(data) {
+        //add or replace object (data) to local storage, timeStored: , endType: 1 = success, 0 = end
+        var arr = [];
+        arr.push({timeStored: data.timeStored, endType: data.endType});
+        localStorage.setItem("svyEnd", JSON.stringify(arr));
+    }
     function storeRemovalData(data) {
         //add one object (data) to chrome local storage removal log, timeRemoved: , numUrls: , numVisits:
         var removalArray = [];
@@ -444,7 +460,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 //Passing data to visualizations
 
     function submissionData(callback) {
-//        loadTime();
         var userId = chrome.runtime.id;
         var removals = [];
         if (getStoredData("removals") != null) {
@@ -459,7 +474,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
     }
 
     function noTransform(data, callback) {
-//        loadTime();
         callback(data);
     }
 
@@ -522,9 +536,13 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 		if (countA < countB) { percentML = "less than"; }
 		if (countA == countB) {	percentML = "the same as"; }
 		var percent = Math.round(Math.abs( ((countA-countB) / (countB)) * 100));
-		var topDomainLw = dlw[indexMaxCountLwDs].counter;
+		var topDomainLw = "";
+		var topTermLw = "";
+		if (countB !== 0) {
+			topDomainLw = dlw[indexMaxCountLwDs].counter;
+			topTermLw = swlw[indexMaxCountLwSize].text;
+		}
 		var topDomainTw = dtw[indexMaxCountTwDs].counter;
-		var topTermLw = swlw[indexMaxCountLwSize].text;
 		var topTermTw = swtw[indexMaxCountTwSize].text;
 		
 		var weekCompareData = {
@@ -555,7 +573,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 				var topDomainTw = weekData.topDomainTw;
 				var topTermLw = weekData.topTermLw;
 				//var topTermListLw = weekData.topTermListLw;
-				//problems implementing tooltips for this
+				//problems implementing tooltips to display this data
 				var topTermTw = weekData.topTermTw;
 				//var topTermListTw = weekData.topTermListTw;
 				
@@ -563,6 +581,10 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 					lastUlD = moment(lastUl).format("MMM DD, YYYY");
 				}
 				else {lastUlD = "Never";}
+				
+				
+				//svyEndType = svyEnd[0].endType;
+				console.log(svyEndType);
 				
 				if (topTermLw === topTermTw){
 					topTermLwD = "the same";
@@ -574,23 +596,52 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 				}
 				else { topDomainLwD = "<strong><a href=\"http://" + topDomainLw + "\" target=\"_blank\">" + topDomainLw + "</a></strong>";}
 				
-				var researchAd = "<div id=\"research\"><h3>Using Web Historian</h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps us understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span> above. Participating takes about 5 minutes and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to share using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a> above.</p></div>";
+				var dataStartDate = utils.startDate();
+				
 				var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p>";
 				//Your central jumping-off point for browsing the web this week was * this week. It was * last week.
+				//of the # websites you visited over the past # days, you visited * the most, but you visited * on the most different days. 
 				var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
 				var thanks = "<h3>Thank you for participating!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and further studies <a href=\"https://american.co1.qualtrics.com/SE/?SID=SV_3BNk0sU18jdrmct\" target=\"_blank\">click here to sign up</a></p>";
-				
-				//change to === for testing original view
-            	if (lastUl !== "Never") {
-            		return weekInReview + thanks + footer;
+				var notEnoughData = "<h3>Week in Review</h3><p>The week in review compares the last week in the dataset to the previous week in the dataset. You currently have less than 14 days in your dataset. To see the week in review feature you can keep browsing in Chrome witout clearing your history until you have 14 days of data, or if you changed the dates above, just expand the selection to 14 days using the date options above.</p>";
+				var completeSurvey = "Please complete the survey you began for the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\". You will pick up where you left off:<br><h1> <a href =\"" + config.uploadUrl + "\">"+config.uploadUrl+"</a></h1>";
+
+            	if (lastUlD === "Never" && weekData.weekBstart >= dataStartDate) {
+            		$("#research").show();
+            		return weekInReview + footer;
             	}
-            	else { return researchAd + weekInReview + footer; }            	 
+            	else if (lastUlD === "Never" && weekData.weekBstart < dataStartDate) { 
+            		$("#research").show();
+            		return notEnoughData + footer; 
+            		} 
+                else if (svyEndType === 0 && weekData.weekBstart >= dataStartDate){
+            		return weekInReview + footer;
+            	}
+            	else if (svyEndType === 0 && weekData.weekBstart < dataStartDate){
+            		return notEnoughData + footer;
+            	}
+            	else if (lastUlD !== "Never" && svyEndType === null){
+            		//need to test!
+            		$("#navbar").hide();
+            		$('#viz_selector').hide();
+            		return completeSurvey;
+            	}
+            	else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart >= dataStartDate) { 
+            		$("#nav_review").show();
+            		return weekInReview + thanks + footer; 
+            		}
+            	else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart < dataStartDate) { 
+            		$("#nav_review").show();
+            		return notEnoughData + thanks + footer; 
+            		}
+            	else { $("#research").show(); return footer; console.log("condition not specified"); };     	 
             });
     };
     
     //insert the code for the cards, but doesn't display them (display: none)
     history.insertCards = function (){
-    	$("#cards").html("<div class=\"row\" id=\"viz_selector\" style=\"display: none;\">\
+    	$("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian <span class=\"glyphicon glyphicon-cloud-upload\"></span></h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a>. Participation is opt-in <strong>only</strong> and your data is not shared with Web Historian in any way if you choose not to participate.</p></div>\
+    	<div class=\"row\" id=\"viz_selector\" style=\"display: none;\">\
 					<div class=\"col-sm-6 col-md-3\">\
 						<a id=\"web_visit_card\">\
 							<div class=\"thumbnail\">\
@@ -645,15 +696,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 					</div>");
     };
     
-    //for click on logo
-   // history.display = function(hist, data){
-   // 	utils.clearVisualization();
-   //		history.insertCards();
-   //		$('#viz_selector').show();
-   //		history.compareWeekVisits(now, data, history.wir);
-//		return history.display;
-  //  };
-    
     //Putting it all together
     $("document").ready(function () 
     {
@@ -661,16 +703,30 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 		chrome.storage.local.get('lastPdkUpload', function (result) {
         	lastUl = result.lastPdkUpload;
    		});
+   		chrome.storage.local.get('svyEnd', function (result){
+   			svyEnd = result.svyEnd;
+   			//console.log(svyEnd);
+   		});
+   		
         history.insertCards();
         //Get all data into fullData1
         getUrls(noTransform, noViz, function()
         {
+			svyEndType = null;
+			if (svyEnd !== undefined){ svyEndType = svyEnd[0].endType; }
+			//need to test the lastUl value with no uploads*
+			console.log("svyEndType: " + svyEndType + "lastUl: " + lastUl);
+        	if (lastUl !== null && svyEndType === undefined) {
+				console.log("stop the show!!");
+			}
+   		
             //append images for visualization chooser
             $('#viz_selector').show();
             $("#navbar").show();
+            $("#nav_review").hide();
 
 			history.compareWeekVisits(now, visualData, history.wir);
-
+			
             $('#upload_modal').on('show.bs.modal', function (e) 
             {
                 chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) 
@@ -800,6 +856,9 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 									chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
 									{
 										$('#upload_modal').modal('hide');
+										$("#nav_review").show();
+										//hide participation request*
+										//show participation date										
 								
 										chrome.browserAction.setIcon({
 											path: "images/star-yellow-64.png"
@@ -863,14 +922,13 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 						
 						var sourceId = CryptoJS.MD5(CryptoJS.MD5(result.upload_identifier).toString() + isoDate).toString();
 						
-						var newURL = config.reviewUrl + sourceId;
+						var newURL = config.reviewUrl + sourceId; //add participation status*
 						chrome.tabs.create({ url: newURL });
 					});                 
 				});
 				
 				return false;
 			});
-
         });
     });
 

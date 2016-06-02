@@ -35,28 +35,46 @@ chrome.alarms.onAlarm.addListener(function(alarm)
 		
 		if (result.lastPdkUpload != undefined)
 			lastUpload = Number(result.lastPdkUpload);
-			
+		
+		var svyEndData = localStorage.getItem('svyEnd');
+		var svyEndObj = JSON.parse(svyEndData);
+		var svyEnd = null;
+		if (svyEndObj !== null){
+			svyEnd = svyEndObj[0].endType;
+		}
+
+		console.log("survey end status: " + svyEnd);
+		
 		var now = new Date();
 		
-		if (lastUpload === 0) {
+		if (lastUpload === 0 && svyEnd !== 0) {
 			chrome.browserAction.setIcon({
 				path: "images/star-red-64.png"
 			});
 			chrome.browserAction.setTitle({
-				title: "Consider participating in our research project!"
+				title: "Participate in our research project!"
 			});	
+			console.log("has not uploaded");
 		}
-		else if (now.getTime() - lastUpload > (1000 * 60 * 60 * 1440))
+		else if (lastUpload !==0 && svyEnd === null) {
+			chrome.browserAction.setIcon({
+				path: "images/star-red-64.png"
+			});
+			chrome.browserAction.setTitle({
+				title: "Please finish our survey!"
+			});	
+			console.log("uploaded, didn't finish survey!!");
+		}
+		else if (now.getTime() - lastUpload > (1000 * 60 * 60 * 1440) && svyEnd !== 0) // 60 days (in hours)
 		{
 			chrome.browserAction.setIcon({
 				path: "images/star-red-64.png"
 			});	
 
 			chrome.browserAction.setTitle({
-				title: "Time to upload additional browsing data!"
+				title: "Upload additional browsing data!"
 			});	
-			//put in a special message asking for more data
-			//do a special case if they have uploaded but not completed the survey
+			console.log("has uploaded more than 60 days ago");
 		}
 		else
 		{
@@ -67,6 +85,7 @@ chrome.alarms.onAlarm.addListener(function(alarm)
 			chrome.browserAction.setTitle({
 				title: "Web Historian"
 			});	
+			console.log("Uploaded less tha 60 days ago or not eligible or did not consent");
 		}
 	});
 });

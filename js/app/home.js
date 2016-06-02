@@ -16,7 +16,7 @@ define(["../app/utils", "moment"], function(utils, moment)
         var endDate = utils.endDate();
         var filteredData = utils.filterByDates(data, startDate, endDate);
         
-        	requirejs(["../app/history"], function (history) 
+    requirejs(["../app/history"], function (history) 
 	{
 		$("#web_visit_card").click(function()
 		{
