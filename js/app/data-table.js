@@ -244,7 +244,6 @@ define(["../app/utils", "moment"], function(utils, moment)
     visualization.display = function(history, data, tab) 
     {
         utils.clearVisualization();
-        utils.clearOptions();
 
         $("input#start_date").datepicker().on("changeDate", function(e)
         {

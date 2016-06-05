@@ -28,9 +28,7 @@ requirejs.config({
     baseUrl: "js/lib",
 });
 
-// Start the main app logic.
-requirejs(["bootstrap", "bootstrap-datepicker", "bootstrap-table", "d3.layout.cloud"], function (bs, bsdp, bst, d3lc, moment) 
-{
+main.page = function () {
 	requirejs(["../app/history"], function (history) 
 	{
 		$("#web_visit_card").click(function()
@@ -91,6 +89,12 @@ requirejs(["bootstrap", "bootstrap-datepicker", "bootstrap-table", "d3.layout.cl
 		$('[data-toggle="tooltip"]').tooltip();
 		$('.datepicker').datepicker();
 	});
+};
+
+// Start the main app logic.
+requirejs(["bootstrap", "bootstrap-datepicker", "bootstrap-table", "d3.layout.cloud"], function (bs, bsdp, bst, d3lc, moment) 
+{
+	main.page();
 });
 
 

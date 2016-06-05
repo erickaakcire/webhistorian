@@ -126,10 +126,6 @@ define(function() {
         $("#cards").empty();
     };
     
-    utils.clearOptions = function() 
-    {
-        $("#option_items").empty();
-    };
 
     utils.filterByDates = function(data, startDate, endDate)
     {

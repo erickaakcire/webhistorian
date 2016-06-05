@@ -1,4 +1,4 @@
-define(["../app/utils", "moment"], function(utils, moment) 
+define(["../app/utils", "moment", "../app/history"], function(utils, moment, history) 
 {
     var visualization = {};
     visualization.display = function(history, data){

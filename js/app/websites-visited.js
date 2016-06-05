@@ -160,7 +160,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
     visualization.display = function(history, data)
     {
 		utils.clearVisualization();
-		console.log("viz display");
+		console.log( "visualization.display: "+ $('svg').length );
 
 		listenDate(history, data);
 
@@ -171,6 +171,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 
 		catAsync(function(categories) {
 		    //set up all the datasets
+		    console.log("catAsync " + $('svg').length);
 		    var startDate = utils.startDate();
 			var endDate = utils.endDate();
 			var filteredData = utils.filterByDates(data, startDate, endDate);
@@ -202,6 +203,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 			    .style("font", "12px sans-serif")
 			    .text("tooltip");
 			
+			console.log("append svg");
 			var vis = d3.select("#visual_div").append("svg")
 	            .attr("width", r)
 	            .attr("height", r)
@@ -255,13 +257,11 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 
     		//update function
     		function changeBubble(dataset) {
-				console.log( $('svg').length );
-				
-				//if ($( ".node" ).length > 0){
-				//	node.exit().remove();
-				//	console.log("nodes!");
-				//}
-    			listenView();
+				console.log( "changeBubble: "+ $('svg').length );
+			    if ($('svg').length > 1){
+			    	//console.log("empty");
+			    }
+    			//listenView();
     			//listenDate(history, data);//needs history,data?
 		        var siteClasses = utils.classes(dataset);//dataset
 		        
