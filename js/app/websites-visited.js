@@ -65,6 +65,10 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
     //simplest view, just a count of visits
     function getVisitData(data, catObj, callback) {
 	    var domains = utils.countPropDomains(data, "domain");
+	    var maxInd = utils.lowHighNum(domains, "count", false);
+	    var maxD = domains[maxInd].domain;
+	    var maxC = domains[maxInd].count;
+	    $("#title").append("<h3 style=\"display:none\">You visited "+ maxD +" the most, "+ maxC +" times.</h3>");
         return callback(catObj, domains); 
     };
 	//habits view needs processing to segment by day
@@ -114,9 +118,9 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 		   var oneDay = 24 * 60 * 60 * 1000;
 	       var utcStart = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
 	       var utcEnd = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-	       var diffDays = Math.ceil((utcEnd - utcStart) / oneDay);
+	       var diffDays = Math.ceil((utcEnd - utcStart) / oneDay) + 1;
            $("#title h2").empty();
-           $("#title").append("<h2 style=\"display:none\">You visited " + biggestDomain + " the most, " + biggestSize + " days out of " + diffDays + ". (" + Math.round(biggestSize / diffDays * 100) + "%)</h2>");
+           $("#title").append("<h2 id='viz_subtitle' style=\"display:none\">You visited " + biggestDomain + " " + biggestSize + " days out of " + diffDays + ", " + Math.round(biggestSize / diffDays * 100) + "% of the days in your browsing history.</h2>");
    			
         return callback(catObj, domainDay2);         
     };
@@ -138,25 +142,27 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
   		});
 	}
 	
+	function listenDate (history, data){
+		$("input#start_date").datepicker().on("changeDate", function(e)
+	    { 
+	    	//utils.clearVisualization();
+	    	//console.log("start date");
+	    	visualization.display(history, data); 
+	    	});
+	
+	    $("input#end_date").datepicker().on("changeDate", function(e)
+	    { 
+	    	//utils.clearVisualization();
+	    	visualization.display(history, data); 
+	    	});
+	}
+	
     visualization.display = function(history, data)
     {
 		utils.clearVisualization();
 		console.log("viz display");
-		function listenDate (){
-			$("input#start_date").datepicker().on("changeDate", function(e)
-	        { 
-	        	//utils.clearVisualization();
-	        	console.log("start date");
-	        	visualization.display(history, data); 
-	        	});
-	
-	        $("input#end_date").datepicker().on("changeDate", function(e)
-	        { 
-	        	utils.clearVisualization();
-	        	visualization.display(history, data); 
-	        	});
-		}
-		listenDate();
+
+		listenDate(history, data);
 
         d3.selectAll("#viz_selector a").classed("active", false);
         
@@ -205,22 +211,23 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	        function showVisits(){
     			habits = 0;
 	        	var numDomains = utils.countUniqueProperty(data, "domain");
-				d3.select("#title").append("h1").text("What websites do you visit most?").attr("id", "viz_title");
-				d3.select("#title").append("h3").text(numDomains + " websites visited from " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY")).attr("id", "viz_subtitle");
+				$("#title").prepend("<h1 id='viz_title'>What websites do you visit most?");
+				//var h3txt = "<h3 id='viz_subtitle'>"+ numDomains + " websites visited from " + moment(startDate).format('MMM D, YYYY') + " to: " + moment(endDate).format('MMM D, YYYY') +"</h3>";
+				//$("#title").append(h3txt);
 	       		$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary active\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\" checked> All Visits  </label> <label class=\"btn btn-primary\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\"> Daily Habits  </label></div>");
 				changeBubble(datasetV);
 	        }
 	        function showHabits (){
 	        	habits = 1;
-	        	$("#title h2").css("display","block");
-				$("#title").prepend("<h1>What websites do you visit regularly</h1>");
+	        	$("#title h2").show();
+				$("#title").prepend("<h1 id='viz_title'>What websites do you visit regularly?</h1>");
 				$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label></div>");
 				changeBubble(datasetH);
 	        }
+	        
 	        //default option
 	        $("#title h1").empty();
-			$("#title h2").css("display","block");
-			$("#title h3").empty();
+			//$("#title h2").show();
 			$("#above_visual").empty();
 			
 			showHabits();
@@ -230,15 +237,15 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 		        $("input[name='options']").on("change", function () {
 			        if (this.id === "habits"){
 			        	$("#title h1").empty();
-			        	$("#title h2").css("display","block");
-			        	$("#title h3").empty();
+			        	$("#title h2").show();
+			        	$("#title h3").hide();
 			        	$("#above_visual").empty();
 			        	showHabits();
 			        }
 			        else if (this.id === "visits")  {
 			        	$("#title h1").empty();
-			        	$("#title h2").css("display","none");
-			        	$("#title h3").empty();
+			        	$("#title h2").hide();
+			        	$("#title h3").show();
 			        	$("#above_visual").empty();
 						showVisits();
 			        }
@@ -248,8 +255,14 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 
     		//update function
     		function changeBubble(dataset) {
+				console.log( $('svg').length );
+				
+				//if ($( ".node" ).length > 0){
+				//	node.exit().remove();
+				//	console.log("nodes!");
+				//}
     			listenView();
-    			listenDate();
+    			//listenDate(history, data);//needs history,data?
 		        var siteClasses = utils.classes(dataset);//dataset
 		        
 		        var node = vis.selectAll(".node")
@@ -272,6 +285,13 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 		            .style("fill", function (d) {
 		                return fill(d.packageName);
 		            })
+		            .on("click", function (d){
+		            	d3.select(this).style({fill: "yellow", stroke: "#a6a6a6", "stroke-width": "2px"});
+		            })
+		            .on("dblclick", function(d){
+		            	d3.select(this).style("fill", function (d) { return fill(d.packageName); });
+		            	d3.select(this).style("stroke-width", "0px");
+		            })
 		            .on("mouseover", function(d) {
 			              if (habits===0){
 			              	tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName);
@@ -292,25 +312,12 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 		
 		          nodeEnter
 		          	.append("text")
+		          	.attr("pointer-events", "none")
 		            .attr("text-anchor", "middle")
 		            .attr("dy", ".3em")
 		            .text(function (d) {
 		            	return d.className.substring(0, d.r / 3);
-		        	})
-		        	.on("mouseover", function(d) {
-		        		if(habits===0){
-		        			tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName);
-		        		}
-		        		else if (habits===1){
-		        			tooltip.text(d.className + ", Days: " + format(d.value) + ", Category: " + d.packageName);
-		        		}
-			              
-			              tooltip.style("visibility", "visible");
-				      })
-				     .on("mousemove", function() {
-				          return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
-				      })
-				     .on("mouseout", function(){return tooltip.style("visibility", "hidden");});
+		        	});
 				
 			    node.transition().attr("class", "node")
 			        .transition().duration(5000)

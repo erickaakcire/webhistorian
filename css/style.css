@@ -183,7 +183,7 @@ marker.marker {
 
 circle.network  {
   cursor: move;
-  fill: white;
+  fill: #333;
   stroke: #fff;
   stroke-width: 1.5px;
 }

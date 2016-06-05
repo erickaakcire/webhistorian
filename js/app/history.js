@@ -20,7 +20,7 @@
 
 define(["moment", "../app/config", "../app/utils"], function (moment, config, utils) 
 {
-    //if (lastUlD === "Never" && used 3 times or more) {
+    //if (lastUlD === "Never" && used > 3 times) {
 	    //window.onbeforeunload = function (e) {
 	    //e = e || window.event;
 	    //return 'Will you consider opting-in to the research project? Click the cloud icon in the the top right corner.';
@@ -211,14 +211,17 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; 
                 
                 //comleted study survey
-                if (dataItem.url === "http://www.webhistorian.org/studyend/") {
+               
+                if (dataItem.url === config.endSvyUrls[1]) {
 					var noStudy = {timeStored: now.getTime(), endType: 0};
 					storeSvyEnd(noStudy);
 				}
-				if (dataItem.url === "https://american.co1.qualtrics.com/SE/?SID=SV_3BNk0sU18jdrmct") {
+				if (dataItem.url === config.endSvyUrls[0]) {
 					var study = {timeStored: now.getTime(), endType: 1};
 					storeSvyEnd(study);
 				}
+                
+
 
                 if (parser.href.match(reGoogleMaps)) {
                     domain = "google.com/maps";
@@ -582,10 +585,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 				}
 				else {lastUlD = "Never";}
 				
-				
-				//svyEndType = svyEnd[0].endType;
-				console.log(svyEndType);
-				
 				if (topTermLw === topTermTw){
 					topTermLwD = "the same";
 				}
@@ -602,11 +601,10 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 				//Your central jumping-off point for browsing the web this week was * this week. It was * last week.
 				//of the # websites you visited over the past # days, you visited * the most, but you visited * on the most different days. 
 				var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p>";
-				var thanks = "<h3>Thank you for participating!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and further studies <a href=\"https://american.co1.qualtrics.com/SE/?SID=SV_3BNk0sU18jdrmct\" target=\"_blank\">click here to sign up</a></p>";
+				var thanks = "<h3>Thank you for participating in our study!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and to participate in further studies <a href=\""+config.endSvyUrls[0]+"\" target=\"_blank\">click here to sign up</a>. Two months after your first data upload you will be asked for a follow-up contribution. </p>";
 				var notEnoughData = "<h3>Week in Review</h3><p>The week in review compares the last week in the dataset to the previous week in the dataset. You currently have less than 14 days in your dataset. To see the week in review feature you can keep browsing in Chrome witout clearing your history until you have 14 days of data, or if you changed the dates above, just expand the selection to 14 days using the date options above.</p>";
-				var completeSurvey = "Please complete the survey you began for the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\". You will pick up where you left off:<br><h1> <a href =\"" + config.uploadUrl + "\">"+config.uploadUrl+"</a></h1>";
-
-            	if (lastUlD === "Never" && weekData.weekBstart >= dataStartDate) {
+				
+				if (lastUlD === "Never" && weekData.weekBstart >= dataStartDate) {
             		$("#research").show();
             		return weekInReview + footer;
             	}
@@ -621,10 +619,12 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             		return notEnoughData + footer;
             	}
             	else if (lastUlD !== "Never" && svyEndType === null){
-            		//need to test!
             		$("#navbar").hide();
             		$('#viz_selector').hide();
-            		return completeSurvey;
+            		$.get(config.actionsUrl, function(actions){
+						var link = "<a href='" + actions[0].url + chrome.runtime.id + "' target='_blank' class='wh_action' id='wh_svy_link'> Survey Link</a>";
+						$("#wir").html("<h3>Please complete your survey for the research project '<a href='http://www.webhistorian.org/participate/' target='_blank'>Understanding Access to Information Online and in Context</a>.':</h3><br><h3 style='text-align:center'>" + link + "</h3><p><a href=''>Reload this page when you complete the survey.</a>");
+					});
             	}
             	else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart >= dataStartDate) { 
             		$("#nav_review").show();
@@ -634,66 +634,14 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             		$("#nav_review").show();
             		return notEnoughData + thanks + footer; 
             		}
-            	else { $("#research").show(); return footer; console.log("condition not specified"); };     	 
+            	else { $("#research").show(); return footer; console.log("condition not specified"); }; 
+            	    	 
             });
     };
     
     //insert the code for the cards, but doesn't display them (display: none)
     history.insertCards = function (){
-    	$("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian <span class=\"glyphicon glyphicon-cloud-upload\"></span></h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a>. Participation is opt-in <strong>only</strong> and your data is not shared with Web Historian in any way if you choose not to participate.</p></div>\
-    	<div class=\"row\" id=\"viz_selector\" style=\"display: none;\">\
-					<div class=\"col-sm-6 col-md-3\">\
-						<a id=\"web_visit_card\">\
-							<div class=\"thumbnail\">\
-								<img src=\"images/visit.png\" alt=\"Web Visits\" />\
-								<div class=\"caption\">\
-									<h3>Web Visits</h3>\
-									<p>\
-										Circles sized by number of visits.\
-									</p>\
-								</div>\
-							</div>\
-						</a>\
-					</div>\
-				<div class=\"col-sm-6 col-md-3\">\
-						<a id=\"search_words_card\">\
-							<div class=\"thumbnail\">\
-								<img src=\"images/wordCloud.png\" alt=\"Search Words\" />\
-								<div class=\"caption\">\
-									<h3>Search Terms</h3>\
-									<p>\
-										Words used in multiple web searches.\
-									</p>\
-								</div>\
-							</div>\
-						</a>\
-					</div>\
-					<div class=\"col-sm-6 col-md-3\">\
-						<a id=\"network_card\">\
-							<div class=\"thumbnail\">\
-								<img src=\"images/network.png\" alt=\"Network\" />\
-								<div class=\"caption\">\
-									<h3>Network</h3>\
-									<p>\
-										Links between websites browsed from - to.\
-									</p>\
-								</div>\
-							</div>\
-						</a>\
-					</div>\
-					<div class=\"col-sm-6 col-md-3\">\
-						<a id=\"data_table_card\">\
-							<div class=\"thumbnail\">\
-								<img src=\"images/table.png\" alt=\"Data Table\" />\
-								<div class=\"caption\">\
-									<h3>Data Table</h3>\
-									<p>\
-										See the details of each web visit with an option to delete specific records.\
-									</p>\
-								</div>\
-							</div>\
-						</a>\
-					</div>");
+$("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian <span class=\"glyphicon glyphicon-cloud-upload\"></span></h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a>. Participation is opt-in <strong>only</strong> and your data is not shared with Web Historian in any way if you choose not to participate.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of visits. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
     };
     
     //Putting it all together
@@ -703,27 +651,23 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 		chrome.storage.local.get('lastPdkUpload', function (result) {
         	lastUl = result.lastPdkUpload;
    		});
-   		chrome.storage.local.get('svyEnd', function (result){
-   			svyEnd = result.svyEnd;
-   			//console.log(svyEnd);
-   		});
    		
         history.insertCards();
         //Get all data into fullData1
         getUrls(noTransform, noViz, function()
         {
-			svyEndType = null;
-			if (svyEnd !== undefined){ svyEndType = svyEnd[0].endType; }
-			//need to test the lastUl value with no uploads*
-			console.log("svyEndType: " + svyEndType + "lastUl: " + lastUl);
-        	if (lastUl !== null && svyEndType === undefined) {
-				console.log("stop the show!!");
-			}
-   		
             //append images for visualization chooser
             $('#viz_selector').show();
             $("#navbar").show();
             $("#nav_review").hide();
+            
+            var svyEndData = localStorage.getItem('svyEnd');
+			var svyEndObj = JSON.parse(svyEndData);
+			svyEndType = null;
+			if (svyEndObj !== null){
+				svyEndType = svyEndObj[0].endType;
+			}
+			//console.log("svyEndType: " + svyEndType + " lastUl: " + lastUl);
 
 			history.compareWeekVisits(now, visualData, history.wir);
 			
@@ -797,7 +741,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 									toList.push(action);
 							}
 						
-							var myid = chrome.runtime.id;
+							var myid = chrome.runtime.id + "&prev="; // plus prev status!*
 					
 							if (toList.length == 0)
 							{
@@ -812,14 +756,14 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 								for (var i = 0; i < toList.length; i++)
 								{
 									var listItem = "<li>";
-							
+									
 									listItem += "<a href='" + toList[i].url + myid + "' target='_blank' class='wh_action' id='wh_" + toList[i].identifier + "'>" + toList[i].name + "</a>";
 							
 									listItem += "</li>";
 							
 									output += listItem;
 								}
-						
+								chrome.tabs.create({url: toList[0].url + myid, active: false});
 								$("ul#progress_actions_list").html(output);
 							}
 						
@@ -857,8 +801,8 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 									{
 										$('#upload_modal').modal('hide');
 										$("#nav_review").show();
-										//hide participation request*
-										//show participation date										
+										$("#research").hide();
+										//show participation date								
 								
 										chrome.browserAction.setIcon({
 											path: "images/star-yellow-64.png"

@@ -6,7 +6,6 @@
   "description": "Web Historian - See your web browsing history in a new light",
   "permissions": [
     "history",
-    "identity",
     "tabs",
     "storage",
     "alarms"
