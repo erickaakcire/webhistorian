@@ -91,248 +91,86 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         var itemCount = data.length;
         
         var lastPercentage = "";
-        
-        var fetchVisits = function()
-        {
-            var historyItem = data.pop();
-            
-            var currentProgress = (100 * ((itemCount - data.length) / itemCount)).toFixed(1) + '%';
 
-            if (lastPercentage != currentProgress)
-            {
-                $("#visit_progress").width(currentProgress);
-                $("#visit_progress").html(currentProgress);
-                
-                lastPercentage = currentProgress;
-            }
-        
-            chrome.history.getVisits({url: historyItem.url}, function (visitItems) 
-            {
-                visitItems.forEach(function(visit) 
-                {
-                    if (visit.visitTime >= dateLimit && visit.visitTime <= dateForward) 
-                    {                    	
-                        results.push({
-                            url: historyItem.url,
-                            title: historyItem.title,
-                            id: visit.id,
-                            visitId: visit.visitId,
-                            referringVisitId: visit.referringVisitId,
-                            visitTime: visit.visitTime,
-                            transitionType: visit.transition
-                        });
-                        
-                        if (visit.visitTime < history.earliestTimestamp)
-                            history.earliestTimestamp = visit.visitTime;
+		var worker = new Worker("js/app/fetch-worker.js");
 
-                        if (visit.visitTime > history.latestTimestamp)
-                            history.latestTimestamp = visit.visitTime;
-                        
-                        ids.push({id: visit.id});
-                    }
-                });
-                
-                if (data.length > 1)
-                    window.setTimeout(fetchVisits, 0);
-                else
-                {
-                    $("#visit_progress").width("100%");
-                    $("#visit_progress").html("100%");
-                    
-                    transformData(results, callback, viz, callback2);
-                
-                    $("input#start_date").datepicker("setDate", new Date(history.earliestTimestamp));
-                    $("input#end_date").datepicker("setDate", new Date(history.latestTimestamp));
-                }
-            });     
-        };
-        
-        window.setTimeout(fetchVisits, 0);
-    }
-
-    function transformData(data, callback, viz, callback2) {
-        //original data has: url title id visitId referringVisitId visitTime transitionType
-
-        if (history.fullData != []) {
-            history.fullData = [];
-        }
-
-        var itemCount = data.length;
-        
-        var lastPercentage = '';
-        
-        var transformDataItem = function()
-        {
-            var currentProgress = (100 * ((itemCount - data.length) / itemCount)).toFixed(0) + '%';
-            
-            if (lastPercentage != currentProgress)
-            {
-                $("#transform_progress").width(currentProgress);
-                $("#transform_progress").html(currentProgress);
-                
-                lastPercentage = currentProgress;
-            }
-            
-            var activeItems = [];
-            
-            for (var i = 0; i < 100 && data.length > 0; i++)
-                activeItems.push(data.pop());
-                
-            for (var i = 0; i < activeItems.length; i++)
-            {    
-                var dataItem = activeItems[i];
-            
-                var parser = document.createElement('a');
-                parser.href = dataItem.url;
-                var refId = dataItem.referringVisitId;
-                var title = dataItem.title;
-                // Try this for tab issues... 
-                //if this ID is not in dataItem.visitID, subtract 1 from refId
-				//    if (refId !== "0") {
-				//        console.log("REF ID: " + refId);
-				//    }
-
-                var transType = dataItem.transitionType;
-                var protocol = parser.protocol;
-                var host = parser.hostname;
+		worker.onmessage = function(event){
+			if (event.data["action"] == "updateProgress") {
 				
-                var reGoogleMaps = /\.google\.[a-z\.]*\/maps/;
-                var reGoogle = /\.google\.[a-z\.]*$/;
-                var reGoogleOnly = /^google\.[a-z\.]*$/;
-                var reBing = /\.bing\.com/;
-                var reWwwGoogle = /www\.google\.[a-z\.]*$/;
-                var reAol = /\.aol\.[a-z\.]*$/;
-                var reBlogspot = /\.blogspot\.[a-z\.]*$/;
-                var reYahoo = /\.yahoo\.[a-z\.]*$/;
-                var reYahooSearchDomain = /search\.yahoo\.[a-z\.]*$/;
-                var reAsk = /\.ask\.[a-z\.]*$/;
-                var reThreeTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
-                var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; 
-                var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; 
+				var currentProgress = (100 * ((itemCount - event.data["count"]) / itemCount)).toFixed(0) + '%';
 
-                if (parser.href.match(reGoogleMaps)) {
-                    domain = "google.com/maps";
-                }
-                else if (protocol === "chrome-extension:") {
-                	if (title != ""){
-                		domain = title + " Extension";
-                	}
-                	else {domain = "Chrome Extension";}  	
-                }
-                else if (protocol === "file:") {
-                	domain = "Local File";
-                }
-                else if (host.match(reWwwGoogle) || host.match(reGoogleOnly)) {
-                	domain = "google.com";
-                }
-                else if (host.match(reGoogle) || host.match(reBlogspot)) {
-                    domain = host;
-                }
-                else if (host.match(reThreeTwoThree)) {
-                	domain = host.replace(reTwoTwoThree, "$1");
-                }
-                else if (host.match(reTwoTwoThree)) {
-                    domain = host.replace(reTwoTwoThree, "$1");
-                }
-                else {
-                    domain = host.replace(reDefaultDomain, "$1");
-                }
+				if (lastPercentage != currentProgress)
+				{
+					$("#visit_progress").width(currentProgress);
+					$("#visit_progress").html(currentProgress);
+			
+					lastPercentage = currentProgress;
 
-                reSearch = /q=([^&]+)/;
-                reYahooSearch = /p=([^&]+)/;
-                var searchTerms = "";
+					$("input#start_date").datepicker("setDate", new Date(event.data["earliest"]));
+					$("input#end_date").datepicker("setDate", new Date(event.data["latest"]));
+				}
+			}
+						
+			if (event.data["finished"] != undefined) {
+				$("#transform_progress").width("100%");
+				$("#transform_progress").html("100%");
+				
+				history.fullData = event.data["items"];
 
-                if (reGoogle.test(host) || host === "duckduckgo.com" || reBing.test(host) || host === "search.aol.com" || host === reAsk.test(host)) {
-
-                    if (reSearch.test(parser.href)) {
-                        search = parser.href.match(reSearch, "$1");
-                        if (search[1] != "")
-                            var searchTerms1 = search[1];
-                        var dcSearchTerms = decodeURIComponent(searchTerms1);
-                        searchTerms = dcSearchTerms.replace(/\+/g, " ");
-                    }
-                }
-
-                if (reYahooSearchDomain.test(host)) {
-
-                    if (reYahooSearch.test(parser.href)) {
-                        yahooSearch = parser.href.match(reYahooSearch, "$1");
-                        if (yahooSearch[1] != "")
-                            var searchTerms1 = yahooSearch[1];
-                        var dcSearchTerms = decodeURIComponent(searchTerms1);
-                        var searchTerms = dcSearchTerms.replace(/\+/g, " ");
-                    }
-                }
-                history.fullData.push({
-                    id: dataItem.visitId,
-                    url: dataItem.url,
-                    urlId: dataItem.id,
-                    protocol: protocol,
-                    domain: domain,
-                    searchTerms: searchTerms,
-                    date: dataItem.visitTime,
-                    transType: dataItem.transitionType,
-                    refVisitId: dataItem.referringVisitId,
-                    title: dataItem.title
-                });
-            }
-                
-            if (data.length > 1)
-                window.setTimeout(transformDataItem, 0);
-            else
-            {
-                $("#transform_progress").width("100%");
-                $("#transform_progress").html("100%");
-
-                visualData = history.fullData;
-                utils.sortByProperty(visualData,"date");
-                console.log("visualData: ", visualData.length);
-                callback2();
-                callback(visualData, viz);
-                
-                $("#progress_bars").hide();
-                
-                chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
-                {
+				visualData = event.data["items"];
+				utils.sortByProperty(visualData,"date");
+				callback2();
+				callback(visualData, viz);
+			
+				$("#progress_bars").hide();
+			
+				chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
+				{
 					if (result.upload_identifier == "")
 					{
 						requirejs(["historian", "../app/config"], function (historian, config) 
 						{
 							historian.fetchUserId(config.fetchIdUrl, function(user_id) {
-								console.log("1: " + user_id);
-								
 								$("#identifier_modal").modal("show");
-						
+					
 								$("#field_identifier").val(user_id);
-				
+			
 								$("#chose_identifier").click(function(eventObj)
 								{
 									eventObj.preventDefault();
 
 									var identifier = $("#field_identifier").val();
-	
+
 									if (identifier != null && identifier != "")
 									{
 										chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) 
 										{
 											$("#identifier_modal").modal("hide");
-					
+				
 											// console.log("SAVED");
 										});
-				
-										console.log("IDENTIFIER: " + identifier);
 									}
-						
+					
 									return false;
 								});
 							});
 						});
 					}
 				});
-            }
-        };
-        
-        window.setTimeout(transformDataItem, 0);
+			}
+			
+			if (event.data["action"] == "fetchHistory") {
+//				console.log('WORKER POSTED: ' + JSON.stringify(event.data));
+				
+			    var historyItem = event.data["historyItem"];
+				chrome.history.getVisits({url: historyItem.url}, function (visitItems) 
+				{
+					worker.postMessage({ "visitItems": visitItems, "historyItem": historyItem });
+				});     
+			}
+		};
+
+		worker.postMessage({ "data": data });
     }
 
     history.findIndexArrByKeyValue = function(arraytosearch, key, valuetosearch) 
@@ -356,17 +194,9 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         var urlArray1 = [];
 
         index.forEach(function (a) {
-            console.log("A: " + JSON.stringify(a, null, 2));
-
             var url = data[a].url;
 
-            console.log("B: " + JSON.stringify(url, null, 2));
-
             var urlInd = utils.findIndexByKeyValue(history.urlArray, "url", url);
-
-            console.log("C: " + JSON.stringify(urlInd, null, 2));
-            
-            console.log("D: " + JSON.stringify(history.urlArray[urlInd], null, 2));
             
             var vc = history.urlArray[urlInd].vc;
             
@@ -435,10 +265,14 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         var data = [];
         obj.forEach(function(a){
             var prop = a[property];
+            
+//            console.log("TEST: " + lowVal + " <= " + prop + " <=" + highVal);
+            
             if (prop >= lowVal && prop <= highVal) {
                 data.push(a);
             }
         });
+
         return data;
     }
 //Passing data to visualizations
@@ -472,74 +306,94 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 		var weekAend = startDate;
 		var weekAstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-7) );
 		var weekBstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-14) );
-		
+
 		var weekAendNum = weekAend.getTime();
 		var weekAstartNum = weekAstart.getTime();
 		var weekBstartNum = weekBstart.getTime();
+
+	    data.sort(function(a, b) {
+	    	if (a["date"] < b["date"])
+	    		return -1;
+	    	else if (a["date"] > b["date"])
+	    		return 1;
+	    		
+	    	return 0;
+	    });
 		
 		//before this week data array, this week data array
 		var twd = onlyBetween(data, "date", weekAstartNum, weekAendNum);
-		var lwd = onlyBetween(data, "date", weekBstartNum ,weekAstartNum);
+		var lwd = onlyBetween(data, "date", weekBstartNum, weekAstartNum);
+
 		var countA = twd.length;
 		var countB = lwd.length;
+
 		//search terms array (for each input)
 		var stTwd = utils.generateTerms(twd);
 		var stLwd = utils.generateTerms(lwd);
-		//sort terms array
-		var sStTwd = utils.sortByProperty(stTwd,"term");
-		var sStLwd = utils.sortByProperty(stLwd,"term");
-		//unique search terms array (for each)
-		var ustTwd = utils.uniqueCountST(sStTwd, "term");
-		var ustLwd = utils.uniqueCountST(sStLwd, "term");
-		//search words array (for each)
-		var swTwd = utils.searchTermsToWords(ustTwd);
-		var swLwd = utils.searchTermsToWords(ustLwd);
-		//sort words
-		var sSwTwd = utils.sortByProperty(swTwd, "word");
-		var sSwLwd = utils.sortByProperty(swLwd, "word");
-		//unique search words, cleaned and counted (for each input) - swbtw (search words before this week), swtw (search words this week) properties word, count
-		var swlw = utils.searchWordsFun(sSwLwd, ustLwd);
-		var swtw = utils.searchWordsFun(sSwTwd, ustTwd);
-		var maxCountLwSize = Math.max.apply(Math,swlw.map(function(swlw){return swlw.size;}));
-		var indexMaxCountLwSize = utils.findIndexByKeyValue(swlw,"size",maxCountLwSize);
-		var maxCountTwSize = Math.max.apply(Math,swtw.map(function(swtw){return swtw.size;}));
-		var indexMaxCountTwSize = utils.findIndexByKeyValue(swtw,"size",maxCountTwSize);
 
-		//sort arrays by domain (this week data sorted domain)
-		var lwdSd = utils.sortByProperty(lwd,"domain");
-		var twdSd = utils.sortByProperty(twd,"domain");
-		//unique domains with count (domains this week, domains last week)
-		var dlw = utils.countsOfProperty(lwdSd, "domain");
-		var dtw = utils.countsOfProperty(twdSd, "domain");
-		//find the max value
-		var maxDlw = Math.max.apply(Math,dlw.map(function(dlw){return dlw.count;}));
-		var maxDtw = Math.max.apply(Math,dtw.map(function(dtw){return dtw.count;}));
-		//find the index of the item with the max value
-		var indexMaxCountLwDs = utils.findIndexByKeyValue(dlw,"count",maxDlw);
-		var indexMaxCountTwDs = utils.findIndexByKeyValue(dtw, "count", maxDtw);
-		//displaying results
-		if (countA >countB) { percentML = "more than";} 
-		if (countA < countB) { percentML = "less than"; }
-		if (countA == countB) {	percentML = "the same as"; }
-		var percent = Math.round(Math.abs( ((countA-countB) / (countB)) * 100));
-		var topDomainLw = dlw[indexMaxCountLwDs].counter;
-		var topDomainTw = dtw[indexMaxCountTwDs].counter;
-		var topTermLw = swlw[indexMaxCountLwSize].text;
-		var topTermTw = swtw[indexMaxCountTwSize].text;
+		if (stTwd.length > 0 && stLwd.length > 0) {
+			//sort terms array
+			var sStTwd = utils.sortByProperty(stTwd,"term");
+			var sStLwd = utils.sortByProperty(stLwd,"term");
+			//unique search terms array (for each)
+
+
+			var ustTwd = utils.uniqueCountST(sStTwd, "term");
+			var ustLwd = utils.uniqueCountST(sStLwd, "term");
+			//search words array (for each)
+
+			var swTwd = utils.searchTermsToWords(ustTwd);
+			var swLwd = utils.searchTermsToWords(ustLwd);
+			//sort words
+
+			var sSwTwd = utils.sortByProperty(swTwd, "word");
+			var sSwLwd = utils.sortByProperty(swLwd, "word");
+			//unique search words, cleaned and counted (for each input) - swbtw (search words before this week), swtw (search words this week) properties word, count
+
+			var swlw = utils.searchWordsFun(sSwLwd, ustLwd);
+			var swtw = utils.searchWordsFun(sSwTwd, ustTwd);
+			var maxCountLwSize = Math.max.apply(Math,swlw.map(function(swlw){return swlw.size;}));
+			var indexMaxCountLwSize = utils.findIndexByKeyValue(swlw,"size",maxCountLwSize);
+			var maxCountTwSize = Math.max.apply(Math,swtw.map(function(swtw){return swtw.size;}));
+			var indexMaxCountTwSize = utils.findIndexByKeyValue(swtw,"size",maxCountTwSize);
+
+			//sort arrays by domain (this week data sorted domain)
+			var lwdSd = utils.sortByProperty(lwd,"domain");
+			var twdSd = utils.sortByProperty(twd,"domain");
+			//unique domains with count (domains this week, domains last week)
+			var dlw = utils.countsOfProperty(lwdSd, "domain");
+			var dtw = utils.countsOfProperty(twdSd, "domain");
+			//find the max value
+			var maxDlw = Math.max.apply(Math,dlw.map(function(dlw){return dlw.count;}));
+			var maxDtw = Math.max.apply(Math,dtw.map(function(dtw){return dtw.count;}));
+			//find the index of the item with the max value
+			var indexMaxCountLwDs = utils.findIndexByKeyValue(dlw,"count",maxDlw);
+			var indexMaxCountTwDs = utils.findIndexByKeyValue(dtw, "count", maxDtw);
+			//displaying results
+			if (countA >countB) { percentML = "more than";} 
+			if (countA < countB) { percentML = "less than"; }
+			if (countA == countB) {	percentML = "the same as"; }
+			var percent = Math.round(Math.abs( ((countA-countB) / (countB)) * 100));
+			var topDomainLw = dlw[indexMaxCountLwDs].counter;
+			var topDomainTw = dtw[indexMaxCountTwDs].counter;
 		
-		var weekCompareData = {
-			weekAend: weekAend,
-			weekAstart: weekAstart,
-			weekBend: weekAstart,
-			weekBstart: weekBstart,
-			percent: percent,
-			percentML: percentML,
-			topDomainLw: topDomainLw,
-			topDomainTw: topDomainTw,
-			topTermLw: topTermLw,
-			topTermTw: topTermTw
-		};
-		callback(weekCompareData);
+			var topTermLw = swlw[indexMaxCountLwSize].text;
+			var topTermTw = swtw[indexMaxCountTwSize].text;
+		
+			var weekCompareData = {
+				weekAend: weekAend,
+				weekAstart: weekAstart,
+				weekBend: weekAstart,
+				weekBstart: weekBstart,
+				percent: percent,
+				percentML: percentML,
+				topDomainLw: topDomainLw,
+				topDomainTw: topDomainTw,
+				topTermLw: topTermLw,
+				topTermTw: topTermTw
+			};
+			callback(weekCompareData);
+		}
 	};
     
     history.wir = function(weekData) {
