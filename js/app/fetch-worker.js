@@ -172,6 +172,7 @@ self.transformData = function(data) {
 			var dataItem = activeItems[i];
 
 			var parser = new URI(dataItem.url);
+      //parser.href = dataItem.url;
 			var refId = dataItem.referringVisitId;
 			var title = dataItem.title;
 			// Try this for tab issues... 
@@ -201,11 +202,28 @@ self.transformData = function(data) {
 			var reThreeTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
 			var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/; 
 			var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/; 
+      
+      //comleted study survey - need to be able to get to config*
+//      if (dataItem.url === config.endSvyUrls[1]) {
+//      	var noStudy = {timeStored: now.getTime(), endType: 0};
+//      	storeSvyEnd(noStudy);
+//      }
+//      if (dataItem.url === config.endSvyUrls[0]) {
+//      	var study = {timeStored: now.getTime(), endType: 1};
+//      	storeSvyEnd(study);
+//      }
+
+//      function storeSvyEnd(data) {
+        //add or replace object (data) to local storage, timeStored: , endType: 1 = success, 0 = end
+//        var arr = [];
+//        arr.push({timeStored: data.timeStored, endType: data.endType});
+//        localStorage.setItem("svyEnd", JSON.stringify(arr));
+//      }
 
 			if (dataItem.url.match(reGoogleMaps)) {
 				domain = "google.com/maps";
 			}
-			else if (protocol === "chrome-extension:") {
+			else if (protocol === "chrome-extension") {
 				if (title != ""){
 					domain = title + " Extension";
 				}
