@@ -1,9 +1,6 @@
 define(["../app/utils", "../app/config", "moment"], function(utils, config, moment) {
     var visualization = {};
     
-    //default view
-    var habits = 0;
-    
     visualization.catData = function(data, categories, callback){
     	var specified = []; //domainExact
 	   	var domS = []; //domainSearch - not yet implemented
@@ -126,20 +123,28 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
     };
     //fetch the remote categories json file
     function catAsync(callback) {
-		var cats = [];
-		$("#visual_div").html("<h1>One moment please...</h1><p>Fetching website categories.</p>");
-	   	$.getJSON(config.categoriesUrl, function (cat) {		  
-	        for (var j in cat.children) {
-				cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
-			}
-		
-        }).fail(function(){
-        	console.log("Error! JSON file not found or invalid formatting");
-        	cats.push({search: "domainExact", category: "Other", value: " "});
-        	callback(cats);
-        }).done(function() {
-    		callback(cats);
-  		});
+    	var catStored = sessionStorage.getItem('cats');
+		if (catStored === null){
+			var cats = [];
+			$("#visual_div").html("<h1>One moment please...</h1><p>Fetching website categories.</p>");
+		   	$.getJSON(config.categoriesUrl, function (cat) {		  
+		        for (var j in cat.children) {
+					cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
+				}
+			
+	        }).fail(function(){
+	        	console.log("Error! JSON file not found or invalid formatting");
+	        	cats.push({search: "domainExact", category: "Other", value: " "});
+	        	callback(cats);
+	        }).done(function() {
+	    		sessionStorage.setItem("cats", JSON.stringify(cats));
+	    		callback(cats);
+	  		});
+		}
+		else {
+			var catsObj = JSON.parse(catStored);
+			callback(catsObj);
+		}
 	}
 	
 	function listenDate (history, data){
@@ -161,6 +166,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
     {
 		utils.clearVisualization();
 		console.log( "visualization.display: "+ $('svg').length );
+		var change = 0;
 
 		listenDate(history, data);
 
@@ -212,6 +218,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	            
 	        function showVisits(){
     			habits = 0;
+    			change = 1;
 	        	var numDomains = utils.countUniqueProperty(data, "domain");
 				$("#title").prepend("<h1 id='viz_title'>What websites do you visit most?");
 				//var h3txt = "<h3 id='viz_subtitle'>"+ numDomains + " websites visited from " + moment(startDate).format('MMM D, YYYY') + " to: " + moment(endDate).format('MMM D, YYYY') +"</h3>";
@@ -221,6 +228,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	        }
 	        function showHabits (){
 	        	habits = 1;
+	        	change = 1;
 	        	$("#title h2").show();
 				$("#title").prepend("<h1 id='viz_title'>What websites do you visit regularly?</h1>");
 				$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label></div>");
@@ -228,11 +236,13 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	        }
 	        
 	        //default option
-	        $("#title h1").empty();
-			//$("#title h2").show();
-			$("#above_visual").empty();
-			
-			showHabits();
+	        if (change === 0){
+	        	var habits = 0;
+		        $("#title h1").empty();
+				//$("#title h2").show();
+				$("#above_visual").empty();
+				showHabits();
+	        }
 
 	        //listen for changes in dataset
 	        function listenView(){
@@ -261,7 +271,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 			    if ($('svg').length > 1){
 			    	//console.log("empty");
 			    }
-    			//listenView();
+    			listenView();
     			//listenDate(history, data);//needs history,data?
 		        var siteClasses = utils.classes(dataset);//dataset
 		        

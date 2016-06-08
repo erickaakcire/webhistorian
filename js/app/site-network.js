@@ -28,7 +28,6 @@ define(["../app/utils", "moment"], function(utils, moment)
 
 		var idMap = {};
 
-// id
         for (var i = 0; i < filteredData.length; i++) {
             var dataItem = filteredData[i];
 //            console.log('DATA: ' + JSON.stringify(dataItem, 2));
