@@ -129,7 +129,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 			$("#visual_div").html("<h1>One moment please...</h1><p>Fetching website categories.</p>");
 		   	$.getJSON(config.categoriesUrl, function (cat) {		  
 		        for (var j in cat.children) {
-					cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
+					    cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
 				}
 			
 	        }).fail(function(){
@@ -150,14 +150,11 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	function listenDate (history, data){
 		$("input#start_date").datepicker().on("changeDate", function(e)
 	    { 
-	    	//utils.clearVisualization();
-	    	//console.log("start date");
 	    	visualization.display(history, data); 
 	    	});
 	
 	    $("input#end_date").datepicker().on("changeDate", function(e)
 	    { 
-	    	//utils.clearVisualization();
 	    	visualization.display(history, data); 
 	    	});
 	}
@@ -165,7 +162,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
     visualization.display = function(history, data)
     {
 		utils.clearVisualization();
-		console.log( "visualization.display: "+ $('svg').length );
+		//console.log( "visualization.display: "+ $('svg').length );
 		var change = 0;
 
 		listenDate(history, data);
@@ -176,9 +173,9 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
         vizSelected = "web_visit";
 
 		catAsync(function(categories) {
-		    //set up all the datasets
-		    console.log("catAsync " + $('svg').length);
-		    var startDate = utils.startDate();
+      //set up all the datasets
+		  //console.log("catAsync " + $('svg').length);
+		  var startDate = utils.startDate();
 			var endDate = utils.endDate();
 			var filteredData = utils.filterByDates(data, startDate, endDate);
 			var datasetV = visualization.catData(filteredData, categories, getVisitData);
@@ -209,7 +206,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 			    .style("font", "12px sans-serif")
 			    .text("tooltip");
 			
-			console.log("append svg");
+			//console.log("append svg");
 			var vis = d3.select("#visual_div").append("svg")
 	            .attr("width", r)
 	            .attr("height", r)
@@ -267,7 +264,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 
     		//update function
     		function changeBubble(dataset) {
-				console.log( "changeBubble: "+ $('svg').length );
+				//console.log( "changeBubble: "+ $('svg').length );
 			    if ($('svg').length > 1){
 			    	//console.log("empty");
 			    }

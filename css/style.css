@@ -140,21 +140,6 @@ h1 {
   text-align: left;
 }
 
-/*timeline viz*/
-.bar rect {
-  shape-rendering: crispEdges;
-}
-
-.bar text {
-  fill: #fff;
-}
-
-.axis path, .axis line {
-  fill: none;
-  stroke: #000;
-  shape-rendering: crispEdges;
-}
-
 /* for the network diagram */
 text {
   fill: #000;
@@ -183,7 +168,7 @@ marker.marker {
 
 circle.network  {
   cursor: move;
-  fill: #333;
+  fill: #ccc;
   stroke: #fff;
   stroke-width: 1.5px;
 }
@@ -192,8 +177,8 @@ circle.network  {
 	stroke: red;
 }*/
 
-.fixed {
-  fill: red;
+.circle.network.fixed {
+  fill: #f00;
 }
 
 /* for the circles */
