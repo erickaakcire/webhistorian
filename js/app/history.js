@@ -27,32 +27,59 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 		//};
 	//}
     
-    var history = {};
-    
-    history.fullData = [];
-    history.timeSelection = "all";
-    history.earliestTimestamp = Number.MAX_VALUE;
-    history.latestTimestamp = Number.MIN_VALUE;
-    history.urlArray = [];
-    
-    var startDate = null;
-    var endDate = null;
+  var history = {};
+  
+  history.fullData = [];
+  history.timeSelection = "all";
+  history.earliestTimestamp = Number.MAX_VALUE;
+  history.latestTimestamp = Number.MIN_VALUE;
+  history.urlArray = [];
+  
+  var startDate = null;
+  var endDate = null;
 
-    var manifest = chrome.runtime.getManifest();
+  var manifest = chrome.runtime.getManifest();
 
 //globals 
-    var divName = "visual_div";
-    var now = new Date();
-    var timeSelect = 0; //null = 24 hours, 0 = all time
-    var dateLimit = new Date(now.getTime());
-    dateLimit.setDate(now.getDate() - 91);
-    var dateForward = Infinity;
+  var divName = "visual_div";
+  var now = new Date();
+  var timeSelect = 0; //null = 24 hours, 0 = all time
+  var dateLimit = new Date(now.getTime());
+  dateLimit.setDate(now.getDate() - 91);
+  var dateForward = Infinity;
 
-    var vizSelected = null;
-    var firstDate = "";
-    var lastDate = "";
-    var visualData = [];
-    var ids = [];
+  var vizSelected = null;
+  var firstDate = "";
+  var lastDate = "";
+  var visualData = [];
+  var ids = [];
+
+  function storeCats(callback) {
+    var catStored = sessionStorage.getItem('cats');
+		if (catStored === null){
+			var cats = [];
+      $("#progress_bars").html("<h1>One moment please...</h1><p>Fetching website categories.</p>");
+	   	$.getJSON(config.categoriesUrl, function (cat) {		  
+        for (var j in cat.children) {
+			    cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
+		    }
+        }).fail(function(){
+        	console.log("Error! JSON file not found or invalid formatting");
+        	cats.push({search: "domainExact", category: "Other", value: " "});
+        	callback(cats);
+        }).done(function() {
+    		sessionStorage.setItem("cats", JSON.stringify(cats));
+  		});
+      //console.log("Categories stored");
+      $("#progress_bars").hide();
+      callback();
+		}
+		else {
+      //console.log("Categories already stored");
+      $("#progress_bars").hide();
+      callback();
+		}
+	}
 
 //Getting data from Chrome History & creating the base dataset
     function getUrls(callback, viz, callback2) {
@@ -86,91 +113,92 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 
     function getVisitData(data, results, callback, viz, callback2) 
     {
-        //gets visitItems from a supplied list of urls (as data)
-        //used to determine last data element
-        var itemCount = data.length;
-        
-        var lastPercentage = "";
+      //gets visitItems from a supplied list of urls (as data)
+      //used to determine last data element
+      var itemCount = data.length;
+      var lastPercentage = "";
 
-		var worker = new Worker("js/app/fetch-worker.js");
+    	var worker = new Worker("js/app/fetch-worker.js");
+      
+      
 
-		worker.onmessage = function(event){
-			if (event.data["action"] == "updateProgress") {
+    	worker.onmessage = function(event){
+    		if (event.data["action"] == "updateProgress") {
+		
+    			var currentProgress = (100 * ((itemCount - event.data["count"]) / itemCount)).toFixed(0) + '%';
+
+    			if (lastPercentage != currentProgress)
+    			{
+    				$("#visit_progress").width(currentProgress);
+    				$("#visit_progress").html(currentProgress);
+	
+    				lastPercentage = currentProgress;
+
+    				$("input#start_date").datepicker("setDate", new Date(event.data["earliest"]));
+    				$("input#end_date").datepicker("setDate", new Date(event.data["latest"]));
+    			}
+    		}
 				
-				var currentProgress = (100 * ((itemCount - event.data["count"]) / itemCount)).toFixed(0) + '%';
+    		if (event.data["finished"] != undefined) {
+    			$("#transform_progress").width("100%");
+    			$("#transform_progress").html("100%");
+		
+    			history.fullData = event.data["items"];
 
-				if (lastPercentage != currentProgress)
-				{
-					$("#visit_progress").width(currentProgress);
-					$("#visit_progress").html(currentProgress);
+    			visualData = event.data["items"];
+    			utils.sortByProperty(visualData,"date");
+    			callback2();
+    			callback(visualData, viz);
+	
+    			$("#progress_bars").hide();
+	
+    			chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
+    			{
+    				if (result.upload_identifier == "")
+    				{
+    					requirejs(["historian", "../app/config"], function (historian, config) 
+    					{
+    						historian.fetchUserId(config.fetchIdUrl, function(user_id) {
+    							$("#identifier_modal").modal("show");
 			
-					lastPercentage = currentProgress;
+    							$("#field_identifier").val(user_id);
+	
+    							$("#chose_identifier").click(function(eventObj)
+    							{
+    								eventObj.preventDefault();
 
-					$("input#start_date").datepicker("setDate", new Date(event.data["earliest"]));
-					$("input#end_date").datepicker("setDate", new Date(event.data["latest"]));
-				}
-			}
-						
-			if (event.data["finished"] != undefined) {
-				$("#transform_progress").width("100%");
-				$("#transform_progress").html("100%");
-				
-				history.fullData = event.data["items"];
+    								var identifier = $("#field_identifier").val();
 
-				visualData = event.data["items"];
-				utils.sortByProperty(visualData,"date");
-				callback2();
-				callback(visualData, viz);
+    								if (identifier != null && identifier != "")
+    								{
+    									chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) 
+    									{
+    										$("#identifier_modal").modal("hide");
+		
+    										// console.log("SAVED");
+    									});
+    								}
 			
-				$("#progress_bars").hide();
-			
-				chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
-				{
-					if (result.upload_identifier == "")
-					{
-						requirejs(["historian", "../app/config"], function (historian, config) 
-						{
-							historian.fetchUserId(config.fetchIdUrl, function(user_id) {
-								$("#identifier_modal").modal("show");
-					
-								$("#field_identifier").val(user_id);
-			
-								$("#chose_identifier").click(function(eventObj)
-								{
-									eventObj.preventDefault();
+    								return false;
+    							});
+    						});
+    					});
+    				}
+    			});
+    		}
+	
+    		if (event.data["action"] == "fetchHistory") {
+    //				console.log('WORKER POSTED: ' + JSON.stringify(event.data));
+		
+    		    var historyItem = event.data["historyItem"];
+    			chrome.history.getVisits({url: historyItem.url}, function (visitItems) 
+    			{
+    				worker.postMessage({ "visitItems": visitItems, "historyItem": historyItem });
+    			});     
+    		}
+    	};
 
-									var identifier = $("#field_identifier").val();
-
-									if (identifier != null && identifier != "")
-									{
-										chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) 
-										{
-											$("#identifier_modal").modal("hide");
-				
-											// console.log("SAVED");
-										});
-									}
-					
-									return false;
-								});
-							});
-						});
-					}
-				});
-			}
-			
-			if (event.data["action"] == "fetchHistory") {
-//				console.log('WORKER POSTED: ' + JSON.stringify(event.data));
-				
-			    var historyItem = event.data["historyItem"];
-				chrome.history.getVisits({url: historyItem.url}, function (visitItems) 
-				{
-					worker.postMessage({ "visitItems": visitItems, "historyItem": historyItem });
-				});     
-			}
-		};
-
-		worker.postMessage({ "data": data });
+    	worker.postMessage({ "data": data });
     }
 	
     history.findIndexArrByKeyValue = function(arraytosearch, key, valuetosearch) 
@@ -399,6 +427,224 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 			callback(weekCompareData);
 		}
 	};
+  function showHome (){
+    //append images for visualization chooser
+    $('#viz_selector').show();
+    $("#navbar").show();
+    $("#nav_review").hide();
+      
+    var svyEndData = localStorage.getItem('svyEnd');
+  	var svyEndObj = JSON.parse(svyEndData);
+  	svyEndType = null;
+  	if (svyEndObj !== null){
+  		svyEndType = svyEndObj[0].endType;
+  	}
+    
+		history.compareWeekVisits(now, visualData, history.wir);
+
+          $('#upload_modal').on('show.bs.modal', function (e) 
+          {
+              chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) 
+              {
+				$.get(config.actionsUrl, function(actions)
+				{
+					var lastUpload = 0;
+					var latest = 0;
+		
+					if (result.lastPdkUpload != undefined)
+						lastUpload = Number(result.lastPdkUpload);
+			
+					var dayBundles = {};
+					var dayIndices = [];
+					
+					for (var i = 0; i < visualData.length; i++)
+					{
+						var date = moment(visualData[i]["date"]);
+			
+						var unixTimestamp = date.valueOf();
+
+						if (unixTimestamp > lastUpload)
+						{
+							var dayString = date.format("MMMM Do");
+		
+							var dayList = dayBundles[dayString];
+		
+							if (dayList == undefined)
+							{
+								dayList = [];
+								dayBundles[dayString] = dayList;
+								dayIndices.push(dayString);
+							}
+		
+							dayList.push(visualData[i]);
+				
+							if (unixTimestamp > latest)
+								latest = unixTimestamp;
+						}
+						else
+						{
+							// Already uploaded - ignore...
+						}
+					}
+      
+          			if (dayIndices.length > 0)
+          			{
+          				if (dayIndices.length == 1)
+							$("#modal_overview").html("1 day to upload (" + dayIndices[0]+ ").");
+						else
+							$("#modal_overview").html(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
+
+						var toList = [];
+		
+						for (var j = 0; j < actions.length; j++)
+						{
+							var action = actions[j];
+			
+							var complete = false;
+
+							for (var i = 0; i < result.completedActions.length; i++)
+							{
+								if (result.completedActions[i] == action["identifier"])
+									complete = true;
+							}
+
+							if (complete == false)
+								toList.push(action);
+						}
+			
+						var myid = chrome.runtime.id + "&prev="; // plus prev status!*
+		
+						if (toList.length == 0)
+						{
+							$("div#progress_actions").hide();
+						}
+						else
+						{
+							$("div#progress_actions").show();
+			
+							var output = "";
+			
+							for (var i = 0; i < toList.length; i++)
+							{
+								var listItem = "<li>";
+						
+								listItem += "<a href='" + toList[i].url + myid + "' target='_blank' class='wh_action' id='wh_" + toList[i].identifier + "'>" + toList[i].name + "</a>";
+				
+								listItem += "</li>";
+				
+								output += listItem;
+							}
+							chrome.tabs.create({url: toList[0].url + myid, active: false});
+							$("ul#progress_actions_list").html(output);
+						}
+			
+						$("a.wh_action").click(function(eventObj)
+						{
+							var actionId = $(eventObj.target).attr("id").substring(3);
+				
+							result.completedActions.push(actionId);
+
+							chrome.storage.local.set({ 'completedActions': result.completedActions }, function (result) 
+							{
+								// console.log("SAVED");
+							});
+						});
+
+						$("#upload_data").click(function()
+						{
+							var bundles = [];
+		
+							for (var i = 0; i < dayIndices.length; i++)
+							{
+								bundles.push(dayBundles[dayIndices[i]]);
+							}
+		
+							var onProgress = function(index, total)
+							{
+								var percentComplete = (index / total) * 100;
+		
+								$("#upload_progress").css("width", percentComplete + "%");
+							};
+		
+							var onComplete = function()
+							{
+								chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
+								{
+									$('#upload_modal').modal('hide');
+									$("#nav_review").show();
+									$("#research").hide();
+									//show participation date								
+					
+									chrome.browserAction.setIcon({
+										path: "images/star-yellow-64.png"
+									});	
+
+									chrome.browserAction.setTitle({
+										title: "Web Historian"
+									});	
+								});
+							};
+
+							chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
+							{
+								requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
+								{
+									pdk.upload(config.uploadUrl, CryptoJS.MD5(result.upload_identifier).toString(), 'web-historian', bundles, 0, onProgress, onComplete);
+								});                 
+							});
+						});
+					}
+					else
+					{
+						$('#upload_modal').modal("hide");
+				
+						alert("You have already uploaded your data.");
+					}
+                  });
+              });
+          });
+
+          $("#submit").click(function() {
+              d3.selectAll("#viz_selector a").classed("active", false);
+              dateForward = Infinity;
+              history.timeSelection = "all";
+          });
+      
+		$("#link_access_server").click(function(eventObj)
+		{
+			eventObj.preventDefault();
+
+			chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
+			{
+				requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
+				{
+					var now = new Date();
+			
+					var month = "" + (now.getMonth() + 1);
+					var day = "" + now.getDate();
+			
+					if (month.length < 2)
+					{
+						month = '0' + month;
+					}
+
+					if (day.length < 2)
+					{
+						day = '0' + day;
+					}
+			
+					var isoDate = now.getFullYear() + '-' +  month + '-' + day;
+			
+					var sourceId = CryptoJS.MD5(CryptoJS.MD5(result.upload_identifier).toString() + isoDate).toString();
+			
+					var newURL = config.reviewUrl + sourceId; //add participation status*
+					chrome.tabs.create({ url: newURL });
+				});                 
+			});
+	
+			return false;
+		});
+  }
     
     history.wir = function(weekData) {
         $("#cards").append("<div id=\"wir\"></div>");
@@ -481,237 +727,21 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
 $("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian <span class=\"glyphicon glyphicon-cloud-upload\"></span></h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a>. Participation is opt-in <strong>only</strong> and your data is not shared with Web Historian in any way if you choose not to participate.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of visits. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
     };
     
-    //Putting it all together
-    $("document").ready(function () 
-    {
-        $("#navbar").hide();
-		chrome.storage.local.get('lastPdkUpload', function (result) {
-        	lastUl = result.lastPdkUpload;
-   		});
-   		
-        history.insertCards();
-        //Get all data into fullData1
-        getUrls(noTransform, noViz, function()
-        {
-            //append images for visualization chooser
-            $('#viz_selector').show();
-            $("#navbar").show();
-            $("#nav_review").hide();
-            
-            var svyEndData = localStorage.getItem('svyEnd');
-			var svyEndObj = JSON.parse(svyEndData);
-			svyEndType = null;
-			if (svyEndObj !== null){
-				svyEndType = svyEndObj[0].endType;
-			}
-			//console.log("svyEndType: " + svyEndType + " lastUl: " + lastUl);
-
-			history.compareWeekVisits(now, visualData, history.wir);
-			
-            $('#upload_modal').on('show.bs.modal', function (e) 
-            {
-                chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) 
-                {
-					$.get(config.actionsUrl, function(actions)
-					{
-						var lastUpload = 0;
-						var latest = 0;
-					
-						if (result.lastPdkUpload != undefined)
-							lastUpload = Number(result.lastPdkUpload);
-						
-						var dayBundles = {};
-						var dayIndices = [];
-								
-						for (var i = 0; i < visualData.length; i++)
-						{
-							var date = moment(visualData[i]["date"]);
-						
-							var unixTimestamp = date.valueOf();
-
-							if (unixTimestamp > lastUpload)
-							{
-								var dayString = date.format("MMMM Do");
-					
-								var dayList = dayBundles[dayString];
-					
-								if (dayList == undefined)
-								{
-									dayList = [];
-									dayBundles[dayString] = dayList;
-									dayIndices.push(dayString);
-								}
-					
-								dayList.push(visualData[i]);
-							
-								if (unixTimestamp > latest)
-									latest = unixTimestamp;
-							}
-							else
-							{
-								// Already uploaded - ignore...
-							}
-						}
-            
-            			if (dayIndices.length > 0)
-            			{
-            				if (dayIndices.length == 1)
-								$("#modal_overview").html("1 day to upload (" + dayIndices[0]+ ").");
-							else
-								$("#modal_overview").html(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
-
-							var toList = [];
-					
-							for (var j = 0; j < actions.length; j++)
-							{
-								var action = actions[j];
-						
-								var complete = false;
-
-								for (var i = 0; i < result.completedActions.length; i++)
-								{
-									if (result.completedActions[i] == action["identifier"])
-										complete = true;
-								}
-
-								if (complete == false)
-									toList.push(action);
-							}
-						
-							var myid = chrome.runtime.id + "&prev="; // plus prev status!*
-					
-							if (toList.length == 0)
-							{
-								$("div#progress_actions").hide();
-							}
-							else
-							{
-								$("div#progress_actions").show();
-						
-								var output = "";
-						
-								for (var i = 0; i < toList.length; i++)
-								{
-									var listItem = "<li>";
-									
-									listItem += "<a href='" + toList[i].url + myid + "' target='_blank' class='wh_action' id='wh_" + toList[i].identifier + "'>" + toList[i].name + "</a>";
-							
-									listItem += "</li>";
-							
-									output += listItem;
-								}
-								chrome.tabs.create({url: toList[0].url + myid, active: false});
-								$("ul#progress_actions_list").html(output);
-							}
-						
-							$("a.wh_action").click(function(eventObj)
-							{
-								var actionId = $(eventObj.target).attr("id").substring(3);
-							
-								result.completedActions.push(actionId);
-
-								chrome.storage.local.set({ 'completedActions': result.completedActions }, function (result) 
-								{
-									// console.log("SAVED");
-								});
-							});
-
-							$("#upload_data").click(function()
-							{
-								var bundles = [];
-					
-								for (var i = 0; i < dayIndices.length; i++)
-								{
-									bundles.push(dayBundles[dayIndices[i]]);
-								}
-					
-								var onProgress = function(index, total)
-								{
-									var percentComplete = (index / total) * 100;
-					
-									$("#upload_progress").css("width", percentComplete + "%");
-								};
-					
-								var onComplete = function()
-								{
-									chrome.storage.local.set({ 'lastPdkUpload': latest }, function (result) 
-									{
-										$('#upload_modal').modal('hide');
-										$("#nav_review").show();
-										$("#research").hide();
-										//show participation date								
-								
-										chrome.browserAction.setIcon({
-											path: "images/star-yellow-64.png"
-										});	
-
-										chrome.browserAction.setTitle({
-											title: "Web Historian"
-										});	
-									});
-								};
-
-								chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
-								{
-									requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
-									{
-										pdk.upload(config.uploadUrl, CryptoJS.MD5(result.upload_identifier).toString(), 'web-historian', bundles, 0, onProgress, onComplete);
-									});                 
-								});
-							});
-						}
-						else
-						{
-							$('#upload_modal').modal("hide");
-							
-							alert("You have already uploaded your data.");
-						}
-                    });
-                });
-            });
-
-            $("#submit").click(function() {
-                d3.selectAll("#viz_selector a").classed("active", false);
-                dateForward = Infinity;
-                history.timeSelection = "all";
-            });
-            
-			$("#link_access_server").click(function(eventObj)
-			{
-				eventObj.preventDefault();
-
-				chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
-				{
-					requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
-					{
-						var now = new Date();
-						
-						var month = "" + (now.getMonth() + 1);
-						var day = "" + now.getDate();
-						
-						if (month.length < 2)
-						{
-							month = '0' + month;
-						}
-
-						if (day.length < 2)
-						{
-							day = '0' + day;
-						}
-						
-						var isoDate = now.getFullYear() + '-' +  month + '-' + day;
-						
-						var sourceId = CryptoJS.MD5(CryptoJS.MD5(result.upload_identifier).toString() + isoDate).toString();
-						
-						var newURL = config.reviewUrl + sourceId; //add participation status*
-						chrome.tabs.create({ url: newURL });
-					});                 
-				});
-				
-				return false;
-			});
-        });
+  //Putting it all together
+  $("document").ready(function () 
+  {
+    $("#navbar").hide();
+    chrome.storage.local.get('lastPdkUpload', function (result) {
+      lastUl = result.lastPdkUpload;
+ 		});
+ 		
+      history.insertCards();
+      //Get all data into fullData1
+      getUrls(noTransform, noViz, function()
+      {
+        storeCats(showHome);
     });
+  });
 
     return history;
 });

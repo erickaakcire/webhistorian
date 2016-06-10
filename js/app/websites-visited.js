@@ -121,30 +121,11 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
    			
         return callback(catObj, domainDay2);         
     };
-    //fetch the remote categories json file
+    //fetch the stored categories object
     function catAsync(callback) {
     	var catStored = sessionStorage.getItem('cats');
-		if (catStored === null){
-			var cats = [];
-			$("#visual_div").html("<h1>One moment please...</h1><p>Fetching website categories.</p>");
-		   	$.getJSON(config.categoriesUrl, function (cat) {		  
-		        for (var j in cat.children) {
-					    cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
-				}
-			
-	        }).fail(function(){
-	        	console.log("Error! JSON file not found or invalid formatting");
-	        	cats.push({search: "domainExact", category: "Other", value: " "});
-	        	callback(cats);
-	        }).done(function() {
-	    		sessionStorage.setItem("cats", JSON.stringify(cats));
-	    		callback(cats);
-	  		});
-		}
-		else {
 			var catsObj = JSON.parse(catStored);
 			callback(catsObj);
-		}
 	}
 	
 	function listenDate (history, data){
