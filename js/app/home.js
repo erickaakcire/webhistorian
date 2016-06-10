@@ -67,7 +67,7 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
     var endDate = utils.endDate();
     var filteredData = utils.filterByDates(data, startDate, endDate);
 
-    homeClicks();
+    visualization.homeClicks();
 
     history.insertCards();
     $('#viz_selector').show();
