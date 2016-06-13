@@ -1,7 +1,7 @@
 define(["../app/utils", "../app/config", "moment"], function(utils, config, moment) {
-    var visualization = {};
+  var visualization = {};
     
-    visualization.catData = function(data, categories, callback){
+  visualization.catData = function(data, categories, callback){
     	var specified = []; //domainExact
 	   	var domS = []; //domainSearch - not yet implemented
 	   	var top = []; //topDomainExact
@@ -59,15 +59,15 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	   	}
 	   return realData;	
     }
-    //simplest view, just a count of visits
-    function getVisitData(data, catObj, callback) {
-	    var domains = utils.countPropDomains(data, "domain");
-	    var maxInd = utils.lowHighNum(domains, "count", false);
-	    var maxD = domains[maxInd].domain;
-	    var maxC = domains[maxInd].count;
-	    $("#title").append("<h3 style=\"display:none\">You visited "+ maxD +" the most, "+ maxC +" times.</h3>");
-        return callback(catObj, domains); 
-    };
+  //simplest view, just a count of visits
+  function getVisitData(data, catObj, callback) {
+    var domains = utils.countPropDomains(data, "domain");
+    var maxInd = utils.lowHighNum(domains, "count", false);
+    var maxD = domains[maxInd].domain;
+    var maxC = domains[maxInd].count;
+    $("#title").append("<h3 style=\"display:none\">You visited "+ maxD +" the most, "+ maxC +" times.</h3>");
+      return callback(catObj, domains); 
+  };
 	//habits view needs processing to segment by day
 	function getHabitData (data, catObj, callback) {
 		var biggestSize = 0;
@@ -111,15 +111,15 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
             //} 
            }
            var startDate = utils.startDate();
-		   var endDate = utils.endDate();
-		   var oneDay = 24 * 60 * 60 * 1000;
-	       var utcStart = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-	       var utcEnd = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
-	       var diffDays = Math.ceil((utcEnd - utcStart) / oneDay) + 1;
+		       var endDate = utils.endDate();
+		       var oneDay = 24 * 60 * 60 * 1000;
+	         var utcStart = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
+	         var utcEnd = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+	         var diffDays = Math.ceil((utcEnd - utcStart) / oneDay) + 1;
            $("#title h2").empty();
            $("#title").append("<h2 id='viz_subtitle' style=\"display:none\">You visited " + biggestDomain + " " + biggestSize + " days out of " + diffDays + ", " + Math.round(biggestSize / diffDays * 100) + "% of the days in your browsing history.</h2>");
    			
-        return callback(catObj, domainDay2);         
+           return callback(catObj, domainDay2);         
     };
     //fetch the stored categories object
     function catAsync(callback) {
@@ -142,18 +142,17 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	
     visualization.display = function(history, data)
     {
-		utils.clearVisualization();
-		//console.log( "visualization.display: "+ $('svg').length );
-		var change = 0;
+		  utils.clearVisualization();
+		  //console.log( "visualization.display: "+ $('svg').length );
+		  var change = 0;
 
-		listenDate(history, data);
+		  listenDate(history, data);
 
-        d3.selectAll("#viz_selector a").classed("active", false);
-        
-        d3.select("#web_visit").classed("active", true);
-        vizSelected = "web_visit";
+      d3.selectAll("#viz_selector a").classed("active", false);
+      d3.select("#web_visit").classed("active", true);
+      vizSelected = "web_visit";
 
-		catAsync(function(categories) {
+		  catAsync(function(categories) {
       //set up all the datasets
 		  //console.log("catAsync " + $('svg').length);
 		  var startDate = utils.startDate();
@@ -162,8 +161,6 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 			var datasetV = visualization.catData(filteredData, categories, getVisitData);
 			var datasetH = visualization.catData(filteredData, categories, getHabitData);
 			
-			$("#visual_div h1").empty();
-			$("#visual_div p").empty();
 			//constant visual elements
 			$("#visual_div").height($("#visual_div").width());
 	        var r = $("#visual_div").height(),
@@ -195,14 +192,14 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	            .attr("id", "visualization");
 	            
 	        function showVisits(){
-    			habits = 0;
-    			change = 1;
+      			habits = 0;
+      			change = 1;
 	        	var numDomains = utils.countUniqueProperty(data, "domain");
-				$("#title").prepend("<h1 id='viz_title'>What websites do you visit most?");
-				//var h3txt = "<h3 id='viz_subtitle'>"+ numDomains + " websites visited from " + moment(startDate).format('MMM D, YYYY') + " to: " + moment(endDate).format('MMM D, YYYY') +"</h3>";
-				//$("#title").append(h3txt);
+				    $("#title").prepend("<h1 id='viz_title'>What websites do you visit most?");
+				    //var h3txt = "<h3 id='viz_subtitle'>"+ numDomains + " websites visited from " + moment(startDate).format('MMM D, YYYY') + " to: " + moment(endDate).format('MMM D, YYYY') +"</h3>";
+				    //$("#title").append(h3txt);
 	       		$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary active\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\" checked> All Visits  </label> <label class=\"btn btn-primary\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\"> Daily Habits  </label></div>");
-				changeBubble(datasetV);
+				    changeBubble(datasetV);
 	        }
 	        function showHabits (){
 	        	habits = 1;
@@ -217,9 +214,9 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	        if (change === 0){
 	        	var habits = 0;
 		        $("#title h1").empty();
-				//$("#title h2").show();
-				$("#above_visual").empty();
-				showHabits();
+				    //$("#title h2").show();
+				    $("#above_visual").empty();
+				    showHabits();
 	        }
 
 	        //listen for changes in dataset
@@ -228,7 +225,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 			        if (this.id === "habits"){
 			        	$("#title h1").empty();
 			        	$("#title h2").show();
-			        	$("#title h3").hide();
+			        	$("#title h3").hide(); 
 			        	$("#above_visual").empty();
 			        	showHabits();
 			        }
@@ -246,26 +243,23 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
     		//update function
     		function changeBubble(dataset) {
 				//console.log( "changeBubble: "+ $('svg').length );
-			    if ($('svg').length > 1){
-			    	//console.log("empty");
-			    }
     			listenView();
     			//listenDate(history, data);//needs history,data?
-		        var siteClasses = utils.classes(dataset);//dataset
+		       var siteClasses = utils.classes(dataset);//dataset
 		        
-		        var node = vis.selectAll(".node")
-		            .data(bubble.nodes(siteClasses)//from dataset
-		                .filter(function (d) {
-		                    return !d.children;
-		                }),function(d) {return d.className;});
+		       var node = vis.selectAll(".node")
+		         .data(bubble.nodes(siteClasses)//from dataset
+		         .filter(function (d) {
+		           return !d.children;
+		          }),function(d) {return d.className;});
 
-				var nodeEnter = node.enter()
+				   var nodeEnter = node.enter()
 			        .append("g")
 			        .attr("class", "node")
 			        .attr("transform", function (d) {
 			            return "translate(" + d.x + "," + d.y + ")";
 			        });
-		        nodeEnter
+		       nodeEnter
 		        	.append("circle")
 		            .attr("r", function (d) {
 		                return d.r;
@@ -290,12 +284,11 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 			              
 			              tooltip.style("visibility", "visible");
 			          })
-				      
-				      .on("mousemove", function() {
+				        .on("mousemove", function() {
 				          return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
-				      })
-				      .on("mouseout", function(){
-				      	return tooltip.style("visibility", "hidden");
+				        })
+				        .on("mouseout", function(){
+				      	  return tooltip.style("visibility", "hidden");
 				      	});
 		
 		          nodeEnter
@@ -323,14 +316,10 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 		            .attr("dy", ".3em")
 		            .text(function (d) {
 		            	return d.className.substring(0, d.r / 3);
-		        	});
-					
+		            });
 				node.exit().remove();
-			}
-
-
-		});
-    };
-    
+		  }
+	  });
+  };
     return visualization;
 });

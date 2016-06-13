@@ -280,7 +280,7 @@ self.transformData = function(data) {
     if (data.length > 1)
       setTimeout(transformDataItem, 0);
     else if (self.finished == false) {
-      console.log("WORKER DONE");
+      //console.log("WORKER DONE");
 
       self.finished = true;
       self.postMessage({
