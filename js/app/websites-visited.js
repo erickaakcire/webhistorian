@@ -171,8 +171,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	            .sort(null)
 	            .size([r, r])
 	            .padding(1.5);
-            
-            var tooltip = d3.select("body")
+          var tooltip = d3.select("body")
 			    .append("div")
 			    .style("position", "absolute")
 			    .style("z-index", "10")
@@ -206,7 +205,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	        	change = 1;
 	        	$("#title h2").show();
 				$("#title").prepend("<h1 id='viz_title'>What websites do you visit regularly?</h1>");
-				$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label></div>");
+				$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label></div><br/><p>Click a circle to highlight. Doublle click to un-highlight. Buttons above change the data from days visited (habits) to total number of visits. Both views contain the same websites.");
 				changeBubble(datasetH);
 	        }
 	        

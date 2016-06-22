@@ -55,7 +55,7 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
         path: "images/star-red-64.png"
       });
       chrome.browserAction.setTitle({
-        title: "Participate in our research project!"
+        title: "Participate in our research project! Click the cloud upload icon in the app."
       });
       console.log("has not uploaded");
     } else if (lastUpload !== 0 && svyEnd === null) {

@@ -142,14 +142,9 @@ h1 {
 
 /* for the network diagram */
 text {
-  fill: #000;
+  fill: #1a1aff;
   font: 12px sans-serif;
-  /*pointer-events: none;
-  display: none;*/
-}
-
-text:hover {
-	fill: #4A68B8;
+  font-weight: bold;
 }
 
 #visualization.bubble text:hover {

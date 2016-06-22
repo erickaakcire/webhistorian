@@ -22,49 +22,31 @@ define(["../app/utils", "moment"], function(utils, moment) {
     var edgeList = [];
     var sorted = [];
 
-    var idMap = {};
-
     for (var i = 0; i < filteredData.length; i++) {
       var dataItem = filteredData[i];
-      //            console.log('DATA: ' + JSON.stringify(dataItem, 2));
-
-      var refId = dataItem.id;
-
-      idMap["" + refId] = i;
-    }
-
-    for (var i = 0; i < filteredData.length; i++) {
-      var dataItem = filteredData[i];
-      var refId = dataItem.refVisitId;
-      var id = dataItem.id;
       var domain = dataItem.domain;
-      var protocol = dataItem.protocol;
       var transition = dataItem.transType;
-      var refIdInd = idMap["" + refId]; // findIndexByKeyValue(fullData, "id", refId);
+      var time = dataItem.date;
 
-      if (refIdInd !== undefined && refId !== "0") {
-        var refDomain = filteredData[refIdInd].domain;
-        var refProtocol = filteredData[refIdInd].protocol;
-
-        if (domain != refDomain && refDomain != null && refDomain != "" && domain != "" && domain != null) {
-          allEdges.push({
-            sort: refDomain + domain,
-            source: refDomain,
-            target: domain
-          });
-        }
-      } else if (refIdInd === undefined && transition === "link") {
+      if (transition === "link") {
         //find the chronogically previous item 
         var j = i - 1;
         var prevItem = filteredData[j];
-        console.log("j: " + j + " prevItem: " + prevItem);
-
-        if (prevDomain !== domain && prevDomain !== undefined) {
+        
+        if (prevItem !== undefined) {
           var prevDomain = prevItem.domain;
-          console.log("from: " + prevDomain + " to: " + domain);
+          var prevTime = prevItem.date;
+          var offsetSec = 30 * 60;
+          var diffTime = time - prevTime;
+
+          if (prevDomain !== domain && prevDomain !== undefined && diffTime < offsetSec) {
+            allEdges.push({
+              sort: prevDomain + domain,
+              source: prevDomain,
+              target: domain
+            });
+          }
         }
-        //if the prev domain !== this one, try linking them. see what comes out...
-        //if that comes out super weird (and it probably does) maybe make a list of known source domains, and look back up to 1 hour, to see what the previous one is. open source this list.
       }
     }
 
@@ -91,7 +73,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
       }
       if (countThing === nextCountThing) {
         countEdges++;
-      } else {
+      } else { //if (countEdges >= 2)
         edgeList.push({
           source: sourceItem,
           target: targetItem,
@@ -102,8 +84,6 @@ define(["../app/utils", "moment"], function(utils, moment) {
       }
     }
 
-    // ---------------->
-
     // Network visualization based on  http://www.d3noob.org/2013/03/d3js-force-directed-graph-example-basic.html and http://bl.ocks.org/mbostock/3750558
 
     d3.select("#" + history.timeSelection).classed("active", true);
@@ -111,7 +91,8 @@ define(["../app/utils", "moment"], function(utils, moment) {
 
     d3.select("#title").append("h1").text("How did you get there?").attr("id", "viz_title");
     d3.select("#title").append("h2").text(totalLinks + " links between " + numSites + " websites from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
-    d3.select("#below_visual").append("p").text("This is a network based on how you navigate to the websites you visit. There is a link between two websites if you click on a link from one to the other. Drag to move websites to a fixed position. Double click to release the dragged website back to the normal layout.").attr("id", "viz_p");
+    d3.select("#below_visual").append("p").text("This is a network based on the time order of your website visits. There is a line between two websites if you visited one immediately before the other.").attr("id", "viz_p");
+    d3.select("#above_visual").append("p").text("Drag to move websites to a fixed position. Double click to release the dragged website.").attr("id", "viz_a");
 
     var nodes = {};
     var edgesMaxValue = 0;
@@ -138,13 +119,25 @@ define(["../app/utils", "moment"], function(utils, moment) {
     $("#visual_div").height(height);
     // $("#visual_div").css("border", "thin solid red");
 
+    var tooltip = d3.select("body")
+    .append("div")
+    .style("position", "absolute")
+    .style("z-index", "10")
+    .style("visibility", "hidden")
+    .style("color", "white")
+    .style("padding", "8px")
+    .style("background-color", "rgba(0, 0, 0, 0.75)")
+    .style("border-radius", "6px")
+    .style("font", "12px sans-serif")
+    .text("tooltip");
+    
     var force = d3.layout.force()
       .nodes(d3.values(nodes))
       .links(edgeList)
       .size([width, height])
-      .linkDistance(90)
+      .linkDistance(50)
       .charge(-150)
-      .gravity(0.05)
+      //.gravity(0.05)
       .on("tick", tick)
       .start();
 
@@ -169,8 +162,8 @@ define(["../app/utils", "moment"], function(utils, moment) {
     .enter().append("svg:marker") // This section adds in the arrows
     .attr("id", String)
       .attr("viewBox", "0 -5 10 10")
-      .attr("refX", 17)
-      .attr("refY", -1.5)
+      .attr("refX", 10)
+      .attr("refY", -1.5)//1.5
       .attr("markerWidth", 5)
       .attr("markerHeight", 5)
       .attr("orient", "auto")
@@ -195,11 +188,24 @@ define(["../app/utils", "moment"], function(utils, moment) {
       .attr("class", "node")
     //.call(force.drag);
     .on("dblclick", dblclick)
-      .call(drag);
+    .on("mouseover", function(d){
+      tooltip.text(d.name);
+      tooltip.style("visibility", "visible");
+    })
+    .on("mousemove", function() {
+      return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
+    })
+    .on("mouseout", function(){
+  	  return tooltip.style("visibility", "hidden");
+  	})
+    .call(drag);
 
     // add the nodes
     node.append("circle")
-      .attr("r", 5)
+      .attr("r", function(d) { 
+        d.radius = (Math.log(d.weight) + .7) * 4;
+        return d.radius;
+      })
       .attr("class", "network");
     //replace 5 with function(d, i) { return d.weight * 4;}
 
@@ -209,23 +215,36 @@ define(["../app/utils", "moment"], function(utils, moment) {
       .attr("dx", "8")
       .attr("text-anchor", "left")
       .attr("font-size", "10px")
+      .style("display", function(d) {
+        if (d.weight < 2){
+          return "none";
+        }
+        else {return "inline";}
+      })
       .text(function(d) {
-        return d.name;
+          return d.name;
       });
 
     // add the curvy lines
 
-    function tick() {
+    function tick(e) {
       path.attr("d", function(d) {
         var dx = d.target.x - d.source.x,
-          dy = d.target.y - d.source.y,
-          dr = Math.sqrt(dx * dx + dy * dy);
+        dy = d.target.y - d.source.y,
+        dr = Math.sqrt(dx * dx + dy * dy);
+          
+        // x and y distances from center to outside edge of target node
+        offsetX = (dx * d.target.radius) / dr;
+        offsetY = (dy * d.target.radius) / dr;
+
+        //return "M" + d.source.x + "," + d.source.y + "L" + (d.target.x - offsetX) + "," + (d.target.y - offsetY);
+        
+          
         return "M" +
           d.source.x + "," +
           d.source.y + "A" +
           dr + "," + dr + " 0 0,1 " +
-          d.target.x + "," +
-          d.target.y;
+          + (d.target.x - offsetX) + "," + (d.target.y - offsetY);
       });
 
       node
