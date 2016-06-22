@@ -51,31 +51,39 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
     var now = new Date();
 
     if (lastUpload === 0 && svyEnd !== 0) {
-      chrome.browserAction.setIcon({
-        path: "images/star-red-64.png"
+      chrome.browserAction.setBadgeText({
+        text: "1"
+      });
+      chrome.browserAction.setBadgeBackgroundColor({
+        color: "#FF0000"
       });
       chrome.browserAction.setTitle({
         title: "Participate in our research project! Click the cloud upload icon in the app."
       });
       console.log("has not uploaded");
     } else if (lastUpload !== 0 && svyEnd === null) {
-      chrome.browserAction.setIcon({
-        path: "images/star-red-64.png"
+      chrome.browserAction.setBadgeText({
+        text: "1"
+      });
+      chrome.browserAction.setBadgeBackgroundColor({
+        color: "#FF0000"
       });
       chrome.browserAction.setTitle({
-        title: "Please finish our survey!"
+        title: "Please finish our survey! Open the app to see the link."
       });
       console.log("uploaded, didn't finish survey!!");
     } else if (now.getTime() - lastUpload > (1000 * 60 * 60 * 1440) && svyEnd !== 0) // 60 days (in hours)
     {
-      chrome.browserAction.setIcon({
-        path: "images/star-red-64.png"
+      chrome.browserAction.setBadgeText({
+        text: "1"
+      });
+      chrome.browserAction.setBadgeBackgroundColor({
+        color: "#FF0000"
       });
 
       chrome.browserAction.setTitle({
-        title: "Upload additional browsing data!"
+        title: "Upload additional browsing data! Click the cloud upload icon in the app."
       });
-      console.log("has uploaded more than 60 days ago");
     } else {
       chrome.browserAction.setIcon({
         path: "images/star-yellow-64.png"
