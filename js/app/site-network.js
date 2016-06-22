@@ -36,7 +36,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
         if (prevItem !== undefined) {
           var prevDomain = prevItem.domain;
           var prevTime = prevItem.date;
-          var offsetSec = 30 * 60;
+          var offsetSec = 20 * 60;
           var diffTime = time - prevTime;
 
           if (prevDomain !== domain && prevDomain !== undefined && diffTime < offsetSec) {
@@ -114,7 +114,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
     });
 
     var width = $("#visual_div").width();
-    var height = width;
+    var height = width * .7;
 
     $("#visual_div").height(height);
     // $("#visual_div").css("border", "thin solid red");
@@ -135,9 +135,14 @@ define(["../app/utils", "moment"], function(utils, moment) {
       .nodes(d3.values(nodes))
       .links(edgeList)
       .size([width, height])
-      .linkDistance(50)
-      .charge(-150)
-      //.gravity(0.05)
+      .linkDistance(20)
+      .charge(function(d){
+        if (d.weight > 2){
+          return (-d.weight * 4) - 80;
+        }
+        else {return -80;}
+      })
+      .gravity(0.15)
       .on("tick", tick)
       .start();
 
@@ -186,19 +191,18 @@ define(["../app/utils", "moment"], function(utils, moment) {
       .data(force.nodes())
       .enter().append("g")
       .attr("class", "node")
-    //.call(force.drag);
-    .on("dblclick", dblclick)
-    .on("mouseover", function(d){
-      tooltip.text(d.name);
-      tooltip.style("visibility", "visible");
-    })
-    .on("mousemove", function() {
-      return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
-    })
-    .on("mouseout", function(){
-  	  return tooltip.style("visibility", "hidden");
-  	})
-    .call(drag);
+      .on("dblclick", dblclick)
+      .on("mouseover", function(d){
+        tooltip.text(d.name);
+        tooltip.style("visibility", "visible");
+      })
+      .on("mousemove", function() {
+        return tooltip.style("top", (d3.event.pageY-10)+"px").style("left",(d3.event.pageX+10)+"px");
+      })
+      .on("mouseout", function(){
+    	  return tooltip.style("visibility", "hidden");
+    	})
+      .call(drag);
 
     // add the nodes
     node.append("circle")
@@ -207,7 +211,6 @@ define(["../app/utils", "moment"], function(utils, moment) {
         return d.radius;
       })
       .attr("class", "network");
-    //replace 5 with function(d, i) { return d.weight * 4;}
 
     // add the text
     node.append("text")
@@ -226,7 +229,6 @@ define(["../app/utils", "moment"], function(utils, moment) {
       });
 
     // add the curvy lines
-
     function tick(e) {
       path.attr("d", function(d) {
         var dx = d.target.x - d.source.x,
@@ -236,20 +238,27 @@ define(["../app/utils", "moment"], function(utils, moment) {
         // x and y distances from center to outside edge of target node
         offsetX = (dx * d.target.radius) / dr;
         offsetY = (dy * d.target.radius) / dr;
-
-        //return "M" + d.source.x + "," + d.source.y + "L" + (d.target.x - offsetX) + "," + (d.target.y - offsetY);
         
-          
-        return "M" +
-          d.source.x + "," +
-          d.source.y + "A" +
-          dr + "," + dr + " 0 0,1 " +
-          + (d.target.x - offsetX) + "," + (d.target.y - offsetY);
-      });
+        placeX = (d.target.x - offsetX)
+        placeY = (d.target.y - offsetY)
+        
+        //keep paths in the svg
+        var px = Math.max(1, Math.min(width, d.source.x)); 
+        var py = Math.max(1, Math.min(height, d.source.y));
 
+        return "M" +
+          px + "," +
+          py + "A" +
+          dr + "," + dr + " 0 0,1 " +
+          + placeX + "," + placeY;
+      });
+      
       node
         .attr("transform", function(d) {
-          return "translate(" + d.x + "," + d.y + ")";
+          //keep nodes in the svg
+          var dx = Math.max(d.radius, Math.min(width - d.radius, d.x))
+          var dy = Math.max(d.radius, Math.min(height - d.radius, d.y))
+          return "translate(" + dx + "," + dy + ")";
         });
     }
   };
