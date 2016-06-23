@@ -446,46 +446,46 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
           {
               chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) 
               {
-				$.get(config.actionsUrl, function(actions)
-				{
-					var lastUpload = 0;
-					var latest = 0;
+  				$.get(config.actionsUrl, function(actions)
+  				{
+    					var lastUpload = 0;
+    					var latest = 0;
 		
-					if (result.lastPdkUpload != undefined)
-						lastUpload = Number(result.lastPdkUpload);
+    					if (result.lastPdkUpload != undefined)
+    						lastUpload = Number(result.lastPdkUpload);
 			
-					var dayBundles = {};
-					var dayIndices = [];
+    					var dayBundles = {};
+    					var dayIndices = [];
 					
-					for (var i = 0; i < visualData.length; i++)
-					{
-						var date = moment(visualData[i]["date"]);
+    					for (var i = 0; i < visualData.length; i++)
+    					{
+    						var date = moment(visualData[i]["date"]);
 			
-						var unixTimestamp = date.valueOf();
+    						var unixTimestamp = date.valueOf();
 
-						if (unixTimestamp > lastUpload)
-						{
-							var dayString = date.format("MMMM Do");
+    						if (unixTimestamp > lastUpload)
+    						{
+    							var dayString = date.format("MMMM Do");
 		
-							var dayList = dayBundles[dayString];
+    							var dayList = dayBundles[dayString];
 		
-							if (dayList == undefined)
-							{
-								dayList = [];
-								dayBundles[dayString] = dayList;
-								dayIndices.push(dayString);
-							}
+    							if (dayList == undefined)
+    							{
+    								dayList = [];
+    								dayBundles[dayString] = dayList;
+    								dayIndices.push(dayString);
+    							}
 		
-							dayList.push(visualData[i]);
+    							dayList.push(visualData[i]);
 				
-							if (unixTimestamp > latest)
-								latest = unixTimestamp;
-						}
-						else
-						{
-							// Already uploaded - ignore...
-						}
-					}
+    							if (unixTimestamp > latest)
+    								latest = unixTimestamp;
+    						}
+    						else
+    						{
+    							// Already uploaded - ignore...
+    						}
+    					}
       
           			if (dayIndices.length > 0)
           			{
@@ -724,7 +724,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
     
     //insert the code for the cards, but doesn't display them (display: none)
     history.insertCards = function (){
-$("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian <span class=\"glyphicon glyphicon-cloud-upload\"></span></h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a>. Participation is <strong>opt-in only</strong> and your data is not transmitted online in any way if you choose not to participate, in fact you can use it when you are offline. Web Historian is client-side javascript you can use to visualize your browsing history data that is already on your computer.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of visits. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
+$("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian <span class=\"glyphicon glyphicon-cloud-upload\"></span></h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand our online world in more depth and with greater reliability than ever before. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a>. Participation is <strong>opt-in only</strong> and your data is not transmitted online in any way if you choose not to participate, in fact you can use it when you are offline. Web Historian is client-side javascript you can use to visualize your browsing history data that is already on your computer.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
     };
     
   //Putting it all together

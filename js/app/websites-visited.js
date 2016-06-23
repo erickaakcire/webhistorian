@@ -117,7 +117,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	         var utcEnd = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
 	         var diffDays = Math.ceil((utcEnd - utcStart) / oneDay) + 1;
            $("#title h2").empty();
-           $("#title").append("<h2 id='viz_subtitle' style=\"display:none\">You visited " + biggestDomain + " " + biggestSize + " days out of " + diffDays + ", " + Math.round(biggestSize / diffDays * 100) + "% of the days in your browsing history.</h2>");
+           $("#title").append("<h2 id='viz_subtitle' style=\"display:none\">You have " + diffDays + " days in your browsing history.</h2>");
    			
            return callback(catObj, domainDay2);         
     };
@@ -197,16 +197,16 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 				    $("#title").prepend("<h1 id='viz_title'>What websites do you visit most?");
 				    //var h3txt = "<h3 id='viz_subtitle'>"+ numDomains + " websites visited from " + moment(startDate).format('MMM D, YYYY') + " to: " + moment(endDate).format('MMM D, YYYY') +"</h3>";
 				    //$("#title").append(h3txt);
-	       		$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary active\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\" checked> All Visits  </label> <label class=\"btn btn-primary\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\"> Daily Habits  </label></div>");
+	       		$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary active\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\" checked> All Visits  </label> <label class=\"btn btn-primary\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\"> Daily Habits  </label></div><br/><p>Click a circle to highlight. Doublle click to un-highlight.");
 				    changeBubble(datasetV);
 	        }
 	        function showHabits (){
 	        	habits = 1;
 	        	change = 1;
 	        	$("#title h2").show();
-				$("#title").prepend("<h1 id='viz_title'>What websites do you visit regularly?</h1>");
-				$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label></div><br/><p>Click a circle to highlight. Doublle click to un-highlight. Buttons above change the data from days visited (habits) to total number of visits. Both views contain the same websites.");
-				changeBubble(datasetH);
+				    $("#title").prepend("<h1 id='viz_title'>What websites do you visit regularly?</h1>");
+				    $("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label></div><br/><p>Click a circle to highlight. Doublle click to un-highlight.");
+				    changeBubble(datasetH);
 	        }
 	        
 	        //default option

@@ -147,7 +147,7 @@ text {
   font-weight: bold;
 }
 
-#visualization.bubble text:hover {
+#visualization.bubble text {
 	fill: #000;
 }
 
