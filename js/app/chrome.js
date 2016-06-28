@@ -58,7 +58,7 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
         color: "#FF0000"
       });
       chrome.browserAction.setTitle({
-        title: "Participate in our research project! Click the cloud upload icon in the app."
+        title: "Participate in our research project! Click the cloud upload icon in this extension."
       });
       console.log("has not uploaded");
     } else if (lastUpload !== 0 && svyEnd === null) {
@@ -69,7 +69,7 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
         color: "#FF0000"
       });
       chrome.browserAction.setTitle({
-        title: "Please finish our survey! Open the app to see the link."
+        title: "Please finish our survey! Click here to open the extension to see the link."
       });
       console.log("uploaded, didn't finish survey!!");
     } else if (now.getTime() - lastUpload > (1000 * 60 * 60 * 1440) && svyEnd !== 0) // 60 days (in hours)
