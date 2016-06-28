@@ -171,11 +171,6 @@ self.transformData = function(data) {
       //parser.href = dataItem.url;
       var refId = dataItem.referringVisitId;
       var title = dataItem.title;
-      // Try this for tab issues... 
-      //if this ID is not in dataItem.visitID, subtract 1 from refId
-      //    if (refId !== "0") {
-      //        console.log("REF ID: " + refId);
-      //    }
 
       var transType = dataItem.transitionType;
       var protocol = parser.scheme;
@@ -199,7 +194,7 @@ self.transformData = function(data) {
       var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
       var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
-      //comleted study survey - need to be able to get to config*
+      //completed study survey - need to be able to get to config*
       //      if (dataItem.url === config.endSvyUrls[1]) {
       //      	var noStudy = {timeStored: now.getTime(), endType: 0};
       //      	storeSvyEnd(noStudy);
@@ -224,7 +219,7 @@ self.transformData = function(data) {
         } else {
           domain = "Chrome Extension";
         }
-      } else if (protocol === "file:") {
+      } else if (protocol === "file") {
         domain = "Local File";
       } else if (host.match(reWwwGoogle) || host.match(reGoogleOnly)) {
         domain = "google.com";
@@ -243,7 +238,6 @@ self.transformData = function(data) {
       var searchTerms = "";
 
       if (reGoogle.test(host) || host === "duckduckgo.com" || reBing.test(host) || host === "search.aol.com" || host === reAsk.test(host)) {
-
         if (reSearch.test(dataItem.url)) {
           search = dataItem.url.match(reSearch, "$1");
           if (search[1] != "")
@@ -254,7 +248,6 @@ self.transformData = function(data) {
       }
 
       if (reYahooSearchDomain.test(host)) {
-
         if (reYahooSearch.test(parser.href)) {
           yahooSearch = dataItem.url.match(reYahooSearch, "$1");
           if (yahooSearch[1] != "")
