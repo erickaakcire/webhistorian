@@ -79,6 +79,7 @@
 					<div class="progress">
 						<div class="progress-bar" id="visit_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
 					</div>
+          <img src='images/alBoardman.gif' style="align: center"><br/><p>GIF by Al Boardman <a href="http://alboardman.tumblr.com/" target="_blank">http://alboardman.tumblr.com/</a></p>
 				</div>
 			</div>
 
@@ -109,7 +110,7 @@
 						<div id="progress_actions">
 							<h6>Survey</h6>
 							
-							<p>While uploading your data, please begin the survey. The survey will automatically open in a new tab.</p>
+							<p>You can begin the research survey that just openend in a new tab while your data uploads.</p>
 							
 							<ul id="progress_actions_list">
 							</ul>
@@ -129,21 +130,32 @@
 						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 						<h4 class="modal-title">Your Identifier</h4>
 					</div>
-					<div class="modal-body">
-						<p style="margin-bottom: 1em;">
-							Web Historian has created a unique identifier that allows you to combine your data from this web browser with other browsers where you have installed Web Historian. 
-							You may want to do this to see a more complete picture of your web browsing behavior across different browsers. 
-							If you have installed Web Historian before and now you want to combine your data from a previous installation with this one just replace the identifier below with your previously-generated identifier. You must upload your data from each installation and complete the survey, then choose the "View on Server" menu option to see your combined visualizations.
-						</p>
-
-						<fieldset class="form-group">
-							<input type="text" class="form-control" id="field_identifier" placeholder="Enter identifier here&#8230;" />
-						</fieldset>
-
-						<!-- <div style="font-size: smaller; font-weight: bold; padding-bottom: 1em;"><a id="load_google_identifier" class="pull-right" href="#">Use your Google account's email address?</a></div> -->
+					<div class="modal-body" id="id-body"></div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-info" id="back" style="display: none;">Back</button><button type="button" class="btn btn-info" id="chose_identifier">Continue&#8230;</button>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="modal fade" tabindex="-1" role="dialog" id="welcome_modal">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+						<h4 class="modal-title">Welcome!</h4>
+					</div>
+					<div class="modal-body" id="welcome-body">
+            <p>Were you given a Web Historian ID to use as part of a research project?
+              <label class="radio-inline"><input type="radio" name="optProj" value="1" id="yesProjId">Yes</label>
+              <label class="radio-inline"><input type="radio" name="optProj" value="0" id="noProjId" checked>No</label>
+            </p>
+            <p>Have you installed Web Historian on another web browser previously?
+              <label class="radio-inline"><input type="radio" name="optBefore" value="1" id="yesBefore">Yes</label>
+              <label class="radio-inline"><input type="radio" name="optBefore" value="0" id="noBefore" checked>No</label>
+            </p>
 					</div>
 					<div class="modal-footer">
-						<button type="button" class="btn btn-info" id="chose_identifier">Continue&#8230;</button>
+						<button type="button" class="btn btn-info" id="choose_welcome">Continue&#8230;</button>
 					</div>
 				</div>
 			</div>
