@@ -607,35 +607,32 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             var toList = [];
             var action = actions[0];
             toList.push(action);
-    
-            if (toList.length == 0)
-            {
+
               $("div#progress_actions").hide();
-              console.log("this");
-            }
-            else
-            {
-              $("div#progress_actions").show();
+
+              $("#upload_data").click(function(){
+                $("div#progress_actions").show();
               
-              var output = "";
+                var output = "";
               
-              svyLink(function(url){
-                var listItem = "<li> <a class='wh_action' id='wh_" + toList[0].identifier + "'>" + "Open Survey Tab" + "</a> </li>";
+                svyLink(function(url){
+                  var listItem = "<li> <a class='wh_action' id='wh_" + toList[0].identifier + "'>" + "Open Survey Tab" + "</a> </li>";
                 
-                output += listItem;
+                  output += listItem;
               
-                var svyTab = 1;
-                chrome.tabs.onCreated.addListener(function(tab){
-                  svyTab = tab.id;
-                  $("#wh_initial_survey").click(function (){
-                    chrome.tabs.update(svyTab, {"active": true});
+                  var svyTab = 1;
+                  chrome.tabs.onCreated.addListener(function(tab){
+                    svyTab = tab.id;
+                    $("#wh_initial_survey").click(function (){
+                      chrome.tabs.update(svyTab, {"active": true});
+                    });
                   });
-                });
               
-                chrome.tabs.create({url: url , active: false});
-                $("ul#progress_actions_list").html(output);
+                  chrome.tabs.create({url: url , active: false});
+                  $("ul#progress_actions_list").html(output);
+                });
               });
-            }
+            
       
             $("a.wh_action").click(function(eventObj)
             {
@@ -671,7 +668,8 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 {
                   $('#upload_modal').modal('hide');
                   $("#nav_review").show();
-                  $("#research").hide();
+                  $("#research").html("<p>Please complete the survey for the research project that opened in a new tab if you haven't already. If you need the link to the survey just <a href="">reload this page</a>. Thank you!.");
+                  
                   //show participation date                
                   chrome.browserAction.setBadgeText({ text: "" }); 
 
