@@ -288,7 +288,11 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 				        })
 				        .on("mouseout", function(){
 				      	  return tooltip.style("visibility", "hidden");
-				      	});
+				      	})
+                .on("contextmenu", function(data, index) {
+                  console.log("fire");
+                  d3.event.preventDefault();
+                });
 		
 		          nodeEnter
 		          	.append("text")

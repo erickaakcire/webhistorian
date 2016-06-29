@@ -194,7 +194,7 @@ self.transformData = function(data) {
       var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
       var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
-      //completed study survey - need to be able to get to config*
+      //completed study survey - need to be able to access config.js to get the endSvyUrls*
       //      if (dataItem.url === config.endSvyUrls[1]) {
       //      	var noStudy = {timeStored: now.getTime(), endType: 0};
       //      	storeSvyEnd(noStudy);
