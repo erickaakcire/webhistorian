@@ -72,6 +72,28 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
     history.insertCards();
     $('#viz_selector').show();
     history.compareWeekVisits(endDate, filteredData, history.wir);
+    
+    $("#settings").click(function(){
+      chrome.storage.local.get('upload_identifier', function (result) {
+        var id = result.upload_identifier;
+        $("#identifier_modal").modal("show");
+        $("#id-body").html("<p>Your Web Historian identifier is: <strong>" + id + "</strong></p><p>If you need to change your Web Historian Identifier you can <a id='changeIdSet'>click here</a>.</p>");
+        $("#changeIdSet").click(function(){
+          $("#id-body").html("<p>Change your Web Historian Identifier</p><fieldset class='form-group' id='idChoice'><input type='text' class='form-control' id='field_identifier' placeholder='Enter identifier here&#8230;' /></fieldset>");
+      		$("#field_identifier").val(id);
+      		$("#chose_identifier").click(function(eventObj) {
+      			eventObj.preventDefault();
+      			var identifier = $("#field_identifier").val();
+      			if (identifier != null && identifier != "")	{
+      				chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) {
+      					$("#identifier_modal").modal("hide");
+      				});
+      			}
+      			return false;
+      		});
+        });
+      });
+    });//diff
   };
   return visualization;
 });

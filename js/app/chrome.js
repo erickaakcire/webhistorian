@@ -69,7 +69,7 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
         color: "#FF0000"
       });
       chrome.browserAction.setTitle({
-        title: "Please finish our survey! Click here to open the extension to see the link."
+        title: "Please finish our survey! Click here to see the link to your survey."
       });
       console.log("uploaded, didn't finish survey!!");
     } else if (now.getTime() - lastUpload > (1000 * 60 * 60 * 1440) && svyEnd !== 0) // 60 days (in hours)
