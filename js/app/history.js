@@ -290,13 +290,14 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 indexArray.push(i);
             }
         }
-        
         return indexArray;
     };
-  
-    history.getSuppressedUrl = function(data, key, value) 
+    
+    history.getSuppressedUrl = function(data, key, value)
+    //only part of the delete process 
     {
         var index = history.findIndexArrByKeyValue(data, key, value);
+        
         var urlArray1 = [];
 
         index.forEach(function (a) {
@@ -307,43 +308,9 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             var vc = history.urlArray[urlInd].vc;
             
             urlArray1.push({url: url, visitCount: vc});
+            
         });
         return urlArray1;
-    };
-
-    history.removeHistory = function(urls, isArray) {
-        //urls is an array of objects (true) or a single object(false)
-
-        if (isArray) {
-            var urlsRemovedNow = 0;
-            var visitsRemovedNow = 0;
-
-            urls.forEach(function (a, b) {
-                var visits = a.visitCount;
-                var urls = a.url;
-                chrome.history.deleteUrl({url: urls});
-                if (a.url != b.url) {
-                    urlsRemovedNow++;
-                    visitsRemovedNow += visits;
-                }
-            });
-
-            var d = new Date();
-            var removalRecord = {timeRemoved: d.getTime(), numUrls: urlsRemovedNow, numVisits: visitsRemovedNow};
-            storeRemovalData(removalRecord);
-        }
-        else {
-            var visits = urls.visitCount;
-            var url1 = urls.url;
-            var d = new Date();
-            chrome.history.deleteUrl({url: url1});
-            var removalRecord = {timeRemoved: d.getTime(), numUrls: 1, numVisits: visits};
-            storeRemovalData(removalRecord);
-        }
-        
-        getUrls(noTransform, noViz, function() {
-
-        });
     };
   
     function storeSvyEnd(data) {
@@ -352,20 +319,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         arr.push({timeStored: data.timeStored, endType: data.endType});
         localStorage.setItem("svyEnd", JSON.stringify(arr));
     }
-    function storeRemovalData(data) {
-        //add one object (data) to chrome local storage removal log, timeRemoved: , numUrls: , numVisits:
-        var removalArray = [];
-        var existing = getStoredData("removals");
-        if (existing != null) {
-            existing.push({timeRemoved: data.timeRemoved, numUrls: data.numUrls, numVisits: data.numVisits});
-            localStorage.setItem("removals", JSON.stringify(existing));
-        }
-        else {
-            var first = [];
-            first.push({timeRemoved: data.timeRemoved, numUrls: data.numUrls, numVisits: data.numVisits});
-            localStorage.setItem("removals", JSON.stringify(first));
-        }
-    }
+
 
     function getStoredData(key) {
         //get data in chrome local storage

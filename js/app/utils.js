@@ -307,52 +307,42 @@ define(function() {
     return data;
   };
 
-  utils.removeHistory = function(urls, array) {
-    //urls is an array of objects (true) or a single object(false)
+  utils.removeHistory = function(urls) {
+    var urlsRemovedNow = 0;
+    var visitsRemovedNow = 0;
 
-    if (array === true) {
-      var urlsRemovedNow = 0;
-      var visitsRemovedNow = 0;
-
-      urls.forEach(function(a, b) {
-        var visits = a.visitCount;
-        var urls = a.url;
-        chrome.history.deleteUrl({
-          url: urls
-        });
-        if (a.url != b.url) {
+    urls.forEach(function (a, b) {
+      var visits = a.visitCount;
+      var urls = a.url;
+      console.log("removed: " + urls);
+      
+      chrome.history.deleteUrl({url: urls});
+      if (a.url != b.url) {
           urlsRemovedNow++;
           visitsRemovedNow += visits;
-        }
-      });
+      }
+    });
 
-      var d = new Date();
-      var removalRecord = {
-        timeRemoved: d.getTime(),
-        numUrls: urlsRemovedNow,
-        numVisits: visitsRemovedNow
-      };
-      utils.storeRemovalData(removalRecord);
-    } else {
-      var visits = urls.visitCount;
-      var url1 = urls.url;
-      console.log(urls);
-      var d = new Date();
-      chrome.history.deleteUrl({
-        url: url1
-      });
-      var removalRecord = {
-        timeRemoved: d.getTime(),
-        numUrls: 1,
-        numVisits: visits
-      };
-      utils.storeRemovalData(removalRecord);
-    }
+    var d = new Date();
+    var removalRecord = {timeRemoved: d.getTime(), numUrls: urlsRemovedNow, numVisits: visitsRemovedNow};
+    storeRemovalData(removalRecord);
 
-    //        getUrls(noTransform, noViz, function() {
-    //            selectViz(vizSelected);
-    //        });
   };
+  
+  function storeRemovalData(data) {
+      //add one object (data) to chrome local storage removal log, timeRemoved: , numUrls: , numVisits:
+      var removalArray = [];
+      var existing = utils.getStoredData("removals");
+      if (existing != null) {
+          existing.push({timeRemoved: data.timeRemoved, numUrls: data.numUrls, numVisits: data.numVisits});
+          localStorage.setItem("removals", JSON.stringify(existing));
+      }
+      else {
+          var first = [];
+          first.push({timeRemoved: data.timeRemoved, numUrls: data.numUrls, numVisits: data.numVisits});
+          localStorage.setItem("removals", JSON.stringify(first));
+      }
+  }
 
   utils.getStoredData = function(key) {
     return JSON.parse(localStorage.getItem(key));
@@ -361,7 +351,7 @@ define(function() {
   utils.storeRemovalData = function(data) {
     //add one object (data) to chrome local storage removal log, timeRemoved: , numUrls: , numVisits:
     var removalArray = [];
-    var existing = getStoredData("removals");
+    var existing = utils.getStoredData("removals");
     if (existing != null) {
       existing.push({
         timeRemoved: data.timeRemoved,
@@ -387,7 +377,6 @@ define(function() {
         return i;
       }
     }
-
     return null;
   };
 
@@ -413,12 +402,12 @@ define(function() {
 
   utils.searchTermsToWords = function(uniqueTerms) {
     // stop words - From Jonathan Feinberg's cue.language
-    var stopWords = /^(i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|i'm|you're|he's|she's|it's|we're|they're|i've|you've|we've|they've|i'd|you'd|he'd|she'd|we'd|they'd|i'll|you'll|he'll|she'll|we'll|they'll|isn't|aren't|wasn't|weren't|hasn't|haven't|hadn't|doesn't|don't|didn't|won't|wouldn't|shan't|shouldn't|can't|cannot|couldn't|mustn't|let's|that's|who's|what's|here's|there's|when's|where's|why's|how's|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall)$/;
+    var stopWords = /^(i|me|my|myself|we|us|our|ours|ourselves|you|your|yours|yourself|yourselves|he|him|his|himself|she|her|hers|herself|it|its|itself|they|them|their|theirs|themselves|what|which|who|whom|whose|this|that|these|those|am|is|are|was|were|be|been|being|have|has|had|having|do|does|did|doing|will|would|should|can|could|ought|i'm|you're|he's|she's|it's|we're|they're|i've|you've|we've|they've|i'd|you'd|he'd|she'd|we'd|they'd|i'll|you'll|he'll|she'll|we'll|they'll|isn't|aren't|wasn't|weren't|hasn't|haven't|hadn't|doesn't|don't|didn't|won't|wouldn't|shan't|shouldn't|can't|cannot|couldn't|mustn't|let's|that's|who's|what's|here's|there's|when's|where's|why's|how's|a|an|the|and|but|if|or|because|as|until|while|of|at|by|for|with|about|against|between|into|through|during|before|after|above|below|to|from|up|upon|down|in|out|on|off|over|under|again|further|then|once|here|there|when|where|why|how|all|any|both|each|few|more|most|other|some|such|no|nor|not|only|own|same|so|than|too|very|say|says|said|shall|http|https|com)$/;
     var allSearchWords = [];
 
     for (i = 0; i < uniqueTerms.length; i++) {
       var thisTerm = uniqueTerms[i].term;
-      var punctuationless = thisTerm.replace(/[\"\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, "");
+      var punctuationless = thisTerm.replace(/[\"\.,-\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
       var thisTermNoPunct = punctuationless.replace(/\s{2,}/g, " ");
       var words = thisTermNoPunct.split(" ");
       var countWords = words.length;

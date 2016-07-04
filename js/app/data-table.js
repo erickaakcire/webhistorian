@@ -32,13 +32,13 @@ define(["../app/utils", "moment"], function(utils, moment) {
         checkbox: true,
         sortable: false
       }, {
-        field: 'visits',
-        title: 'Visits',
-        sortable: true,
-      }, {
         field: 'domain',
         title: 'Domain',
         sortable: true
+      }, {
+        field: 'visits',
+        title: 'Visits',
+        sortable: true,
       }],
       data: data,
       striped: true,
@@ -292,71 +292,48 @@ define(["../app/utils", "moment"], function(utils, moment) {
     });
 
     $("#remove_domains").off("click");
-    $("#remove_domains").click(function(eventObj) {
-      if (confirm('Do you want to remove all visits to the checked domain(s) from your browser history FOREVER?')) {
+    $("#remove_domains").click(function() {
+      if (confirm('Do you want to PERMANENTLY remove all URLs with the checked domains from your local browser history?')) {
         for (var i = 0; i < visualization.domainsChecked.length; i++) {
           var domain = visualization.domainsChecked[i];
-
           var toRemove = history.getSuppressedUrl(history.fullData, "domain", domain);
-
-          history.removeHistory(toRemove, true);
-
+          utils.removeHistory(toRemove, true);
           toRemove.forEach(function(a) {
             var vdi = history.findIndexArrByKeyValue(history.fullData, "url", a["url"]);
-
             if (vdi) {
               vdi.forEach(function(v) {
-                console.log("RM: " + JSON.stringify(history.fullData[v], null, 2));
-
-                console.log("visualDataPre", history.fullData.length);
+                //console.log("RM: " + JSON.stringify(history.fullData[v], null, 2));
                 history.fullData.splice(v, 1);
-                console.log("visualDataPost", history.fullData.length);
               });
             }
           });
         }
-
         visualization.domainsChecked = [];
-
-        visualization.display(history, history.fullData, "#domains_table");
+        visualization.display(history, history.fullData);
       }
     });
 
 
     $("#remove_visits").off("click");
-    $("#remove_visits").click(function(eventObj) {
-      if (confirm('Do you want to permanently remove all checked items from your browser history?')) {
+    $("#remove_visits").click(function() {
+      if (confirm('Do you want to PERMANENTLY remove all visits to the checked URLs from your local browser history? Every visit to the URL of the checked items will be removed.')) {
         for (var i = 0; i < visualization.allChecked.length; i++) {
           var id = visualization.allChecked[i];
-
-          console.log("ID: " + id);
-
           var toRemove = history.getSuppressedUrl(history.fullData, "id", id);
-
-          console.log("TO REMOVE: " + JSON.stringify(toRemove, null, 2));
-
-          history.removeHistory(toRemove, true);
-
+          //console.log("TO REMOVE: " + JSON.stringify(toRemove, null, 2));
+          utils.removeHistory(toRemove, true);
           toRemove.forEach(function(a) {
             var vdi = history.findIndexArrByKeyValue(history.fullData, "url", a["url"]);
-
-            console.log("VDI: " + vdi);
-
             if (vdi) {
               vdi.forEach(function(v) {
-                console.log("RM: " + JSON.stringify(history.fullData[v], null, 2));
-
-                console.log("visualDataPre", history.fullData.length);
+                //console.log("RM: " + JSON.stringify(history.fullData[v], null, 2));
                 history.fullData.splice(v, 1);
-                console.log("visualDataPost", history.fullData.length);
               });
-            }
+            } 
           });
         }
-
         visualization.allChecked = [];
-
-        visualization.display(history, history.fullData, "#all_visits_table");
+        visualization.display(history, history.fullData);
       }
     });
 

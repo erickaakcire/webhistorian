@@ -1,4 +1,4 @@
-define(["../app/utils", "../app/config", "moment"], function(utils, config, moment) {
+define(["../app/utils", "../app/config", "moment", "d3-context-menu"], function(utils, config, moment, context) {
   var visualization = {};
     
   visualization.catData = function(data, categories, callback){
@@ -197,7 +197,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 				    $("#title").prepend("<h1 id='viz_title'>What websites do you visit most?");
 				    //var h3txt = "<h3 id='viz_subtitle'>"+ numDomains + " websites visited from " + moment(startDate).format('MMM D, YYYY') + " to: " + moment(endDate).format('MMM D, YYYY') +"</h3>";
 				    //$("#title").append(h3txt);
-	       		$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary active\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\" checked> All Visits  </label> <label class=\"btn btn-primary\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\"> Daily Habits  </label></div><br/><p>Click a circle to highlight. Doublle click to un-highlight.");
+	       		$("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary active\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\" checked> All Visits  </label> <label class=\"btn btn-primary\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\"> Daily Habits  </label></div><br/><p>Click a circle to highlight. Click again to un-highlight. Right click for more options.");
 				    changeBubble(datasetV);
 	        }
 	        function showHabits (){
@@ -205,7 +205,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 	        	change = 1;
 	        	$("#title h2").show();
 				    $("#title").prepend("<h1 id='viz_title'>What websites do you visit regularly?</h1>");
-				    $("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label></div><br/><p>Click a circle to highlight. Doublle click to un-highlight.");
+				    $("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label></div><br/><p>Click a circle to highlight. Doublle click to un-highlight.Right click for more options.");
 				    changeBubble(datasetH);
 	        }
 	        
@@ -241,13 +241,11 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 
     		//update function
     		function changeBubble(dataset) {
-				//console.log( "changeBubble: "+ $('svg').length );
     			listenView();
-    			//listenDate(history, data);//needs history,data?
-		       var siteClasses = utils.classes(dataset);//dataset
+          var siteClasses = utils.classes(dataset);
 		        
 		       var node = vis.selectAll(".node")
-		         .data(bubble.nodes(siteClasses)//from dataset
+		         .data(bubble.nodes(siteClasses)
 		         .filter(function (d) {
 		           return !d.children;
 		          }),function(d) {return d.className;});
@@ -258,7 +256,61 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 			        .attr("transform", function (d) {
 			            return "translate(" + d.x + "," + d.y + ")";
 			        });
-		       nodeEnter
+           
+           nodeHighlight = false;
+           
+           var menu = [
+               {
+                   title: 'View in Data Table',
+                   action: function(d) {
+                     //filter the dataset to just the domain of the object
+                     var all = history.fullData;
+                     var dv = [];
+                     for (var i in all){
+                       var domain = all[i].domain;
+                       var item = all[i];
+                       if (domain === d.__data__.className){
+                         dv.push(item);
+                       }
+                     }
+                     requirejs(["../app/data-table"], function(data_table) {
+                       data_table.display(history, dv, "");
+                       $("#viz_title").html("All Visits to " + d.__data__.className);
+                     });
+                   },
+                   disabled: false 
+               },
+               {
+                   title: 'Permanently Delete',
+                   action: function(d) {
+                     if (confirm('Do you want to PERMANENTLY remove ALL visits to URLs from '+d.__data__.className+' from your local browser history?')) {
+                       //filter the dataset to just the domain of the object
+                       var all = utils.sortByProperty(history.fullData,"url");
+                       var newHist = [];
+                       var removal = [];
+                       var vc = 1;
+                       all.forEach(function (a,b) {
+                         if (a.domain === d.__data__.className){
+                           if(a.url != b.url){
+                             removal.push({url: a.url, visitCount: vc});
+                           } else {
+                             vc = vc+1;
+                           }
+                         }
+                         else {
+                           newHist.push(a);
+                         }
+                       });
+                       utils.removeHistory(removal);
+                       
+                       history.fullData = utils.sortByProperty(newHist,"date");
+                       visualization.display(history, history.fullData);
+                     }
+                   }
+               }
+           ]
+           
+           nodeEnter
 		        	.append("circle")
 		            .attr("r", function (d) {
 		                return d.r;
@@ -269,10 +321,13 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 		            .on("click", function (d){
 		            	d3.select(this).style({fill: "yellow", stroke: "#a6a6a6", "stroke-width": "2px"});
 		            })
-		            .on("dblclick", function(d){
-		            	d3.select(this).style("fill", function (d) { return fill(d.packageName); });
+                .on("dblclick", function(d){
+                  d3.select(this).style("fill", function (d) { return fill(d.packageName); });
 		            	d3.select(this).style("stroke-width", "0px");
-		            })
+                })
+		            .on("contextmenu", d3.contextMenu(menu, function(){
+		              tooltip.style("visibility", "hidden");
+		            }))
 		            .on("mouseover", function(d) {
 			              if (habits===0){
 			              	tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName);
@@ -288,11 +343,7 @@ define(["../app/utils", "../app/config", "moment"], function(utils, config, mome
 				        })
 				        .on("mouseout", function(){
 				      	  return tooltip.style("visibility", "hidden");
-				      	})
-                .on("contextmenu", function(data, index) {
-                  console.log("fire");
-                  d3.event.preventDefault();
-                });
+				      	});
 		
 		          nodeEnter
 		          	.append("text")

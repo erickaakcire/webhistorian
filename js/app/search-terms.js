@@ -1,4 +1,4 @@
-define(["../app/utils", "moment"], function(utils, moment) {
+define(["../app/utils", "moment", "d3-context-menu"], function(utils, moment, context) {
   var visualization = {};
 
   visualization.display = function(history, data) {
@@ -23,19 +23,82 @@ define(["../app/utils", "moment"], function(utils, moment) {
 
     var sortedAllWords = utils.sortByProperty(allSearchWords, "word");
 
-    var searchWords = utils.searchWordsFun(sortedAllWords, uniqueTerms); // new one
+    var searchWords = utils.searchWordsFun(sortedAllWords, uniqueTerms);
 
     var maxCount = Math.max.apply(Math, searchWords.map(function(searchWords) {
       return searchWords.size;
-    })); //find max value of a property
+    }));
+    
+    var menu = [
+      {
+        title: 'View in Data Table',
+        action: function(d) {
+          //filter the dataset to just the search terms containing d.text
+          var all = history.fullData;
+          var st = [];
+          for (var i in all){
+            var terms = all[i].searchTerms;
+            var item = all[i];
+            var re = new RegExp(".*"+d.__data__.text+".*","i"); 
+            var hit = re.test(terms);
+            if (hit === true){
+              st.push(item);
+            }
+          }
+          if (st === null){
+            alert("No records were found. ");
+          }
+          else {
+            requirejs(["../app/data-table"], function(data_table) {
+              data_table.display(history, st, "");
+              $("#viz_title").html("All visits with search term: " + d.__data__.text);
+            });
+          }
+        },
+        disabled: false 
+      },
+      {
+        title: 'Permanently Delete',
+        action: function(d) {
+          if (confirm('Do you want to PERMANENTLY remove all URLs with the search term \"'+d.__data__.text+'\" from your local browser history?')) {
+            //filter the dataset to just the search word specified
+            var all = utils.sortByProperty(history.fullData,"url");
+            var newHist = [];
+            var removal = [];
+            var vc = 1;
+            
+            all.forEach(function (a,b) {
+              var terms = a.searchTerms;
+              var re = new RegExp(".*"+d.__data__.text+".*","i");
+              var hit = re.test(terms);
+              if (hit === true){
+                if(a.url != b.url){
+                  removal.push({url: a.url, visitCount: vc});
+                } else {
+                  vc = vc+1;
+                }
+              }
+              else {
+                newHist.push(a);
+              }
+            });
+            if (removal === null){
+              alert("No URLs were removed. ");
+            } else {
+              utils.removeHistory(removal);
+              history.fullData = utils.sortByProperty(newHist,"date");
+              visualization.display(history, history.fullData);
+            }
+          }
+        }
+      }
+    ]
 
     d3.select("#" + history.timeSelection).classed("active", true);
 
     d3.select("#title").append("h1").text("What are you looking for?").attr("id", "viz_title");
     d3.select("#title").append("h2").text(uniqueTerms.length + " unique search terms with " + searchWords.length + " unique words used from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
-    //d3.select("#below_visual").append("p").text("This is a cloud of the words you have used to search the web. The larger words were used in a greater number of different searches. Hover your mouse over each word for a tool-tip that shows all of the search terms where the word was used.").attr("id", "viz_p");
-
-    //<p><label>Download:</label><a id="download-svg" href="#" target="_blank">SVG</a> |<a id="download-png" href="#" target="_blank">PNG</a>
+    d3.select("#above_visual").append("p").text("Right click a word for more options.").attr("id", "viz_a");
 
     var width = $("#visual_div").width();
     var height = 500;
@@ -99,7 +162,11 @@ define(["../app/utils", "moment"], function(utils, moment) {
         })
         .on("mouseout", function() {
           return tooltip.style("visibility", "hidden");
-        });
+        })
+        .on("contextmenu", d3.contextMenu(menu, function(){
+          tooltip.style("visibility", "hidden");
+        }))
+        ;
     }
   };
 

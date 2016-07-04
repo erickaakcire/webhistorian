@@ -1,8 +1,9 @@
-define(["../app/utils", "moment"], function(utils, moment) {
+define(["../app/utils", "moment", "d3-context-menu"], function(utils, moment, context) {
   var visualization = {};
 
   visualization.display = function(history, data) {
     utils.clearVisualization();
+    data = utils.sortByProperty(data,"date");
 
     $("input#start_date").datepicker().on("changeDate", function(e) {
       visualization.display(history, data);
@@ -14,13 +15,63 @@ define(["../app/utils", "moment"], function(utils, moment) {
 
     var startDate = utils.startDate();
     var endDate = utils.endDate();
-
     var filteredData = utils.filterByDates(data, startDate, endDate);
 
     var allEdges = [];
     var uniqueEdges = [];
     var edgeList = [];
     var sorted = [];
+    
+    var menu = [
+        {
+            title: 'View in Data Table',
+            action: function(d) {
+              //filter the dataset to just the domain of the object
+              var all = history.fullData;
+              var dv = [];
+              for (var i in all){
+                var domain = all[i].domain;
+                var item = all[i];
+                if (domain === d.__data__.name){
+                  dv.push(item);
+                }
+              }
+              requirejs(["../app/data-table"], function(data_table) {
+                data_table.display(history, dv, "");
+                $("#viz_title").html("All Visits to " + d.__data__.name);
+              });
+            },
+            disabled: false 
+        },
+        {
+            title: 'Permanently Delete',
+            action: function(d) {
+              if (confirm('Do you want to PERMANENTLY remove ALL visits to URLs from '+d.__data__.name+' from your local browser history?')) {
+                //filter the dataset to just the domain of the object
+                var all = utils.sortByProperty(history.fullData,"url");
+                var newHist = [];
+                var removal = [];
+                var vc = 1;
+                all.forEach(function (a,b) {
+                  if (a.domain === d.__data__.name){
+                    if(a.url != b.url){
+                      removal.push({url: a.url, visitCount: vc});
+                    } else {
+                      vc = vc+1;
+                    }
+                  }
+                  else {
+                    newHist.push(a);
+                  }
+                });
+                utils.removeHistory(removal);
+                
+                history.fullData = utils.sortByProperty(newHist,"date");
+                visualization.display(history, history.fullData);
+              }
+            }
+        }
+    ]
 
     for (var i = 0; i < filteredData.length; i++) {
       var dataItem = filteredData[i];
@@ -92,7 +143,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
     d3.select("#title").append("h1").text("How did you get there?").attr("id", "viz_title");
     d3.select("#title").append("h2").text(totalLinks + " links between " + numSites + " websites from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
     d3.select("#below_visual").append("p").text("This is a network based on the time order of your website visits. There is a line between two websites if you visited one immediately before the other.").attr("id", "viz_p");
-    d3.select("#above_visual").append("p").text("Drag to move websites to a fixed position. Double click to release the dragged website.").attr("id", "viz_a");
+    d3.select("#above_visual").append("p").text("Drag to move websites to a fixed position. Double click to release the dragged website. Right click a circle for more options.").attr("id", "viz_a");
 
     var nodes = {};
     var edgesMaxValue = 0;
@@ -192,6 +243,9 @@ define(["../app/utils", "moment"], function(utils, moment) {
       .enter().append("g")
       .attr("class", "node")
       .on("dblclick", dblclick)
+      .on("contextmenu", d3.contextMenu(menu, function(){
+        tooltip.style("visibility", "hidden");
+      }))
       .on("mouseover", function(d){
         tooltip.text(d.name);
         tooltip.style("visibility", "visible");
