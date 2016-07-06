@@ -1,19 +1,24 @@
-define(["../app/utils", "moment", "d3-context-menu"], function(utils, moment, context) {
+define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(utils, moment, context, rangeSlide) {
   var visualization = {};
+  var startDate = null;
+  var endDate = null;
+  var sd = null;
+  var ed = null;
+  
+  function datesOrig(){
+    var seStored = JSON.parse(sessionStorage.getItem('se'));
+    sd = seStored[0].start;
+    ed = seStored[0].end;
+    startDate = new Date (sd);
+    endDate = new Date (ed);
+  }
 
   visualization.display = function(history, data) {
     utils.clearVisualization();
-
-    $("input#start_date").datepicker().on("changeDate", function(e) {
-      visualization.display(history, data);
-    });
-
-    $("input#end_date").datepicker().on("changeDate", function(e) {
-      visualization.display(history, data);
-    });
-
-    var startDate = utils.startDate();
-    var endDate = utils.endDate();
+    
+    if(startDate===null){
+      datesOrig();
+    }
     var filteredData = utils.filterByDates(data, startDate, endDate);
     var termArray = utils.generateTerms(filteredData);
     var sortedTerms = utils.sortByProperty(termArray, "term");
@@ -93,12 +98,35 @@ define(["../app/utils", "moment", "d3-context-menu"], function(utils, moment, co
         }
       }
     ]
-
+    
     d3.select("#" + history.timeSelection).classed("active", true);
 
     d3.select("#title").append("h1").text("What are you looking for?").attr("id", "viz_title");
-    d3.select("#title").append("h2").text(uniqueTerms.length + " unique search terms with " + searchWords.length + " unique words used from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
-    d3.select("#above_visual").append("p").text("Right click a word for more options.").attr("id", "viz_a");
+    d3.select("#title").append("h2").text(uniqueTerms.length + " unique search terms with " + searchWords.length + " unique words. Right click a word for more options.");
+    $("#above_visual").html("<p><br/> <input type='text' id='slider' name='slider_name' value=''/>");
+    
+    $("#slider").ionRangeSlider({
+      type: "double",
+      min: +moment(sd).format("X"),
+      max: +moment(ed).format("X"),
+      from: +moment(startDate).format("X"),
+      to: +moment(endDate).format("X"),
+      prettify: function (num) {
+        return moment(num, "X").format("ll");
+      },
+      grid: false,
+      grid_snap: true,
+      keyboard: true,
+      force_edges: true,
+      onFinish: function (d) {
+        var epochFrom = new Date(0);
+        startDate = new Date (epochFrom.setUTCSeconds(d.from));
+        var epochTo = new Date(0);
+        endDate = new Date (epochTo.setUTCSeconds(d.to));
+        var filteredD = utils.filterByDates(data, startDate, endDate);
+        visualization.display(history, filteredD);
+      }
+    });
 
     var width = $("#visual_div").width();
     var height = 500;

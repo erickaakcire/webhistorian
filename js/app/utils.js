@@ -115,22 +115,16 @@ define(function() {
 
   utils.filterByDates = function(data, startDate, endDate) {
     var filteredData = [];
-
     var start = 0;
-
     if (startDate != null)
       start = startDate.getTime();
-
     var end = Number.MAX_VALUE;
-
     if (endDate != null)
       end = endDate.getTime();
-
     for (var i = 0; i < data.length; i++) {
       if (data[i].date < end && data[i].date > start)
         filteredData.push(data[i]);
     }
-
     return filteredData;
   };
 
@@ -176,18 +170,16 @@ define(function() {
       children: classes
     };
   };
-
+  
   utils.startDate = function() {
     if ($("input#start_date").val() != null)
       return $("input#start_date").datepicker("getDate");
-
     return null;
   };
 
   utils.endDate = function() {
     if ($("input#end_date").val() != null)
       return $("input#end_date").datepicker("getDate");
-
     return null;
   };
 
@@ -420,7 +412,7 @@ define(function() {
             termId: i + 1,
             wordsInTerm: countWords,
             domain: domain
-          }); //termId possibly i+1
+          }); 
         }
       }
     }

@@ -1,31 +1,11 @@
-/*
- Web Historian - see webhistorian.org for more information
-
- Copyright (C) 2016  Ericka Menchen-Trevino, info@webhistorian.org
-
- This program is free software; you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation; either version 2 of the License, or
- (at your option) any later version.
-
- This program is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
-
- You should have received a copy of the GNU General Public License along
- with this program; if not, write to the Free Software Foundation, Inc.,
- 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. 
-*/
-
 define(["moment", "../app/config", "../app/utils"], function (moment, config, utils) 
 {   
   var history = {};
   
   history.fullData = [];
-  history.timeSelection = "all";
-  history.earliestTimestamp = Number.MAX_VALUE;
-  history.latestTimestamp = Number.MIN_VALUE;
+  //history.timeSelection = "all";
+  //history.earliestTimestamp = Number.MAX_VALUE;
+  //history.latestTimestamp = Number.MIN_VALUE;
   history.urlArray = [];
   
   var startDate = null;
@@ -47,6 +27,27 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
   var visualData = [];
   var ids = [];
 
+  function storeStartEnd(data){
+    var startEnd = [];
+    var seStored = sessionStorage.getItem('se');
+    if (seStored === null){
+      var end = data[0].date;
+      var start = data[0].date;
+      for (i=1;i<data.length;i++) {
+        if (data[i].date > end) {
+          end = data[i].date;
+        }
+        if (data[i].date < start) {
+          start = data[i].date;
+        }
+      }
+      if (start != null){
+        startEnd.push({start: start, end: end});
+        sessionStorage.setItem("se", JSON.stringify(startEnd));
+      }
+    }
+  }
+  
   function storeCats(callback) {
     var catStored = sessionStorage.getItem('cats');
     if (catStored === null){
@@ -191,6 +192,8 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             }
           });
           
+          storeStartEnd(history.fullData);
+          
           chrome.storage.local.get({ 'study': '' }, function (result) 
           {
             if (result.study == "") {
@@ -331,9 +334,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         var data = [];
         obj.forEach(function(a){
             var prop = a[property];
-            
-//            console.log("TEST: " + lowVal + " <= " + prop + " <=" + highVal);
-            
             if (prop >= lowVal && prop <= highVal) {
                 data.push(a);
             }

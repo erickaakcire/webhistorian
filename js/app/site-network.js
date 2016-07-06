@@ -1,20 +1,23 @@
-define(["../app/utils", "moment", "d3-context-menu"], function(utils, moment, context) {
+define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(utils, moment, context, rangeSlide) {
   var visualization = {};
+  var startDate = null;
+  var endDate = null;
+  var sd = null;
+  var ed = null;
+  
+  function datesOrig(){
+    var seStored = JSON.parse(sessionStorage.getItem('se'));
+    sd = seStored[0].start;
+    ed = seStored[0].end;
+    startDate = new Date (sd);
+    endDate = new Date (ed);
+  }
 
   visualization.display = function(history, data) {
     utils.clearVisualization();
+    if(startDate===null){ datesOrig(); }
     data = utils.sortByProperty(data,"date");
 
-    $("input#start_date").datepicker().on("changeDate", function(e) {
-      visualization.display(history, data);
-    });
-
-    $("input#end_date").datepicker().on("changeDate", function(e) {
-      visualization.display(history, data);
-    });
-
-    var startDate = utils.startDate();
-    var endDate = utils.endDate();
     var filteredData = utils.filterByDates(data, startDate, endDate);
 
     var allEdges = [];
@@ -141,10 +144,34 @@ define(["../app/utils", "moment", "d3-context-menu"], function(utils, moment, co
     var numSites = edgeList.length + 1;
 
     d3.select("#title").append("h1").text("How did you get there?").attr("id", "viz_title");
-    d3.select("#title").append("h2").text(totalLinks + " links between " + numSites + " websites from: " + moment(startDate).format("MMM D, YYYY") + " to: " + moment(endDate).format("MMM D, YYYY"));
+    d3.select("#title").append("h2").text(totalLinks + " links between " + numSites + " websites");
+    $("#above_visual").html("<p id='viz_a'>Drag to move website circles to a fixed position. Double click to release the dragged site. Right click for more options.</p><p><br/> <input type='text' id='slider' name='slider_name' value=''/>");
     d3.select("#below_visual").append("p").text("This is a network based on the time order of your website visits. There is a line between two websites if you visited one immediately before the other.").attr("id", "viz_p");
-    d3.select("#above_visual").append("p").text("Drag to move websites to a fixed position. Double click to release the dragged website. Right click a circle for more options.").attr("id", "viz_a");
+    
 
+    $("#slider").ionRangeSlider({
+      type: "double",
+      min: +moment(sd).format("X"),
+      max: +moment(ed).format("X"),
+      from: +moment(startDate).format("X"),
+      to: +moment(endDate).format("X"),
+      prettify: function (num) {
+        return moment(num, "X").format("ll");
+      },
+      grid: false,
+      grid_snap: true,
+      keyboard: true,
+      force_edges: true,
+      onFinish: function (d) {
+        var epochFrom = new Date(0);
+        startDate = new Date (epochFrom.setUTCSeconds(d.from));
+        var epochTo = new Date(0);
+        endDate = new Date (epochTo.setUTCSeconds(d.to));
+        var filteredD = utils.filterByDates(data, startDate, endDate);
+        visualization.display(history, filteredD);
+      }
+    });
+    
     var nodes = {};
     var edgesMaxValue = 0;
 
