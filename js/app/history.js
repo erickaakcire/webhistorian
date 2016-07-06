@@ -76,11 +76,12 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
   }
   
   function chooseId () {
-		$("#chose_identifier").click(function(eventObj) {
+		$("#chose_identifier").off('click');
+    $("#chose_identifier").click(function(eventObj) {
 			eventObj.preventDefault();
 			var identifier = $("#field_identifier").val();
 			if (identifier != null && identifier != undefined && identifier != "")	{
-				var allowed = /^[a-zA-Z0-9_- ]*$/;
+				var allowed = /^[-a-zA-Z0-9_ ]*$/;
         if (identifier.match(allowed)) {
           chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) {
   					$("#identifier_modal").modal("hide");
