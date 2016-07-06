@@ -105,7 +105,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
 
       row['remove'] = "isSuppressed_" + i;
       row['domain'] = data[i].domain;
-      row['date'] = "<span style='display: none;'>" + d.format() + "</span>" + d.format("MMM D, YYYY - h:mma");
+      row['date'] = "<span style='display: none;'>" + d.format() + "</span>" + d.format("MMM D, YYYY - h:mm:ssa");
       row['terms'] = data[i].searchTerms;
       row['id'] = data[i].id;
       row['reference_id'] = data[i].refVisitId;

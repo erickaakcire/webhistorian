@@ -194,23 +194,6 @@ self.transformData = function(data) {
       var reTwoTwoThree = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z]\.[a-zA-Z][a-zA-Z])$/;
       var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
-      //completed study survey - need to be able to access config.js to get the endSvyUrls*
-      //      if (dataItem.url === config.endSvyUrls[1]) {
-      //      	var noStudy = {timeStored: now.getTime(), endType: 0};
-      //      	storeSvyEnd(noStudy);
-      //      }
-      //      if (dataItem.url === config.endSvyUrls[0]) {
-      //      	var study = {timeStored: now.getTime(), endType: 1};
-      //      	storeSvyEnd(study);
-      //      }
-
-      //      function storeSvyEnd(data) {
-      //add or replace object (data) to local storage, timeStored: , endType: 1 = success, 0 = end
-      //        var arr = [];
-      //        arr.push({timeStored: data.timeStored, endType: data.endType});
-      //        localStorage.setItem("svyEnd", JSON.stringify(arr));
-      //      }
-
       if (dataItem.url.match(reGoogleMaps)) {
         domain = "google.com/maps";
       } else if (protocol === "chrome-extension") {

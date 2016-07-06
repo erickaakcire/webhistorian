@@ -8,6 +8,8 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
   //history.latestTimestamp = Number.MIN_VALUE;
   history.urlArray = [];
   
+  history.svyEndType = null;
+  
   var startDate = null;
   var endDate = null;
 
@@ -511,8 +513,23 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
     });
 
     $('#upload_modal').on('show.bs.modal', function (e) {
+      $("div#progress_actions").hide();
       chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) {
-        $.get(config.actionsUrl, function(actions){
+        $.get(config.actionsUrl)
+          .error(function(jqXHR, textStatus, errorThrown){
+            if (textStatus == 'timeout'){
+              console.log('The server is not responding');
+              $("div#progress_actions").html("The server is not responding. Please check your Internet connection and try again.");
+              $("div#progress_actions").show();
+            }
+            if (textStatus == 'error') {
+              console.log(errorThrown);
+              $("div#progress_actions").html("The following error occurred when accessing the server: "+errorThrown);
+              $("div#progress_actions").show();
+            }
+              
+          })
+          .success(function(actions){
           var lastUpload = 0;
           var latest = 0;
     
@@ -562,13 +579,13 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             var action = actions[0];
             toList.push(action);
 
-              $("div#progress_actions").hide();
+            $("div#progress_actions").hide();
 
-              $("#upload_data").click(function(){
+            $("#upload_data").click(function(){
                 $("div#progress_actions").show();
               
                 var output = "";
-              
+                
                 svyLink(function(url){
                   var listItem = "<li> <a class='wh_action' id='wh_" + toList[0].identifier + "'>" + "Open Survey Tab" + "</a> </li>";
                 
@@ -622,7 +639,9 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 {
                   $('#upload_modal').modal('hide');
                   $("#nav_review").show();
-                  $("#research").html("<p>Please complete the survey for the research project that opened in a new tab if you haven't already. If you need the link to the survey just <a href=''>reload this page</a>. Thank you!.");
+                  svyLink(function(url) {
+                    $("#research").html("<p>Please complete the survey for the research project that opened in a new tab, if you haven't already. <a href='"+url+"' target='_blank'>Click here for another link to your survey</a>. Thank you!.");
+                  });
                   
                   //show participation date                
                   chrome.browserAction.setBadgeText({ text: "" }); 
@@ -692,6 +711,24 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
   
       return false;
     });
+  }
+  function svyEnd (data){
+    for (i=1;i<data.length;i++) {
+      if (data[i].url === config.endSvyUrls[1]) {
+      	var noStudy = {timeStored: now.getTime(), endType: 0};
+      	storeSvyEnd(noStudy);
+      }
+      if (data[i].url === config.endSvyUrls[0]) {
+      	var study = {timeStored: now.getTime(), endType: 1};
+      	storeSvyEnd(study);
+      }
+
+      //function storeSvyEnd(end) {
+      //  var arr = [];
+      //  arr.push({timeStored: end.timeStored, endType: end.endType});
+      //  localStorage.setItem("svyEnd", JSON.stringify(arr));
+      //}
+    }
   }
     
     history.wir = function(weekData) {
@@ -789,6 +826,7 @@ $("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Hi
       //Get all data into fullData1
       getUrls(noTransform, noViz, function()
       {
+        svyEnd(history.fullData);
         storeCats(showHome);
     });
   });
