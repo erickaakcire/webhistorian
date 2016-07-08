@@ -56,15 +56,13 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
 
   visualization.display = function(history, data) {
     utils.clearVisualization();
-    $("input#start_date").datepicker().on("changeDate", function(e) {
-      visualization.display(history, data);
-    });
 
-    $("input#end_date").datepicker().on("changeDate", function(e) {
-      visualization.display(history, data);
-    });
-    var startDate = utils.startDate();
-    var endDate = utils.endDate();
+    var seStored = JSON.parse(sessionStorage.getItem('se'));
+    sd = seStored[0].start;
+    ed = seStored[0].end;
+    endDate = new Date (ed);
+    startDate = new Date (sd); 
+    
     var filteredData = utils.filterByDates(data, startDate, endDate);
 
     visualization.homeClicks();

@@ -1,5 +1,23 @@
 define(["../app/utils", "../app/config", "moment", "d3-context-menu", "ion.rangeSlider"], function(utils, config, moment, context, rangeSlide) {
   var visualization = {};
+  var startDate = null;
+  var endDate = null;
+  var sd = null;
+  var ed = null;
+  
+  function datesOrig(){
+    var seStored = JSON.parse(sessionStorage.getItem('se'));
+    sd = seStored[0].start;
+    ed = seStored[0].end;
+    endDate = new Date (ed);
+    //startDate = new Date (sd); //start with full dataset
+    
+    startDate = new Date (  
+        endDate.getFullYear(),  
+        endDate.getMonth(),  
+        (endDate.getDate()-7)  
+    );//start with most recent week
+  }
     
   visualization.catData = function(data, categories, callback){
     var specified = []; //domainExact
@@ -107,11 +125,11 @@ define(["../app/utils", "../app/config", "moment", "d3-context-menu", "ion.range
                 "topD": currentTopD
               });
            }
-           var startDate = utils.startDate();
-           var endDate = utils.endDate();
+           var startDiff = new Date(sd);
+           var endDiff = new Date(ed);
            var oneDay = 24 * 60 * 60 * 1000;
-           var utcStart = Date.UTC(startDate.getFullYear(), startDate.getMonth(), startDate.getDate());
-           var utcEnd = Date.UTC(endDate.getFullYear(), endDate.getMonth(), endDate.getDate());
+           var utcStart = Date.UTC(startDiff.getFullYear(), startDiff.getMonth(), startDiff.getDate());
+           var utcEnd = Date.UTC(endDiff.getFullYear(), endDiff.getMonth(), endDiff.getDate());
            diffDays = Math.ceil((utcEnd - utcStart) / oneDay) + 1;
            $("#title h2").empty();
            $("#title").append("<h2 id='viz_subtitle' style=\"display:none\">You have a span of " + diffDays + " days in your browsing history.</h2>");
@@ -128,7 +146,6 @@ define(["../app/utils", "../app/config", "moment", "d3-context-menu", "ion.range
     visualization.display = function(history, data)
     {
       utils.clearVisualization();
-      //console.log( "visualization.display: "+ $('svg').length );
       var change = 0;
 
       d3.selectAll("#viz_selector a").classed("active", false);
@@ -137,11 +154,9 @@ define(["../app/utils", "../app/config", "moment", "d3-context-menu", "ion.range
 
       catAsync(function(categories) {
         var seStored = JSON.parse(sessionStorage.getItem('se'));
-        var sd = seStored[0].start;
-        var ed = seStored[0].end;
-        var startDate = utils.startDate();
-        var endDate = utils.endDate();
-        //console.log("startDate: " + startDate + "endDate: " + endDate);
+        if(startDate===null){
+          datesOrig();
+        }
         var filteredData = utils.filterByDates(data, startDate, endDate);
         var datasetV = visualization.catData(filteredData, categories, getVisitData);
         var datasetH = visualization.catData(filteredData, categories, getHabitData);
@@ -197,7 +212,7 @@ define(["../app/utils", "../app/config", "moment", "d3-context-menu", "ion.range
               $("#title h1").empty();
               //$("#title h2").show();
               $("#above_visual").empty();
-              showHabits();
+              showVisits();
             }
 
             //listen for changes in dataset
@@ -244,7 +259,7 @@ define(["../app/utils", "../app/config", "moment", "d3-context-menu", "ion.range
                 startDate = new Date (epochFrom.setUTCSeconds(d.from));
                 var epochTo = new Date(0);
                 endDate = new Date (epochTo.setUTCSeconds(d.to));
-                var filteredD = utils.filterByDates(data, startDate, endDate);
+                var filteredD = utils.filterByDates(history.fullData, startDate, endDate);
                 if(habits === 0) {
                   datasetV = visualization.catData(filteredD, categories, getVisitData);
                   changeBubble(datasetV);

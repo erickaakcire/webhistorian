@@ -4,13 +4,34 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
   var endDate = null;
   var sd = null;
   var ed = null;
+  var color = d3.scale.category20c();
+  var catStored = sessionStorage.getItem('cats');
+  var categories = JSON.parse(catStored);
+  
+  var specified = []; //domainExact
+  var topD = []; //topDomainExact
+    
+  for (var i in categories){
+     if (categories[i].search === "domainExact"){
+       specified.push({domain: categories[i].value, category: categories[i].category});
+     }
+     else if (categories[i].search === "topDomainExact") {
+       topD.push({value: categories[i].value, category: categories[i].category});
+     }
+   }
   
   function datesOrig(){
     var seStored = JSON.parse(sessionStorage.getItem('se'));
     sd = seStored[0].start;
     ed = seStored[0].end;
-    startDate = new Date (sd);
     endDate = new Date (ed);
+    //startDate = new Date (sd); //start with full dataset
+    
+    startDate = new Date (  
+        endDate.getFullYear(),  
+        endDate.getMonth(),  
+        (endDate.getDate()-7)  
+    );//start with most recent week
   }
 
   visualization.display = function(history, data) {
@@ -44,7 +65,13 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
                 $("#viz_title").html("All Visits to " + d.__data__.name);
               });
             },
-            disabled: false 
+        },
+        {
+            title: 'Keep Label Visible',
+            action: function(d,i) {
+              tooltip.text(i.name + " Category: ");
+              tooltip.style("visibility", "visible");
+            },
         },
         {
             title: 'Permanently Delete',
@@ -90,7 +117,7 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
         if (prevItem !== undefined) {
           var prevDomain = prevItem.domain;
           var prevTime = prevItem.date;
-          var offsetSec = 20 * 60;
+          var offsetSec = 5 * 60 * 100; //5 minutes in milleseconds
           var diffTime = time - prevTime;
 
           if (prevDomain !== domain && prevDomain !== undefined && diffTime < offsetSec) {
@@ -133,7 +160,6 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
           target: targetItem,
           value: countEdges
         });
-        //console.log(sourceItem, targetItem, countEdges);
         countEdges = 1;
       }
     }
@@ -146,9 +172,8 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
     d3.select("#title").append("h1").text("How did you get there?").attr("id", "viz_title");
     d3.select("#title").append("h2").text(totalLinks + " links between " + numSites + " websites");
     $("#above_visual").html("<p id='viz_a'>Drag to move website circles to a fixed position. Double click to release the dragged site. Right click for more options.</p><p><br/> <input type='text' id='slider' name='slider_name' value=''/>");
-    d3.select("#below_visual").append("p").text("This is a network based on the time order of your website visits. There is a line between two websites if you visited one immediately before the other.").attr("id", "viz_p");
+    d3.select("#below_visual").append("p").text("This is a network based on the time order of your website visits. There is a link between two websites if you visited one website before the other.").attr("id", "viz_p");
     
-
     $("#slider").ionRangeSlider({
       type: "double",
       min: +moment(sd).format("X"),
@@ -167,23 +192,48 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
         startDate = new Date (epochFrom.setUTCSeconds(d.from));
         var epochTo = new Date(0);
         endDate = new Date (epochTo.setUTCSeconds(d.to));
-        var filteredD = utils.filterByDates(data, startDate, endDate);
+        var filteredD = utils.filterByDates(history.fullData, startDate, endDate);
         visualization.display(history, filteredD);
       }
     });
     
     var nodes = {};
     var edgesMaxValue = 0;
+    
+    function cat(domain){
+      consol.log(domain);
+    }
 
     // Compute the distinct nodes from the links.
     edgeList.forEach(function(link) {
+      var catSource = "Other";
+      var catTarget = "Other";
+      var catIdSource = utils.findIndexByKeyValue(specified,"domain",link.source);
+      var catIdTarget = utils.findIndexByKeyValue(specified,"domain",link.target);
+      var sourceTopD = utils.topD(link.source);
+      var targetTopD = utils.topD(link.target);
+      var catIdSourceTopD = utils.findIndexByKeyValue(topD,"value",sourceTopD);
+      var catIdTargetTopD = utils.findIndexByKeyValue(topD,"value",targetTopD);
+      
+      if (catIdSource != null){
+        catSource = specified[catIdSource].category;
+      } else if (catIdSourceTopD != null) {
+        catSource = topD[catIdSourceTopD].category;
+      }
+      if (catIdTarget != null){
+        catTarget = specified[catIdTarget].category;
+      } else if (catIdTargetTopD != null){
+        catTarget = topD[catIdTargetTopD].category;
+      }
       link.source = nodes[link.source] ||
         (nodes[link.source] = {
-        name: link.source
+        name: link.source,
+        category: catSource
       });
       link.target = nodes[link.target] ||
         (nodes[link.target] = {
-        name: link.target
+        name: link.target,
+        category: catTarget
       });
       link.value = +link.value;
       if (edgesMaxValue < link.value) {
@@ -195,7 +245,6 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
     var height = width * .7;
 
     $("#visual_div").height(height);
-    // $("#visual_div").css("border", "thin solid red");
 
     var tooltip = d3.select("body")
     .append("div")
@@ -213,14 +262,14 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
       .nodes(d3.values(nodes))
       .links(edgeList)
       .size([width, height])
-      .linkDistance(20)
+      .linkDistance(30)
       .charge(function(d){
         if (d.weight > 2){
           return (-d.weight * 4) - 80;
         }
         else {return -80;}
       })
-      .gravity(0.15)
+      .gravity(0.05)
       .on("tick", tick)
       .start();
 
@@ -259,9 +308,7 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
       .data(force.links())
       .enter().append("svg:path")
       .style("userSpaceOnUse", 1.5)
-    //function(d,i){ return links[i].value/(edgesMaxValue/5);}
-    //    .attr("class", function(d) { return "link " + d.type; })
-    .attr("class", "link")
+      .attr("class", "link")
       .attr("marker-end", "url(#end)");
 
     // define the nodes
@@ -274,7 +321,7 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
         tooltip.style("visibility", "hidden");
       }))
       .on("mouseover", function(d){
-        tooltip.text(d.name);
+        tooltip.text(d.name + " Category: "+d.category);
         tooltip.style("visibility", "visible");
       })
       .on("mousemove", function() {
@@ -291,26 +338,18 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
         d.radius = (Math.log(d.weight) + .7) * 4;
         return d.radius;
       })
-      .attr("class", "network");
-
-    // add the text
-    node.append("text")
-      .attr("dy", ".5")
-      .attr("dx", "8")
-      .attr("text-anchor", "left")
-      .attr("font-size", "10px")
-      .style("display", function(d) {
-        if (d.weight < 2){
-          return "none";
-        }
-        else {return "inline";}
-      })
-      .text(function(d) {
-          return d.name;
-      });
+      .attr("class", "network")
+      .style("fill", function(d) { return color(d.category); });
 
     // add the curvy lines
     function tick(e) {
+      var no = d3.values(nodes);
+      var q = d3.geom.quadtree(no),
+          i = 0,
+          n = no.length;
+
+      while (++i < n) q.visit(collide(no[i]));
+      
       path.attr("d", function(d) {
         var dx = d.target.x - d.source.x,
         dy = d.target.y - d.source.y,
@@ -341,6 +380,30 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
           var dy = Math.max(d.radius, Math.min(height - d.radius, d.y))
           return "translate(" + dx + "," + dy + ")";
         });
+    }
+    
+    function collide(node) {
+      var r = node.radius + 16,
+          nx1 = node.x - r,
+          nx2 = node.x + r,
+          ny1 = node.y - r,
+          ny2 = node.y + r;
+      return function(quad, x1, y1, x2, y2) {
+        if (quad.point && (quad.point !== node)) {
+          var x = node.x - quad.point.x,
+              y = node.y - quad.point.y,
+              l = Math.sqrt(x * x + y * y),
+              r = node.radius + quad.point.radius;
+          if (l < r) {
+            l = (l - r) / l * .5;
+            node.x -= x *= l;
+            node.y -= y *= l;
+            quad.point.x += x;
+            quad.point.y += y;
+          }
+        }
+        return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
+      };
     }
   };
 

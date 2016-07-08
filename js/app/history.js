@@ -736,83 +736,82 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         $("#cards").append("<div id=\"wir\"></div>");
         $("#wir").html( function() {
           var aEnd = moment(weekData.weekAend).format("ddd MMM D");
-        var aStart = moment(weekData.weekAstart).format("ddd MMM D");
-        var bEnd = moment(weekData.weekBend).format("ddd MMM D");
-        var bStart = moment(weekData.weekBstart).format("ddd MMM D");
-        var percent = weekData.percent;
-        var percentML = weekData.percentML;
-        var topDomainLw = weekData.topDomainLw;
-        var topDomainTw = weekData.topDomainTw;
-        var topTermLw = weekData.topTermLw;
-        //var topTermListLw = weekData.topTermListLw;
-        //problems implementing tooltips to display this data
-        var topTermTw = weekData.topTermTw;
-        //var topTermListTw = weekData.topTermListTw;
+          var aStart = moment(weekData.weekAstart).format("ddd MMM D");
+          var bEnd = moment(weekData.weekBend).format("ddd MMM D");
+          var bStart = moment(weekData.weekBstart).format("ddd MMM D");
+          var percent = weekData.percent;
+          var percentML = weekData.percentML;
+          var topDomainLw = weekData.topDomainLw;
+          var topDomainTw = weekData.topDomainTw;
+          var topTermLw = weekData.topTermLw;
+          //var topTermListLw = weekData.topTermListLw;
+          //problems implementing tooltips to display this data
+          var topTermTw = weekData.topTermTw;
+          //var topTermListTw = weekData.topTermListTw;
         
-        if (lastUl > 1) {
-          lastUlD = moment(lastUl).format("MMM DD, YYYY");
-        }
-        else {lastUlD = "Never";}
+          if (lastUl > 1) {
+            lastUlD = moment(lastUl).format("MMM DD, YYYY");
+          }
+          else {lastUlD = "Never";}
         
-        if (topTermLw === topTermTw){
-          topTermLwD = "the same";
-        }
-        else {topTermLwD = "<strong>" + topTermLw + " </strong>";}
+          if (topTermLw === topTermTw){
+            topTermLwD = "the same";
+          }
+          else {topTermLwD = "<strong>" + topTermLw + " </strong>";}
         
-        if (topDomainTw === topDomainLw) {
-          topDomainLwD = "the same";
-        }
-        else { topDomainLwD = "<strong><a href=\"http://" + topDomainLw + "\" target=\"_blank\">" + topDomainLw + "</a></strong>";}
+          if (topDomainTw === topDomainLw) {
+            topDomainLwD = "the same";
+          }
+          else { topDomainLwD = "<strong><a href=\"http://" + topDomainLw + "\" target=\"_blank\">" + topDomainLw + "</a></strong>";}
         
-        var dataStartDate = utils.startDate();
+          var seStored = JSON.parse(sessionStorage.getItem('se'));
+          var dataStartDate = seStored[0].start;
         
-        var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p>";
-        //Your central jumping-off point for browsing the web this week was * this week. It was * last week.
-        //of the # websites you visited over the past # days, you visited * the most, but you visited * on the most different days. 
-        var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p><p><a id='settings'><span class=\"glyphicon glyphicon-cog\"></span> Settings</a> - To update your browsing data just <a href=''>reload this extension</a>.</p>";
-        var thanks = "<h3>Thank you for participating in our study!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and to participate in further studies <a href=\""+config.endSvyUrls[0]+"\" target=\"_blank\">click here to sign up</a>. Two months after your first data upload you will be asked for a follow-up contribution. </p>";
-        var notEnoughData = "<h3>Week in Review</h3><p>The week in review compares this week's web browsing to the previous week. To see the week in review feature you can keep browsing in Chrome witout clearing your history until you have 14 days of browsing. If you changed the dates you are viewing with the calendar, just expand the range between the start and end date to 14 days or more.</p>";
+          var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p>";
+          //Your central jumping-off point for browsing the web this week was * this week. It was * last week.
+          //of the # websites you visited over the past # days, you visited * the most, but you visited * on the most different days. 
+          var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p><p><a id='settings'><span class=\"glyphicon glyphicon-cog\"></span> Settings</a> - To update your browsing data just <a href=''>reload this extension</a>.</p>";
+          var thanks = "<h3>Thank you for participating in our study!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and to participate in further studies <a href=\""+config.endSvyUrls[0]+"\" target=\"_blank\">click here to sign up</a>. Two months after your first data upload you will be asked for a follow-up contribution. </p>";
+          var notEnoughData = "<h3>Week in Review</h3><p>The week in review compares this week's web browsing to the previous week. To see the week in review feature you can keep browsing in Chrome witout clearing your history until you have 14 days of browsing. If you changed the dates you are viewing with the calendar, just expand the range between the start and end date to 14 days or more.</p>";
         
-        if (lastUlD === "Never" && weekData.weekBstart >= dataStartDate) {
-                $("#research").show();
-                return weekInReview + footer;
-              }
-              else if (lastUlD === "Never" && weekData.weekBstart < dataStartDate) { 
-                $("#research").show();
-                return notEnoughData + footer; 
-                } 
-              else if (svyEndType === 0 && weekData.weekBstart >= dataStartDate){
-                return weekInReview + footer;
-              }
-              else if (svyEndType === 0 && weekData.weekBstart < dataStartDate){
-                return notEnoughData + footer;
-              }
-              else if (lastUlD !== "Never" && svyEndType === null){
-                //$("#navbar").hide();
-                //$('#viz_selector').hide();
-                svyLink(function(url){
-                  var link = "<a href='" + url + "' target='_blank' class='wh_action' id='wh_svy_link' style='color: blue;'> Your Survey Link</a>";
+          if (lastUlD === "Never" && weekData.weekBstart >= dataStartDate) {
                   $("#research").show();
-                  $("#research").html("<br/><br/><h3>Please complete your survey for the research project 'Understanding Access to Information Online and in Context.': " + link + "</h3><p>When you have finished the survey you can <a href=''>reload</a> to remove this message.<br/><br/><br/>");
-                });
-                return footer;
-              }
-              else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart >= dataStartDate) { 
-                $("#nav_review").show();
-                return weekInReview + thanks + footer; 
+                  return weekInReview + footer;
                 }
-              else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart < dataStartDate) { 
-                $("#nav_review").show();
-                return notEnoughData + thanks + footer; 
+                else if (lastUlD === "Never" && weekData.weekBstart < dataStartDate) { 
+                  $("#research").show();
+                  return notEnoughData + footer; 
+                  } 
+                else if (svyEndType === 0 && weekData.weekBstart >= dataStartDate){
+                  return weekInReview + footer;
                 }
-              else { $("#research").show(); return footer; console.log("condition not specified"); }; 
+                else if (svyEndType === 0 && weekData.weekBstart < dataStartDate){
+                  return notEnoughData + footer;
+                }
+                else if (lastUlD !== "Never" && svyEndType === null){
+                  svyLink(function(url){
+                    var link = "<a href='" + url + "' target='_blank' class='wh_action' id='wh_svy_link' style='color: blue;'> Your Survey Link</a>";
+                    $("#research").show();
+                    $("#research").html("<br/><br/><h3>Please complete your survey for the research project 'Understanding Access to Information Online and in Context.': " + link + "</h3><p>When you have finished the survey you can <a href=''>reload</a> to remove this message.<br/><br/><br/>");
+                  });
+                  return footer;
+                }
+                else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart >= dataStartDate) { 
+                  $("#nav_review").show();
+                  return weekInReview + thanks + footer; 
+                  }
+                else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart < dataStartDate) { 
+                  $("#nav_review").show();
+                  return notEnoughData + thanks + footer; 
+                  }
+                else { $("#research").show(); return footer; console.log("condition not specified"); }; 
                      
-            });
-    };
+              });
+      };
     
-  //insert the code for the cards, but doesn't display them (display: none)
-  history.insertCards = function (){
-$("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian <span class=\"glyphicon glyphicon-cloud-upload\"></span></h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand the role of online information in more depth than many previous studies. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a>. Participation is <strong>opt-in only</strong> and your data is not transmitted online in any way if you choose not to participate, in fact you can use it when you are offline. Web Historian helps you visualize the browsing history data that is already on your computer.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
+    //insert the code for the cards, but doesn't display them (display: none)
+    history.insertCards = function (){
+  $("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian <span class=\"glyphicon glyphicon-cloud-upload\"></span></h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand the role of online information in more depth than many previous studies. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a>. Participation is <strong>opt-in only</strong> and your data is not transmitted online in any way if you choose not to participate, in fact you can use it when you are offline. Web Historian helps you visualize the browsing history data that is already on your computer.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
   };
   
   //Putting it all together

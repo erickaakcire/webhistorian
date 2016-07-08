@@ -3,10 +3,14 @@ define(["../app/utils", "moment"], function(utils, moment) {
   visualization.domainsChecked = [];
   visualization.allChecked = [];
   visualization.searchesChecked = [];
+  
+  var seStored = JSON.parse(sessionStorage.getItem('se'));    
+  var sd = seStored[0].start;
+  var ed = seStored[0].end;
+  var startDate = new Date (sd);
+  var endDate = new Date (ed);
 
   visualization.buildDomainTable = function(data) {
-    var startDate = utils.startDate();
-    var endDate = utils.endDate();
 
     var table = document.createElement('table');
     table.id = "domain_visualization";
@@ -85,8 +89,6 @@ define(["../app/utils", "moment"], function(utils, moment) {
   };
 
   visualization.buildAllTable = function(historyData) {
-    var startDate = utils.startDate();
-    var endDate = utils.endDate();
 
     data = utils.sortByPropRev(historyData, "date");
 
@@ -229,17 +231,6 @@ define(["../app/utils", "moment"], function(utils, moment) {
 
   visualization.display = function(history, data, tab) {
     utils.clearVisualization();
-
-    $("input#start_date").datepicker().on("changeDate", function(e) {
-      visualization.display(history, data);
-    });
-
-    $("input#end_date").datepicker().on("changeDate", function(e) {
-      visualization.display(history, data);
-    });
-
-    var startDate = utils.startDate();
-    var endDate = utils.endDate();
 
     var filteredData = utils.filterByDates(data, startDate, endDate);
 

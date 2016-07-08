@@ -9,8 +9,14 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
     var seStored = JSON.parse(sessionStorage.getItem('se'));
     sd = seStored[0].start;
     ed = seStored[0].end;
-    startDate = new Date (sd);
     endDate = new Date (ed);
+    //startDate = new Date (sd); //start with full dataset
+    
+    startDate = new Date (  
+        endDate.getFullYear(),  
+        endDate.getMonth(),  
+        (endDate.getDate()-7)  
+    );//start with most recent week
   }
 
   visualization.display = function(history, data) {
@@ -123,7 +129,7 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
         startDate = new Date (epochFrom.setUTCSeconds(d.from));
         var epochTo = new Date(0);
         endDate = new Date (epochTo.setUTCSeconds(d.to));
-        var filteredD = utils.filterByDates(data, startDate, endDate);
+        var filteredD = utils.filterByDates(history.fullData, startDate, endDate);
         visualization.display(history, filteredD);
       }
     });

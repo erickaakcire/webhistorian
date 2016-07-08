@@ -50,46 +50,32 @@ define(function() {
     return counts;
   };
 
-  //special countsOfProperties for creating domain object
-  utils.countPropDomains = function(data, property) {
-    var valueCounts = {};
+  utils.topD = function(d){
+    //takes an individual domain
+    var reTopLevel = /^[^.]*\.(.*)$/;
+    var topD = "";
 
-    for (var i = 0; i < data.length; i++) {
-      var item = data[i];
-
-      var value = data[i][property];
-      //var topD = data[i]["topDomain"];
-
-      if (valueCounts[value] == undefined)
-        valueCounts[value] = 0;
-
-      valueCounts[value] += 1;
-    }
-
-    var counts = [];
-
-    for (var key in valueCounts) {
-      if (valueCounts.hasOwnProperty(key)) {
-        counts.push({
-          "domain": key,
-          "count": valueCounts[key]
-        });
+    if (d!==undefined && d!==null){
+      if (d === "google.com/maps") {
+        topD = "com";
+      } else if (d.match(reTopLevel)) {
+        topD = d.replace(reTopLevel, "$1");
       }
     }
+
+    return topD;
+  }
+  
+  //special countsOfProperties for creating domain object
+  utils.countPropDomains = function(data, property) {
+    counts = utils.countsOfProperty(data, property);
 
     var countD = [];
 
     for (var i in counts) {
-      var reTopLevel = /^[^.]*\.(.*)$/;
-      var topD = "";
-
-      if (counts[i].domain === "google.com/maps") {
-        topD = "com";
-      } else if (counts[i].domain.match(reTopLevel)) {
-        topD = counts[i].domain.replace(reTopLevel, "$1");
-      }
+      var topD = utils.topD(counts[i].counter)
       countD.push({
-        "domain": counts[i].domain,
+        "domain": counts[i].counter,
         "count": counts[i].count,
         "topD": topD
       });
@@ -169,18 +155,6 @@ define(function() {
     return {
       children: classes
     };
-  };
-  
-  utils.startDate = function() {
-    if ($("input#start_date").val() != null)
-      return $("input#start_date").datepicker("getDate");
-    return null;
-  };
-
-  utils.endDate = function() {
-    if ($("input#end_date").val() != null)
-      return $("input#end_date").datepicker("getDate");
-    return null;
   };
 
   utils.uniqueCount = function(data, key) {
@@ -362,9 +336,9 @@ define(function() {
     }
   };
 
-  utils.findIndexByKeyValue = function(arrayToSearch, key, valueToSearch) {
-    for (var i = 0; i < arrayToSearch.length; i++) {
-      var item = arrayToSearch[i][key];
+  utils.findIndexByKeyValue = function(toSearch, key, valueToSearch) {
+    for (var i = 0; i < toSearch.length; i++) {
+      var item = toSearch[i][key];
       if (item === valueToSearch) {
         return i;
       }
