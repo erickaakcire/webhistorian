@@ -195,8 +195,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
             }
           });
           
-          storeStartEnd(history.fullData);
-          
           chrome.storage.local.get({ 'study': '' }, function (result) 
           {
             if (result.study == "") {
@@ -723,12 +721,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
       	var study = {timeStored: now.getTime(), endType: 1};
       	storeSvyEnd(study);
       }
-
-      //function storeSvyEnd(end) {
-      //  var arr = [];
-      //  arr.push({timeStored: end.timeStored, endType: end.endType});
-      //  localStorage.setItem("svyEnd", JSON.stringify(arr));
-      //}
     }
   }
     
@@ -764,8 +756,8 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
           }
           else { topDomainLwD = "<strong><a href=\"http://" + topDomainLw + "\" target=\"_blank\">" + topDomainLw + "</a></strong>";}
         
-          var seStored = JSON.parse(sessionStorage.getItem('se'));
-          var dataStartDate = seStored[0].start;
+          //var seStored = JSON.parse(sessionStorage.getItem('se'));
+          var dataStartDate = history.fullData[0].date; //seStored[0].start;
         
           var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p>";
           //Your central jumping-off point for browsing the web this week was * this week. It was * last week.
@@ -828,6 +820,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
       {
         svyEnd(history.fullData);
         storeCats(showHome);
+        storeStartEnd(history.fullData);
     });
   });
 
