@@ -230,7 +230,6 @@ define(["../app/utils", "moment"], function(utils, moment) {
 
 
   visualization.display = function(history, data, tab) {
-    utils.clearVisualization();
 
     var filteredData = utils.filterByDates(data, startDate, endDate);
 
@@ -255,6 +254,7 @@ define(["../app/utils", "moment"], function(utils, moment) {
       "  </div>" +
       "</div>";
 
+    utils.clearVisualization();
     $("#visual_div").append(tabs);
 
     //default

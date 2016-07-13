@@ -35,7 +35,6 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
   }
 
   visualization.display = function(history, data) {
-    utils.clearVisualization();
     if(startDate===null){ datesOrig(); }
     data = utils.sortByProperty(data,"date");
 
@@ -64,13 +63,6 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
                 data_table.display(history, dv, "");
                 $("#viz_title").html("All Visits to " + d.__data__.name);
               });
-            },
-        },
-        {
-            title: 'Keep Label Visible',
-            action: function(d,i) {
-              tooltip.text(i.name + " Category: ");
-              tooltip.style("visibility", "visible");
             },
         },
         {
@@ -163,6 +155,9 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
         countEdges = 1;
       }
     }
+    
+    
+    utils.clearVisualization();
 
     // Network visualization based on  http://www.d3noob.org/2013/03/d3js-force-directed-graph-example-basic.html and http://bl.ocks.org/mbostock/3750558
 

@@ -8,15 +8,20 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
       });
 
       $("#web_visit").click(function() {
+        $("#cards").html("<br/><br/><h1>One moment please. Loading Web Visits</h1><br/><br/><br/><br/>");
         requirejs(["../app/websites-visited"], function(websites_visited) {
           websites_visited.display(history, history.fullData);
         });
       });
 
       $(".navbar-brand").click(function() {
+        $("#cards").html("<br/><br/><h1>One moment please. Loading Home</h1><br/><br/><br/><br/>");
         requirejs(["../app/home"], function(home) {
           home.display(history, history.fullData);
         });
+      });
+      $("#nav_home").click(function() {
+        $(".navbar-brand").click();
       });
 
       $("#search_words_card").click(function() {
@@ -24,6 +29,7 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
       });
 
       $("#search_words").click(function() {
+        $("#cards").html("<br/><br/><h1>One moment please. Loading Search Words</h1><br/><br/><br/><br/>");
         requirejs(["../app/search-terms"], function(search_words) {
           search_words.display(history, history.fullData);
         });
@@ -34,6 +40,7 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
       });
 
       $("#network").click(function() {
+        $("#cards").html("<br/><br/><h1>One moment please. Loading Network</h1><br/><br/><br/><br/>");
         requirejs(["../app/site-network"], function(site_network) {
           site_network.display(history, history.fullData);
         });
@@ -44,13 +51,14 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
       });
 
       $("#data_table").click(function() {
+        $("#cards").html("<br/><br/><h1>One moment please. Loading Data Table</h1><br/><br/><br/><br/>");
         requirejs(["../app/data-table"], function(data_table) {
           data_table.display(history, history.fullData, "");
         });
       });
 
       $('[data-toggle="tooltip"]').tooltip();
-      $('.datepicker').datepicker();
+
     });
   }
 

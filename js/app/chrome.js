@@ -58,7 +58,7 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
         color: "#FF0000"
       });
       chrome.browserAction.setTitle({
-        title: "Participate in our research project! Click the cloud upload icon in this extension."
+        title: "Participate in our research project! Open this extension and click the cloud icon."
       });
       console.log("has not uploaded");
     } else if (lastUpload !== 0 && svyEnd === null) {

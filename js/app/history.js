@@ -22,6 +22,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
   var dateLimit = new Date(now.getTime());
   dateLimit.setDate(now.getDate() - 91);
   var dateForward = Infinity;
+  var svyTab = 1;
 
   var vizSelected = null;
   var firstDate = "";
@@ -590,7 +591,6 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 
                   output += listItem;
               
-                  var svyTab = 1;
                   chrome.tabs.onCreated.addListener(function(tab){
                     svyTab = tab.id;
                     $("#wh_initial_survey").click(function (){
@@ -639,10 +639,10 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                   $('#upload_modal').modal('hide');
                   $("#nav_review").show();
                   svyLink(function(url) {
-                    $("#research").html("<p>Please complete the survey for the research project that opened in a new tab, if you haven't already. <a href='"+url+"' target='_blank'>Click here for another link to your survey</a>. Thank you!.");
+                    $("#research").html("<br/<br/>><p>Please complete the survey for the research project that opened in a new tab, if you haven't already. <a href='"+url+"' target='_blank'>Click here for another link to your survey</a>. Thank you!.<br/><br/>");
                   });
-                  
-                  //show participation date                
+                  chrome.tabs.update(svyTab, {"active": true});
+                  //show participation date as today               
                   chrome.browserAction.setBadgeText({ text: "" }); 
 
                   chrome.browserAction.setTitle({
@@ -784,7 +784,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                   svyLink(function(url){
                     var link = "<a href='" + url + "' target='_blank' class='wh_action' id='wh_svy_link' style='color: blue;'> Your Survey Link</a>";
                     $("#research").show();
-                    $("#research").html("<br/><br/><h3>Please complete your survey for the research project 'Understanding Access to Information Online and in Context.': " + link + "</h3><p>When you have finished the survey you can <a href=''>reload</a> to remove this message.<br/><br/><br/>");
+                    $("#research").html("<br/><br/><div class='alert alert-danger'><h3><span class='glyphicon glyphicon-exclamation-sign' aria-hidden='true'></span>Please complete your survey for the research project 'Understanding Access to Information Online and in Context.': " + link + "</h3><p>When you have finished the survey you can <a href=''>reload</a> to remove this message.</div><br/><br/><br/>");
                   });
                   return footer;
                 }
@@ -803,7 +803,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
     
     //insert the code for the cards, but doesn't display them (display: none)
     history.insertCards = function (){
-  $("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian <span class=\"glyphicon glyphicon-cloud-upload\"></span></h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand the role of online information in more depth than many previous studies. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <a href=\"#\" title id=\"data_table\"> <span class=\"glyphicon glyphicon-list\"></span></a>. Participation is <strong>opt-in only</strong> and your data is not transmitted online in any way if you choose not to participate, in fact you can use it when you are offline. Web Historian helps you visualize the browsing history data that is already on your computer.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
+  $("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian </h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand the role of online information in more depth than many previous studies. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <span class=\"glyphicon glyphicon-list\"></span>. Participation is <strong>opt-in only</strong> and your data is not transmitted online in any way if you choose not to participate, in fact you can use it when you are offline. Web Historian helps you visualize the browsing history data that is already on your computer.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
   };
   
   //Putting it all together
@@ -818,9 +818,9 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
       //Get all data into fullData1
       getUrls(noTransform, noViz, function()
       {
+        storeStartEnd(history.fullData);
         svyEnd(history.fullData);
         storeCats(showHome);
-        storeStartEnd(history.fullData);
     });
   });
 
