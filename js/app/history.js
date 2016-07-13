@@ -639,7 +639,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                   $('#upload_modal').modal('hide');
                   $("#nav_review").show();
                   svyLink(function(url) {
-                    $("#research").html("<br/<br/>><p>Please complete the survey for the research project that opened in a new tab, if you haven't already. <a href='"+url+"' target='_blank'>Click here for another link to your survey</a>. Thank you!.<br/><br/>");
+                    $("#research").html("<br/><br/><p>Please complete the survey for the research project that opened in a new tab, if you haven't already. <a href='"+url+"' target='_blank'>Click here for another link to your survey</a>. Thank you!.<br/><br/>");
                   });
                   chrome.tabs.update(svyTab, {"active": true});
                   //show participation date as today               
