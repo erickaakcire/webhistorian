@@ -63,7 +63,8 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         }).fail(function(){
           console.log("Error! JSON file not found or invalid formatting");
           cats.push({search: "domainExact", category: "Other", value: " "});
-          callback(cats);
+          sessionStorage.setItem("cats", JSON.stringify(cats));
+          callback();
         }).done(function() {
         sessionStorage.setItem("cats", JSON.stringify(cats));
       });
@@ -98,7 +99,11 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
   
   function svyLink(callback){
     requirejs(["../app/config"], function (config) {
-      $.get(config.actionsUrl, function(actions){
+      $.get(config.actionsUrl)
+      .error(function(jqXHR, textStatus, errorThrown){
+        callback("");
+      })
+      .success(function(actions){
         chrome.storage.local.get({ 'before': ''}, function(result){
           var prev = result.before;
           chrome.storage.local.get({ 'upload_identifier': ''}, function(result){
@@ -458,7 +463,13 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
         topTermLw: topTermLw,
         topTermTw: topTermTw
       };
-      callback(weekCompareData);
+      svyLink(function(url){ 
+        var online = 0;
+        if(url !== ""){
+          online = 1;
+        }
+        callback(weekCompareData, online, url);
+      });
     }
   };
   function showHome (){
@@ -519,12 +530,12 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
           .error(function(jqXHR, textStatus, errorThrown){
             if (textStatus == 'timeout'){
               console.log('The server is not responding');
-              $("div#progress_actions").html("The server is not responding. Please check your Internet connection and try again.");
+              $("div#progress_actions").html("The server is not responding. Please choose 'Cancel,' check your Internet connection and try again.");
               $("div#progress_actions").show();
             }
             if (textStatus == 'error') {
               console.log(errorThrown);
-              $("div#progress_actions").html("The following error occurred when accessing the server: "+errorThrown);
+              $("div#progress_actions").html("The server is not responding. Please choose 'Cancel,' check your Internet connection and try again.");
               $("div#progress_actions").show();
             }
               
@@ -587,19 +598,22 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                 var output = "";
                 
                 svyLink(function(url){
-                  var listItem = "<li> <a class='wh_action' id='wh_" + toList[0].identifier + "'>" + "Open Survey Tab" + "</a> </li>";
-                
-                  output += listItem;
-              
-                  chrome.tabs.onCreated.addListener(function(tab){
-                    svyTab = tab.id;
-                    $("#wh_initial_survey").click(function (){
-                      chrome.tabs.update(svyTab, {"active": true});
+                  if (url !== ""){
+                    var listItem = "<li> <a class='wh_action' id='wh_" + toList[0].identifier + "'>" + "Open Survey Tab" + "</a> </li>";
+                    output += listItem;
+                    chrome.tabs.onCreated.addListener(function(tab){
+                      svyTab = tab.id;
+                      $("#wh_initial_survey").click(function (){
+                        chrome.tabs.update(svyTab, {"active": true});
+                      });
                     });
-                  });
-              
-                  chrome.tabs.create({url: url , active: false});
-                  $("ul#progress_actions_list").html(output);
+                    chrome.tabs.create({url: url , active: false});
+                    $("ul#progress_actions_list").html(output);
+                  }
+                  else {
+                    var listItem = "<li>You must be online to take the survey, but your network is not currently responding. Please <a href=''>reload the extension</a> when you are online.</li>";
+                    $("ul#progress_actions_list").html(listItem);
+                  }
                 });
               });
             
@@ -639,15 +653,14 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
                   $('#upload_modal').modal('hide');
                   $("#nav_review").show();
                   svyLink(function(url) {
-                    $("#research").html("<br/><br/><p>Please complete the survey for the research project that opened in a new tab, if you haven't already. <a href='"+url+"' target='_blank'>Click here for another link to your survey</a>. Thank you!.<br/><br/>");
+                    if (url !== ""){
+                      $("#research").html("<br/><br/><p>Please complete the survey for the research project that opened in a new tab, if you haven't already. <a href='"+url+"' target='_blank'>Click here for another link to your survey</a>. Thank you!.<br/><br/>");
+                    }
                   });
                   chrome.tabs.update(svyTab, {"active": true});
                   //show participation date as today               
                   chrome.browserAction.setBadgeText({ text: "" }); 
-
-                  chrome.browserAction.setTitle({
-                    title: "Web Historian"
-                  });  
+                  chrome.browserAction.setTitle({ title: "Web Historian" });  
                 });
               };
 
@@ -724,7 +737,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
     }
   }
     
-    history.wir = function(weekData) {
+    history.wir = function(weekData, online, url) {
         $("#cards").append("<div id=\"wir\"></div>");
         $("#wir").html( function() {
           var aEnd = moment(weekData.weekAend).format("ddd MMM D");
@@ -765,45 +778,61 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
           var footer = "<hr><p>You last uploaded your browsing data on: "+ lastUlD +"</p> <p>For more information about Web Historian visit <a href=\"http://webhistorian.org\" target=\"blank\">http://webhistorian.org</a>.</p><p><a id='settings'><span class=\"glyphicon glyphicon-cog\"></span> Settings</a> - To update your browsing data just <a href=''>reload this extension</a>.</p>";
           var thanks = "<h3>Thank you for participating in our study!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and to participate in further studies <a href=\""+config.endSvyUrls[0]+"\" target=\"_blank\">click here to sign up</a>. Two months after your first data upload you will be asked for a follow-up contribution. </p>";
           var notEnoughData = "<h3>Week in Review</h3><p>The week in review compares this week's web browsing to the previous week. To see the week in review feature you can keep browsing in Chrome witout clearing your history until you have 14 days of browsing. If you changed the dates you are viewing with the calendar, just expand the range between the start and end date to 14 days or more.</p>";
-        
-          if (lastUlD === "Never" && weekData.weekBstart >= dataStartDate) {
+          var offline = "<div class='alert alert-warning'><p><span class='glyphicon glyphicon-wrench' aria-hidden='true'></span>Your browser is offline. Web Historian will function, but web site categories may be limited to 'Other' and you won't be able to participate in the research project until you are online.</p></div>";
+          
+          var weekHtml = footer;
+
+            if (lastUlD === "Never" && weekData.weekBstart >= dataStartDate) {
+              $("#research").show();
+              if(online===1){ weekHtml = weekInReview + footer; }
+              else { weekHtml = offline + weekInReview + footer; }
+            }
+            else if (lastUlD === "Never" && weekData.weekBstart < dataStartDate) { 
+              $("#research").show();
+              if(online===1) { weekHtml = notEnoughData + footer; }
+              else { weekHtml = offline + notEnoughData + footer; }
+              } 
+            else if (svyEndType === 0 && weekData.weekBstart >= dataStartDate){
+              if(online===1) { weekHtml = weekInReview + footer; }
+              else { weekHtml = offline + weekInReview + footer; }
+            }
+            else if (svyEndType === 0 && weekData.weekBstart < dataStartDate){
+              if(online===1) { weekHtml = notEnoughData + footer; }
+              else { weekHtml = offline + notEnoughData + footer; }
+            }
+            else if (lastUlD !== "Never" && svyEndType === null){
+                if(url !== ""){
+                  var link = "<a href='" + url + "' target='_blank' class='wh_action' id='wh_svy_link' style='color: blue;'> Your Survey Link</a>";
                   $("#research").show();
-                  return weekInReview + footer;
+                  $("#research").html("<br/><br/><div class='alert alert-danger'><h3><span class='glyphicon glyphicon-exclamation-sign' aria-hidden='true'></span> Please complete your survey for the research project 'Understanding Access to Information Online and in Context.': " + link + "</h3><p>When you have finished the survey you can <a href=''>reload</a> to remove this message.</div><br/><br/><br/>");
                 }
-                else if (lastUlD === "Never" && weekData.weekBstart < dataStartDate) { 
-                  $("#research").show();
-                  return notEnoughData + footer; 
-                  } 
-                else if (svyEndType === 0 && weekData.weekBstart >= dataStartDate){
-                  return weekInReview + footer;
+                else {
+                  weekHtml = offline + weekInReview + footer;
                 }
-                else if (svyEndType === 0 && weekData.weekBstart < dataStartDate){
-                  return notEnoughData + footer;
-                }
-                else if (lastUlD !== "Never" && svyEndType === null){
-                  svyLink(function(url){
-                    var link = "<a href='" + url + "' target='_blank' class='wh_action' id='wh_svy_link' style='color: blue;'> Your Survey Link</a>";
-                    $("#research").show();
-                    $("#research").html("<br/><br/><div class='alert alert-danger'><h3><span class='glyphicon glyphicon-exclamation-sign' aria-hidden='true'></span>Please complete your survey for the research project 'Understanding Access to Information Online and in Context.': " + link + "</h3><p>When you have finished the survey you can <a href=''>reload</a> to remove this message.</div><br/><br/><br/>");
-                  });
-                  return footer;
-                }
-                else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart >= dataStartDate) { 
-                  $("#nav_review").show();
-                  return weekInReview + thanks + footer; 
-                  }
-                else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart < dataStartDate) { 
-                  $("#nav_review").show();
-                  return notEnoughData + thanks + footer; 
-                  }
-                else { $("#research").show(); return footer; console.log("condition not specified"); }; 
-                     
-              });
+            }
+            else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart >= dataStartDate) { 
+              $("#nav_review").show();
+              if(online===1)
+                weekHtml = weekInReview + thanks + footer; 
+              else
+                weekHtml = offline + weekInReview + thanks + footer;
+              }
+            else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart < dataStartDate) { 
+              $("#nav_review").show();
+              if(online===1)
+                weekHtml = notEnoughData + thanks + footer; 
+              else
+                weekHtml = offline + notEnoughData + thanks + footer;
+              }
+            else { $("#research").show(); console.log("condition not specified"); }; 
+          
+          return weekHtml;    
+        });
       };
     
     //insert the code for the cards, but doesn't display them (display: none)
     history.insertCards = function (){
-  $("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian </h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand the role of online information in more depth than many previous studies. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <span class=\"glyphicon glyphicon-list\"></span>. Participation is <strong>opt-in only</strong> and your data is not transmitted online in any way if you choose not to participate, in fact you can use it when you are offline. Web Historian helps you visualize the browsing history data that is already on your computer.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
+  $("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian </h3><p>The browser's 'back' button will not navigate within Web Historian, please use the navigation at the top right to explore your visualizations.</p><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand the role of online information in more depth than many previous studies. Just click the \"Participate in Research\" button <span class=\"glyphicon glyphicon-cloud-upload\"></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload using the Data Table <span class=\"glyphicon glyphicon-list\"></span>. Participation is <strong>opt-in only</strong> and your data is not transmitted online in any way if you choose not to participate, in fact you can use it when you are offline. Web Historian helps you visualize the browsing history data that is already on your computer.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
   };
   
   //Putting it all together
