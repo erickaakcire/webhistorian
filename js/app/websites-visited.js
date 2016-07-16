@@ -150,7 +150,6 @@ define(["../app/utils", "../app/config", "moment", "d3-context-menu", "ion.range
 
       d3.selectAll("#viz_selector a").classed("active", false);
       d3.select("#web_visit").classed("active", true);
-      vizSelected = "web_visit";
 
       catAsync(function(categories) {
         var seStored = JSON.parse(sessionStorage.getItem('se'));
