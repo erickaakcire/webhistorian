@@ -1,10 +1,13 @@
 ({
     appDir: "../../",
-    baseUrl: "js/app",
+    baseUrl: "js/lib",
     dir: "../../../wh-build",
+    paths: {
+      app: '../app'
+    },
     modules: [
         {
-            name: "main"
+            name: "app/main"
         }
     ]
 })
