@@ -1,4 +1,4 @@
-define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(utils, moment, context, rangeSlide) {
+define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(utils, moment, context, rangeSlide) {
   var visualization = {};
   var startDate = null;
   var endDate = null;
@@ -59,7 +59,7 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
                   dv.push(item);
                 }
               }
-              requirejs(["../app/data-table"], function(data_table) {
+              requirejs(["app/data-table"], function(data_table) {
                 data_table.display(history, dv, "");
                 $("#viz_title").html("All Visits to " + d.__data__.name);
               });

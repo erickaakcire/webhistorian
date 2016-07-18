@@ -1,10 +1,10 @@
-define(["../app/utils", "moment", "../app/history"], function(utils, moment, history) {
+define(["app/utils", "moment", "app/history"], function(utils, moment, history) {
   var visualization = {};
   
   var vizSelected = "home";
 
   visualization.homeClicks = function() {
-    requirejs(["../app/history"], function(history) {
+    requirejs(["app/history"], function(history) {
       $("#web_visit_card").click(function() {
         $("#web_visit").click();
       });
@@ -12,7 +12,7 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
       $("#web_visit").click(function() {
         if (vizSelected !== "web_visit"){
           $("#cards").html("<br/><br/><h1>One moment please. Loading Web Visits</h1><br/><br/><br/><br/>");
-          requirejs(["../app/websites-visited"], function(websites_visited) {
+          requirejs(["app/websites-visited"], function(websites_visited) {
             websites_visited.display(history, history.fullData);
             vizSelected = "web_visit"
           });
@@ -23,7 +23,7 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
       $(".navbar-brand").click(function() {
         if(vizSelected !== "home"){
           $("#cards").html("<br/><br/><h1>One moment please. Loading Home</h1><br/><br/><br/><br/>");
-          requirejs(["../app/home"], function(home) {
+          requirejs(["app/home"], function(home) {
             home.display(history, history.fullData);
             vizSelected = "home";
           });
@@ -41,7 +41,7 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
       $("#search_words").click(function() {
         if(vizSelected !== "search_words"){
           $("#cards").html("<br/><br/><h1>One moment please. Loading Search Words</h1><br/><br/><br/><br/>");
-          requirejs(["../app/search-terms"], function(search_words) {
+          requirejs(["app/search-terms"], function(search_words) {
             search_words.display(history, history.fullData);
             vizSelected = "search_words";
           });
@@ -56,7 +56,7 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
       $("#network").click(function() {
         if (vizSelected !== "network"){
           $("#cards").html("<br/><br/><h1>One moment please. Loading Network</h1><br/><br/><br/><br/>");
-          requirejs(["../app/site-network"], function(site_network) {
+          requirejs(["app/site-network"], function(site_network) {
             site_network.display(history, history.fullData);
             vizSelected = "network";
           });
@@ -71,7 +71,7 @@ define(["../app/utils", "moment", "../app/history"], function(utils, moment, his
       $("#data_table").click(function() {
         if (vizSelected !== "data_table"){
           $("#cards").html("<br/><br/><h1>One moment please. Loading Data Table</h1><br/><br/><br/><br/>");
-          requirejs(["../app/data-table"], function(data_table) {
+          requirejs(["app/data-table"], function(data_table) {
             data_table.display(history, history.fullData, "");
             vizSelected = "data_table";
           });

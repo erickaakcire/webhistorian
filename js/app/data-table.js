@@ -1,4 +1,4 @@
-define(["../app/utils", "moment"], function(utils, moment) {
+define(["app/utils", "moment"], function(utils, moment) {
   var visualization = {};
   visualization.domainsChecked = [];
   visualization.allChecked = [];

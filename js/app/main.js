@@ -26,10 +26,13 @@ requirejs.config({
     }
   },
   baseUrl: "js/lib",
+  paths: {
+    app: '../app'
+  }
 });
 
 main.page = function() {
-  requirejs(["../app/home"], function(home) {
+  requirejs(["app/home"], function(home) {
     home.homeClicks(history, history.fullData);
   });
 };

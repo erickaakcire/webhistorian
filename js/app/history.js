@@ -1,4 +1,4 @@
-define(["moment", "../app/config", "../app/utils"], function (moment, config, utils) 
+define(["moment", "app/config", "app/utils"], function (moment, config, utils) 
 {   
   var history = {};
   
@@ -98,7 +98,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
   }
   
   function svyLink(callback){
-    requirejs(["../app/config"], function (config) {
+    requirejs(["app/config"], function (config) {
       $.get(config.actionsUrl)
       .error(function(jqXHR, textStatus, errorThrown){
         callback("");
@@ -118,7 +118,7 @@ define(["moment", "../app/config", "../app/utils"], function (moment, config, ut
   }
   
   function autoAssignId() {
-    requirejs(["historian", "../app/config"], function (historian, config) {
+    requirejs(["historian", "app/config"], function (historian, config) {
       historian.fetchUserId(config.fetchIdUrl, function(user_id) {
         var identifier = user_id;
         if (identifier != null && identifier != "")  {

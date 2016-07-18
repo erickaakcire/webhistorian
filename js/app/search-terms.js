@@ -1,4 +1,4 @@
-define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(utils, moment, context, rangeSlide) {
+define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(utils, moment, context, rangeSlide) {
   var visualization = {};
   var startDate = null;
   var endDate = null;
@@ -60,7 +60,7 @@ define(["../app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], functio
             alert("No records were found. ");
           }
           else {
-            requirejs(["../app/data-table"], function(data_table) {
+            requirejs(["app/data-table"], function(data_table) {
               data_table.display(history, st, "");
               $("#viz_title").html("All visits with search term: " + d.__data__.text);
             });
