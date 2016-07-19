@@ -99,6 +99,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
   
   function svyLink(callback){
     requirejs(["app/config"], function (config) {
+      console.log("svyLink function");
       $.get(config.actionsUrl)
       .error(function(jqXHR, textStatus, errorThrown){
         callback("");
@@ -329,6 +330,12 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         arr.push({timeStored: data.timeStored, endType: data.endType});
         localStorage.setItem("svyEnd", JSON.stringify(arr));
     }
+    
+    function storeActionUrl (url) {
+      var arr = [];
+      arr.push({actionUrl: url});
+      localStorage.setItem("action", JSON.stringify(arr));
+    }
 
 
     function getStoredData(key) {
@@ -374,6 +381,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     }
 
   history.compareWeekVisits = function(startDate, data, callback) {
+    console.log("history.compareWeekVisits");
     var weekAend = startDate;
     var weekAstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-7) );
     var weekBstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-14) );
@@ -484,7 +492,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     if (svyEndObj !== null){
       svyEndType = svyEndObj[0].endType;
     }
-    
+    console.log("showHome");
     history.compareWeekVisits(now, visualData, history.wir);
     
     $("#settings").click(function(){
@@ -537,6 +545,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
       $(".modal-title").html("Upload Data to the Research Project");
       $("div#progress_actions").hide();
       chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) {
+        console.log("loading upload modal in compareWeekVisits");
         $.get(config.actionsUrl)
           .error(function(jqXHR, textStatus, errorThrown){
             if (textStatus == 'timeout'){
