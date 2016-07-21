@@ -62,6 +62,8 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
               requirejs(["app/data-table"], function(data_table) {
                 data_table.display(history, dv, "");
                 $("#viz_title").html("All Visits to " + d.__data__.name);
+                $("#title h2").append(" - To return to a visualization please use the Navigation above.");
+                vizSelected = "data_table";
               });
             },
         },

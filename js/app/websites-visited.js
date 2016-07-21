@@ -305,7 +305,8 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                        requirejs(["app/data-table"], function(data_table) {
                          data_table.display(history, dv, "");
                          $("#viz_title").html("All Visits to " + d.__data__.className);
-                         $("#title h2").append("To return to a visualization please use the Navigation above.");
+                         $("#title h2").append(" - To return to a visualization please use the Navigation above.");
+                         vizSelected = "data_table";
                        });
                      },
                      disabled: false 

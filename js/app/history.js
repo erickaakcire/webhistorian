@@ -544,7 +544,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
 
     $('#upload_modal').on('show.bs.modal', function (e) {
       $(".modal-title").html("Upload Data to the Research Project");
-      $(".modal-body").append("<p>Click Participate to begin.</p>")
+      $("#par1").show();
       $("div#progress_actions").hide();
       chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) {
         $.get(config.actionsUrl)
