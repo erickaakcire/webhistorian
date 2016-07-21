@@ -1,4 +1,4 @@
 .DS_Store
 .project
 js/app/config.js
-
+js/lib/app.build.js
