@@ -99,12 +99,14 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
   
   function svyLink(callback){
     requirejs(["app/config"], function (config) {
-      console.log("svyLink function");
+      $("#loader").html("<br/><br/><h1>One moment please.</h1><br/><br/><br/><br/>");
       $.get(config.actionsUrl)
       .error(function(jqXHR, textStatus, errorThrown){
+        $("#loader").hide();
         callback("");
       })
       .success(function(actions){
+        $("#loader").hide();
         chrome.storage.local.get({ 'before': ''}, function(result){
           var prev = result.before;
           chrome.storage.local.get({ 'upload_identifier': ''}, function(result){
@@ -381,7 +383,6 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     }
 
   history.compareWeekVisits = function(startDate, data, callback) {
-    console.log("history.compareWeekVisits");
     var weekAend = startDate;
     var weekAstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-7) );
     var weekBstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-14) );
@@ -492,7 +493,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     if (svyEndObj !== null){
       svyEndType = svyEndObj[0].endType;
     }
-    console.log("showHome");
+
     history.compareWeekVisits(now, visualData, history.wir);
     
     $("#settings").click(function(){
@@ -543,9 +544,9 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
 
     $('#upload_modal').on('show.bs.modal', function (e) {
       $(".modal-title").html("Upload Data to the Research Project");
+      $(".modal-body").append("<p>Click Participate to begin.</p>")
       $("div#progress_actions").hide();
       chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) {
-        console.log("loading upload modal in compareWeekVisits");
         $.get(config.actionsUrl)
           .error(function(jqXHR, textStatus, errorThrown){
             if (textStatus == 'timeout'){
@@ -610,7 +611,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
             var action = actions[0];
             toList.push(action);
 
-            $("div#progress_actions").hide();
+            //$("div#progress_actions").hide();
 
             $("#upload_data").click(function(){
                 $("div#progress_actions").show();
@@ -853,7 +854,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     
     //insert the code for the cards, but doesn't display them (display: none)
     history.insertCards = function (){
-      $("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian </h3><p>The browser's 'back' button will not navigate within Web Historian, please use the navigation at the top right to explore your visualizations.</p><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project helps researchers understand the role of online information in more depth than many previous studies. Just click the \"Participate in Research\" button <a href='#' data-toggle='modal' id='submit' data-target='#upload_modal'><span class=\"glyphicon glyphicon-cloud-upload\"></a></span>. Participating takes about <strong>5 minutes</strong> and involves uploading your browsing data and completing a survey. Before you take part you can delete any data you don't want to upload by right clicking data in the Web Visits, Search Terms, Network, or by selecting records in the Data Table. Participation is <strong>opt-in only</strong> and your data is not transmitted online in any way if you choose not to participate, in fact you can use it when you are offline. Web Historian helps you visualize the browsing history data that is already on your computer.</p></div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
+      $("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian </h3><p>The browser's 'back' button will not navigate within Web Historian, please use the navigation at the top right to explore your visualizations.</p><h3>Participate in Research</h3><p>If you are over 18 years old and you live the U.S. you can take part in the research project \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context</a>.\" This project is an important innovation in media research because it combines web browsing history with survey responses. This allows researchers to better answer complex questions about the relationship between web browsing and attitudes. <p><strong>To Participate:</strong></p> <ol> <li>Explore the visualizations to better understand your web browsing data. Delete anything you choose by right-clicking it in a visualization or using the Data Table.</li> <li>Click <a href='#' data-toggle='modal' id='submit' data-target='#upload_modal'>\"Participate in Research\"</a> here or using the cloud upload icon in the navigation bar <a href='#' data-toggle='modal' id='submit' data-target='#upload_modal'><span class=\"glyphicon glyphicon-cloud-upload\"></a></span>.</li> <li>Complete the short survey (about 5 minutes) that pops up once you start uploading your browsing data.</li> </ol> <p>Once you finish you will be able to view your uploaded data on the Web Historian server. This icon <span class='glyphicon glyphicon-export'></span> will appear in your navigation to allow you to do so. You will be able to see how you compare to other participants in your overall amount of browsing, the number of different websites your visit, and more.</p> <p>Participation is <strong>opt-in only</strong> and your data is not transmitted online in any way if you choose not to participate. </p> </div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"data_table_card\"> <div class=\"thumbnail\"> <img src=\"images/table.png\" alt=\"Data Table\" /> <div class=\"caption\"> <h3>Data Table</h3> <p> See the details of each web visit with an option to delete specific records. </p> </div> </div> </a> </div>");
       };
   
   //Putting it all together

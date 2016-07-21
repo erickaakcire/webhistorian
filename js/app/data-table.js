@@ -255,6 +255,7 @@ define(["app/utils", "moment"], function(utils, moment) {
       "</div>";
 
     utils.clearVisualization();
+    $("#footer").hide();
     $("#visual_div").append(tabs);
 
     //default

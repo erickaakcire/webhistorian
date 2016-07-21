@@ -162,38 +162,40 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
       
         //constant visual elements
         $("#visual_div").height($("#visual_div").width());
-            var r = $("#visual_div").height(),
-                format = d3.format(",d"),
-                fill = d3.scale.category20();
-  
-            var bubble = d3.layout.pack()
-                .sort(null)
-                .size([r, r])
-                .padding(1.5);
-            var tooltip = d3.select("body")
-            .append("div")
-            .style("position", "absolute")
-            .style("z-index", "10")
-            .style("visibility", "hidden")
-            .style("color", "white")
-            .style("padding", "8px")
-            .style("background-color", "rgba(0, 0, 0, 0.75)")
-            .style("border-radius", "6px")
-            .style("font", "12px sans-serif")
-            .text("tooltip");
+          var r = $("#visual_div").height(),
+              format = d3.format(",d"),
+              fill = d3.scale.category20();
+
+          var bubble = d3.layout.pack()
+              .sort(null)
+              .size([r, r])
+              .padding(1.5);
+          var tooltip = d3.select("body")
+          .append("div")
+          .style("position", "absolute")
+          .style("z-index", "10")
+          .style("visibility", "hidden")
+          .style("color", "white")
+          .style("padding", "8px")
+          .style("background-color", "rgba(0, 0, 0, 0.75)")
+          .style("border-radius", "6px")
+          .style("font", "12px sans-serif")
+          .text("tooltip");
       
-        var vis = d3.select("#visual_div").append("svg")
-                .attr("width", r)
-                .attr("height", r)
-                .attr("class", "bubble")
-                .attr("id", "visualization");
+          var vis = d3.select("#visual_div").append("svg")
+                  .attr("width", r)
+                  .attr("height", r)
+                  .attr("class", "bubble")
+                  .attr("id", "visualization");
               
+          var aboveTxt = "Click a circle to highlight. Double click to un-highlight. Right click for more options.<br/>  Is this visualization incomplete? If you also use Internet Explorer or Firefox, you can import your browsing history to include it. Just follow <a href='http://www.webhistorian.org/importing/' target='_blank'>these steps</a>.";
+            
             function showVisits(){
               habits = 0;
               change = 1;
               var numDomains = utils.countUniqueProperty(data, "domain");
               $("#title").prepend("<h1 id='viz_title'>What websites do you visit most?");
-               $("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary active\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\" checked> All Visits  </label> <label class=\"btn btn-primary\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\"> Daily Habits  </label> &nbsp; &nbsp; Click a circle to highlight. Double click to un-highlight. Right click for more options.</div><p><br/> <input type='text' id='slider' name='slider_name' value=''/>");
+               $("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary active\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\" checked> All Visits  </label> <label class=\"btn btn-primary\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\"> Daily Habits  </label></div> &nbsp; &nbsp; "+ aboveTxt +"<p><br/> <input type='text' id='slider' name='slider_name' value=''/>");
               changeBubble(datasetV);
             }
             function showHabits (){
@@ -201,7 +203,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
               change = 1;
               $("#title h2").show();
               $("#title").prepend("<h1 id='viz_title'>What websites do you visit regularly?</h1>");
-              $("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label> &nbsp; &nbsp; Click a circle to highlight. Doublle click to un-highlight. Right click for more options.</div><p><br/><input type='text' id='slider' name='slider_name' value=''/>");
+              $("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label> &nbsp; &nbsp; </div>"+aboveTxt+"<p><br/><input type='text' id='slider' name='slider_name' value=''/>");
               changeBubble(datasetH);
             }
           

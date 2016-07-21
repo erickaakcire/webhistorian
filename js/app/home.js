@@ -112,7 +112,6 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
     history.insertCards();
     visualization.homeClicks();
     $('#viz_selector').show();
-    console.log("visualization.display in home.js");
     history.compareWeekVisits(endDate, filteredData, history.wir);
  
   };
