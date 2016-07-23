@@ -19,8 +19,6 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
   var divName = "visual_div";
   var now = new Date();
   var timeSelect = 0; //null = 24 hours, 0 = all time
-  var dateLimit = new Date(now.getTime());
-  dateLimit.setDate(now.getDate() - 91);
   var dateForward = Infinity;
   var svyTab = 1;
 
@@ -28,11 +26,15 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
   var lastDate = "";
   var visualData = [];
   var ids = [];
+  
+  var nintyAgo = now.getTime() - 7776000000;
+  var dumbStartEnd = [{start: nintyAgo, end: now.getTime()}];
+  sessionStorage.setItem("se", JSON.stringify(dumbStartEnd));
 
   function storeStartEnd(data){
     var startEnd = [];
     var seStored = sessionStorage.getItem('se');
-    if (seStored === null){
+
       var end = data[0].date;
       var start = data[0].date;
       for (i=1;i<data.length;i++) {
@@ -47,7 +49,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         startEnd.push({start: start, end: end});
         sessionStorage.setItem("se", JSON.stringify(startEnd));
       }
-    }
+    
   }
   
   function storeCats(callback) {
