@@ -55,6 +55,16 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
     }
     else { console.log("already selected"); }
   }
+  function goTime () {
+    if (vizSelected !== "time"){
+      $("#cards").html("<br/><br/><h1>One moment please. Loading Time</h1><br/><br/><br/><br/>");
+      requirejs(["app/time"], function(time) {
+        time.display(history, history.fullData);
+        vizSelected = "time";
+      });
+    }
+    else { console.log("already selected"); }
+  }
   function goDataTable (){
     if (vizSelected !== "data_table"){
       $("#cards").html("<br/><br/><h1>One moment please. Loading Data Table</h1><br/><br/><br/><br/>");
@@ -84,6 +94,10 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
   $("#network").click(function() {
     goNetwork();
   });
+  
+  $("#time").click(function() {
+    goTime();
+  });
 
   $("#data_table").click(function() {
     goDataTable();
@@ -101,8 +115,8 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
     $("#search_words_card").click(function() {
       goSearchWords();
     });
-    $("#web_visit_card").click(function() {
-      goWebVisit();
+    $("#time_card").click(function() {
+      goTime();
     });
   }
 
