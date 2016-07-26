@@ -95,7 +95,6 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
   }
   
   function svyLink(callback){
-    console.log("svyLink called");
     requirejs(["app/config"], function (config) {
       $("#loader").html("<br/><br/><h1>One moment please.</h1><br/><br/><br/><br/>");
       $.get(config.actionsUrl)
@@ -508,9 +507,18 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         $(".modal-title").html("Settings");
         
         $("#id-body").html("<p>Your Web Historian identifier is: <strong>" + id + "</strong></p><p>If you need to change your Web Historian Identifier you can <a id='changeIdSet'>click here</a>.</p><hr/><p>Your last upload was completed on: " + dateOut +"</p>");
+        if (svyEndType === null && lastUl === undefined){
+          $("#id-body").append("<hr/><p><a id='disableRemind'>Click here</a> to disable reminders to participate in the research project.</p>")
+          $("#disableRemind").click(function(){
+          	var noStudy = {timeStored: now.getTime(), endType: 0};
+          	storeSvyEnd(noStudy);
+            svyEndType = 0;
+            alert("Research participation reminders have been disabled");
+          });
+        }
         
         $("#changeIdSet").click(function(){
-          $("#id-body").html("<p>Change your Web Historian Identifier</p><fieldset class='form-group' id='idChoice'><input type='text' class='form-control' id='field_identifier' placeholder='Enter identifier here&#8230;' /></fieldset>");
+          $("#id-body").html("<div class='alert alert-warning'><p><span class='glyphicon glyphicon-exclamation-sign' aria-hidden='true'></span> There are only a few cases when you might need to do this, e.g. you entered your study ID incorrectly or you entered your orignial installation ID incorrectly. <br/><br/>If this is not the case please do not change your ID, it could make your data less secure!</p></div><p>Change your Web Historian Identifier</p><fieldset class='form-group' id='idChoice'><input type='text' class='form-control' id='field_identifier' placeholder='Enter identifier here&#8230;' /></fieldset>");
       		$("#field_identifier").val(id);
           var elseBefore = 0;
           $("#chose_identifier").off('click');
@@ -542,7 +550,8 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
 
     $('#upload_modal').on('show.bs.modal', function (e) {
       $(".modal-title").html("Upload Data to the Research Project");
-      $("#par1").show();
+      $("#par1").html("Click Participate to begin.")
+      
       $("div#progress_actions").hide();
       chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) {
         $.get(config.actionsUrl)
