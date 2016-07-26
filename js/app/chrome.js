@@ -25,6 +25,17 @@ chrome.browserAction.onClicked.addListener(function(tab) {
   });
 });
 
+function install_notice() {
+    if (localStorage.getItem('install_time'))
+        return;
+
+    var now = new Date().getTime();
+    localStorage.setItem('install_time', now);
+    chrome.tabs.create({url: "index.html"});
+    console.log("installation");
+}
+install_notice();
+
 chrome.alarms.create("check-last-upload", {
   when: 0,
   periodInMinutes: 30
