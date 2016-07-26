@@ -3,7 +3,7 @@
   "name": "Web Historian - Web History Visualizations",
   "version": "0.7.8",
   "short_name": "Web Historian",
-  "description": "Web Historian - See your web browsing history in a new light",
+  "description": "Web Historian - Visualize your web use to understand your habits",
   "permissions": [
     "history",
     "tabs",
