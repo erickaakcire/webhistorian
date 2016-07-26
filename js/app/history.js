@@ -3,12 +3,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
   var history = {};
   
   history.fullData = [];
-  //history.timeSelection = "all";
-  //history.earliestTimestamp = Number.MAX_VALUE;
-  //history.latestTimestamp = Number.MIN_VALUE;
   history.urlArray = [];
-  
-  history.svyEndType = null;
   
   var startDate = null;
   var endDate = null;
@@ -100,6 +95,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
   }
   
   function svyLink(callback){
+    console.log("svyLink called");
     requirejs(["app/config"], function (config) {
       $("#loader").html("<br/><br/><h1>One moment please.</h1><br/><br/><br/><br/>");
       $.get(config.actionsUrl)
@@ -680,6 +676,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
                       $("#research").html("<br/><br/><p>Please complete the survey for the research project that opened in a new tab, if you haven't already. <a href='"+url+"' target='_blank'>Click here for another link to your survey</a>. Thank you!.<br/><br/>");
                     }
                   });
+                  lastUl = now;
                   chrome.tabs.update(svyTab, {"active": true});
                   //show participation date as today               
                   chrome.browserAction.setBadgeText({ text: "" }); 
@@ -867,14 +864,23 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
       lastUl = result.lastPdkUpload;
      });
      
-      history.insertCards();
-      //Get all data into fullData1
-      getUrls(noTransform, noViz, function()
-      {
-        storeStartEnd(history.fullData);
-        svyEnd(history.fullData);
-        storeCats(showHome);
+    history.insertCards();
+    //Get all data into fullData1
+    getUrls(noTransform, noViz, function()
+    {
+      storeStartEnd(history.fullData);
+      svyEnd(history.fullData);
+      storeCats(showHome);
+      $(document).mouseleave(function() {
+        if (svyEndType === null && lastUl === undefined) {
+          $("#upload_modal").modal("show");
+          $(".modal-title").html("Thank you for using Web Historian!");
+          $("#par1").html("<h3>Please consider participating in the research project.</h3><p> <a href='http://webhistorian.org/participate' target='blank'>Click here</a> for more information, or click the orange Participate button to begin uploading your data.");
+        }
+        //add an opt-out of the research - settings - only if no endType
     });
+
+    })
   });
 
     return history;
