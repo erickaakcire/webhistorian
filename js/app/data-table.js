@@ -174,9 +174,9 @@ define(["app/utils", "moment"], function(utils, moment) {
         title: 'Title',
         sortable: true
       }, {
-        field: 'terms',
-        title: 'Search Terms',
-        sortable: true
+        field: 'url',
+        title: 'URL',
+        sortable: false,
       }],
       data: tableData,
       striped: true,
