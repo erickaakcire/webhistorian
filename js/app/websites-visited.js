@@ -89,59 +89,59 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
   //habits view needs processing to segment by day
   function getHabitData (data, catObj, callback) {
     var biggestSize = 0;
-        var biggestDomain = "";
-        var domains = utils.countPropDomains(data, "domain");
-        var domainDay2 = [];
-       //domains object has a list of unique domains, replacing the raw count with:
-        for (var i = 0; i < domains.length; i++) {
-            var domainDay1 = [];
-            var currentDomain = domains[i].domain;
-            var currentTopD = domains[i].topD;
+    var biggestDomain = "";
+    var domains = utils.countPropDomains(data, "domain");
+    var domainDay2 = [];
+   //domains object has a list of unique domains, replacing the raw count with:
+    for (var i = 0; i < domains.length; i++) {
+        var domainDay1 = [];
+        var currentDomain = domains[i].domain;
+        var currentTopD = domains[i].topD;
 
-            //find the array indexes of the domain in data
-            for (var j = 0; j < data.length; j++){
-              if (currentDomain === data[j].domain){
+        //find the array indexes of the domain in data
+        for (var j = 0; j < data.length; j++){
+          if (currentDomain === data[j].domain){
 
-                var newDate = new Date(data[j].date);
-                var day = ("0" + newDate.getDate()).slice(-2);
-                var month = ("0" + (newDate.getMonth() + 1) ).slice(-2);
-                var date = newDate.getFullYear() + "/" + month + "/" + day;
+            var newDate = new Date(data[j].date);
+            var day = ("0" + newDate.getDate()).slice(-2);
+            var month = ("0" + (newDate.getMonth() + 1) ).slice(-2);
+            var date = newDate.getFullYear() + "/" + month + "/" + day;
 
-                if (domainDay1.indexOf(date) < 0){
-                  domainDay1.push(date);
-                }
-              }
+            if (domainDay1.indexOf(date) < 0){
+              domainDay1.push(date);
             }
-            var size = domainDay1.length;
-            
-            if (size >= biggestSize){
-              biggestSize = size;
-              biggestDomain = currentDomain;
-            }
-      
-              domainDay2.push({
-                "domain": currentDomain,
-                "count": size,
-                "topD": currentTopD
-              });
-           }
-           var startDiff = new Date(sd);
-           var endDiff = new Date(ed);
-           var oneDay = 24 * 60 * 60 * 1000;
-           var utcStart = Date.UTC(startDiff.getFullYear(), startDiff.getMonth(), startDiff.getDate());
-           var utcEnd = Date.UTC(endDiff.getFullYear(), endDiff.getMonth(), endDiff.getDate());
-           diffDays = Math.ceil((utcEnd - utcStart) / oneDay) + 1;
-           $("#title h2").empty();
-           $("#title").append("<h2 id='viz_subtitle' style=\"display:none\">You have a span of " + diffDays + " days in your browsing history.</h2>");
-         
-           return callback(catObj, domainDay2);         
+          }
+        }
+        var size = domainDay1.length;
+        
+        if (size >= biggestSize){
+          biggestSize = size;
+          biggestDomain = currentDomain;
+        }
+  
+          domainDay2.push({
+            "domain": currentDomain,
+            "count": size,
+            "topD": currentTopD
+          });
+       }
+       var startDiff = new Date(sd);
+       var endDiff = new Date(ed);
+       var oneDay = 24 * 60 * 60 * 1000;
+       var utcStart = Date.UTC(startDiff.getFullYear(), startDiff.getMonth(), startDiff.getDate());
+       var utcEnd = Date.UTC(endDiff.getFullYear(), endDiff.getMonth(), endDiff.getDate());
+       diffDays = Math.ceil((utcEnd - utcStart) / oneDay) + 1;
+       $("#title h2").empty();
+       $("#title").append("<h2 id='viz_subtitle' style=\"display:none\">You have a span of " + diffDays + " days in your browsing history.</h2>");
+     
+       return callback(catObj, domainDay2);         
     };
     //fetch the stored categories object
     function catAsync(callback) {
       var catStored = sessionStorage.getItem('cats');
       var catsObj = JSON.parse(catStored);
       callback(catsObj);
-  }
+    }
   
     visualization.display = function(history, data)
     {

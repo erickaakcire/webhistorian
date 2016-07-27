@@ -57,7 +57,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
   }
   function goTime () {
     if (vizSelected !== "time"){
-      $("#cards").html("<br/><br/><h1>One moment please. Loading Time</h1><br/><br/><br/><br/>");
+      $("#cards").html("<br/><br/><h1>One moment please. Loading Time Heatmap</h1><br/><br/><br/><br/>");
       requirejs(["app/time"], function(time) {
         time.display(history, history.fullData);
         vizSelected = "time";
