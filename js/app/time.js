@@ -132,7 +132,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
   
   visualization.display = function(history, data) {
     utils.clearVisualization();
-    $("#title").html("<h1 id='viz_title'>Time Heatmap</h1><h2>Browsing volume by hour of the day and day of the week</h2>");
+    $("#title").html("<h1 id='viz_title'>Time Heatmap</h1><h2>Browsing by hour of the day &amp; day of the week. Right click to view records.</h2><div class='btn-toolbar' role='toolbar'> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Week <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='weekMenu'> </ul> </div> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Domain <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='domainMenu'> </ul> </div></div>");
     
     var margin = { top: 50, right: 0, bottom: 100, left: 30 },
         width = 960 - margin.left - margin.right,
@@ -218,7 +218,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
             }))
             .style("fill", colors[0]);
 
-        cards.transition().duration(1000)
+        cards.transition().duration(2000)
             .style("fill", function(d) { return colorScale(d.value); });
 
         //cards.select("title").text(function(d) { return d.value; });
