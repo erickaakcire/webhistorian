@@ -24,28 +24,28 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
               var day = "";
               switch (d.__data__.day) {
                   case "1":
-                      day = "Sundays";
+                      day = "Sun";
                       break;
                   case "2":
-                      day = "Mondays";
+                      day = "Mon";
                       break;
                   case "3":
-                      day = "Tuesdays";
+                      day = "Tues";
                       break;
                   case "4":
-                      day = "Wednesdays";
+                      day = "Wed";
                       break;
                   case "5":
-                      day = "Thursdays";
+                      day = "Thurs";
                       break;
                   case "6":
-                      day = "Fridays";
+                      day = "Fri";
                       break;
                   case "7":
-                      day = "Saturdays";
+                      day = "Saturday";
               }
               $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
-              $("#title h2").append(" - To return to a visualization please use the Navigation above.");
+              $("#title h2").html(dv.length + " visits - To return to a visualization please use the Navigation above.");
               vizSelected = "data_table";
             });
           },
@@ -53,7 +53,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
     ]
   
   sumProp = function(data) {
-    var valueObj = {};
+    var valueObj = {"1-1": {idArr: []}, "1-2": {idArr: []}, "1-3": {idArr: []}, "1-4": {idArr: []}, "1-5": {idArr: []}, "1-6": {idArr: []}, "1-7": {idArr: []}, "1-8": {idArr: []}, "1-9": {idArr: []}, "1-10": {idArr: []}, "1-11": {idArr: []}, "1-12": {idArr: []}, "1-13": {idArr: []}, "1-14": {idArr: []}, "1-15": {idArr: []}, "1-16": {idArr: []}, "1-17": {idArr: []}, "1-18": {idArr: []}, "1-19": {idArr: []}, "1-20": {idArr: []}, "1-21": {idArr: []}, "1-22": {idArr: []}, "1-23": {idArr: []}, "1-24": {idArr: []}, "2-1": {idArr: []}, "2-2": {idArr: []}, "2-3": {idArr: []}, "2-4": {idArr: []}, "2-5": {idArr: []}, "2-6": {idArr: []}, "2-7": {idArr: []}, "2-8": {idArr: []}, "2-9": {idArr: []}, "2-10": {idArr: []}, "2-11": {idArr: []}, "2-12": {idArr: []}, "2-13": {idArr: []}, "2-14": {idArr: []}, "2-15": {idArr: []}, "2-16": {idArr: []}, "2-17": {idArr: []}, "2-18": {idArr: []}, "2-19": {idArr: []}, "2-20": {idArr: []}, "2-21": {idArr: []}, "2-22": {idArr: []}, "2-23": {idArr: []}, "2-24": {idArr: []}, "3-1": {idArr: []}, "3-2": {idArr: []}, "3-3": {idArr: []}, "3-4": {idArr: []}, "3-5": {idArr: []}, "3-6": {idArr: []}, "3-7": {idArr: []}, "3-8": {idArr: []}, "3-9": {idArr: []}, "3-10": {idArr: []}, "3-11": {idArr: []}, "3-12": {idArr: []}, "3-13": {idArr: []}, "3-14": {idArr: []}, "3-15": {idArr: []}, "3-16": {idArr: []}, "3-17": {idArr: []}, "3-18": {idArr: []}, "3-19": {idArr: []}, "3-20": {idArr: []}, "3-21": {idArr: []}, "3-22": {idArr: []}, "3-23": {idArr: []}, "3-24": {idArr: []}, "4-1": {idArr: []}, "4-2": {idArr: []}, "4-3": {idArr: []}, "4-4": {idArr: []}, "4-5": {idArr: []}, "4-6": {idArr: []}, "4-7": {idArr: []}, "4-8": {idArr: []}, "4-9": {idArr: []}, "4-10": {idArr: []}, "4-11": {idArr: []}, "4-12": {idArr: []}, "4-13": {idArr: []}, "4-14": {idArr: []}, "4-15": {idArr: []}, "4-16": {idArr: []}, "4-17": {idArr: []}, "4-18": {idArr: []}, "4-19": {idArr: []}, "4-20": {idArr: []}, "4-21": {idArr: []}, "4-22": {idArr: []}, "4-23": {idArr: []}, "4-24": {idArr: []}, "5-1": {idArr: []}, "5-2": {idArr: []}, "5-3": {idArr: []}, "5-4": {idArr: []}, "5-5": {idArr: []}, "5-6": {idArr: []}, "5-7": {idArr: []}, "5-8": {idArr: []}, "5-9": {idArr: []}, "5-10": {idArr: []}, "5-11": {idArr: []}, "5-12": {idArr: []}, "5-13": {idArr: []}, "5-14": {idArr: []}, "5-15": {idArr: []}, "5-16": {idArr: []}, "5-17": {idArr: []}, "5-18": {idArr: []}, "5-19": {idArr: []}, "5-20": {idArr: []}, "5-21": {idArr: []}, "5-22": {idArr: []}, "5-23": {idArr: []}, "5-24": {idArr: []}, "6-1": {idArr: []}, "6-2": {idArr: []}, "6-3": {idArr: []}, "6-4": {idArr: []}, "6-5": {idArr: []}, "6-6": {idArr: []}, "6-7": {idArr: []}, "6-8": {idArr: []}, "6-9": {idArr: []}, "6-10": {idArr: []}, "6-11": {idArr: []}, "6-12": {idArr: []}, "6-13": {idArr: []}, "6-14": {idArr: []}, "6-15": {idArr: []}, "6-16": {idArr: []}, "6-17": {idArr: []}, "6-18": {idArr: []}, "6-19": {idArr: []}, "6-20": {idArr: []}, "6-21": {idArr: []}, "6-22": {idArr: []}, "6-23": {idArr: []}, "6-24": {idArr: []}, "7-1": {idArr: []}, "7-2": {idArr: []}, "7-3": {idArr: []}, "7-4": {idArr: []}, "7-5": {idArr: []}, "7-6": {idArr: []}, "7-7": {idArr: []}, "7-8": {idArr: []}, "7-9": {idArr: []}, "7-10": {idArr: []}, "7-11": {idArr: []}, "7-12": {idArr: []}, "7-13": {idArr: []}, "7-14": {idArr: []}, "7-15": {idArr: []}, "7-16": {idArr: []}, "7-17": {idArr: []}, "7-18": {idArr: []}, "7-19": {idArr: []}, "7-20": {idArr: []}, "7-21": {idArr: []}, "7-22": {idArr: []}, "7-23": {idArr: []}, "7-24": {idArr: []}};
     var idArr = [];
     var sData = utils.sortByProperty(data, "sort");
     
@@ -61,7 +61,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
       var sort = sData[i]["sort"];
       var id = sData[i]["id"];
 
-      if (valueObj[sort] === undefined){
+      if (valueObj[sort].idArr.length === 0){
         idArr = [];
         idArr.push(id);
         valueObj[sort] = {idArr: idArr};
@@ -79,42 +79,20 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
         var re = /([0-9])-([0-9]*)/;
         var day = j.replace(re, "$1");
         var hr = j.replace(re, "$2");
+        var val = 0;
+        if (valueObj[j].idArr.length !== undefined){
+          val = valueObj[j].idArr.length;
+        }
         
         counts.push({
           "day": day,
           "hour": hr,
           "sort": j,
-          "value": valueObj[j].idArr.length,
+          "value": val,
           "idArr": valueObj[j].idArr
         });
       }
     }
-    var hourDay = ["1-1","1-2","1-3","1-4","1-5","1-6","1-7","1-8","1-9","1-10","1-11","1-12","1-13","1-14","1-15","1-16","1-17","1-18","1-19","1-20","1-12","1-22","1-23","1-24","2-1","2-2","2-3","2-4","2-5","2-6","2-7","2-8","2-9","2-10","2-11","2-12","2-13","2-14","2-15","2-16","2-17","2-18","2-19","2-20","2-12","2-22","2-23","2-24","3-1","3-2","3-3","3-4","3-5","3-6","3-7","3-8","3-9","3-10","3-11","3-12","3-13","3-14","3-15","3-16","3-17","3-18","3-19","3-20","3-12","3-22","3-23","3-24","4-1","4-2","4-3","4-4","4-5","4-6","4-7","4-8","4-9","4-10","4-11","4-12","4-13","4-14","4-15","4-16","4-17","4-18","4-19","4-20","4-12","4-22","4-23","4-24","5-1","5-2","5-3","5-4","5-5","5-6","5-7","5-8","5-9","5-10","5-11","5-12","5-13","5-14","5-15","5-16","5-17","5-18","5-19","5-20","5-12","5-22","5-23","5-24","6-1","6-2","6-3","6-4","6-5","6-6","6-7","6-8","6-9","6-10","6-11","6-12","6-13","6-14","6-15","6-16","6-17","6-18","6-19","6-20","6-12","6-22","6-23","6-24","7-1","7-2","7-3","7-4","7-5","7-6","7-7","7-8","7-9","7-10","7-11","7-12","7-13","7-14","7-15","7-16","7-17","7-18","7-19","7-20","7-12","7-22","7-23","7-24"];
-    for (var k=0; k<hourDay.length; k++){
-      var hd = hourDay[k];
-      var present = 0;
-      
-      for (var l=0; l<counts.length; l++) {
-        var s = counts[l].sort;
-        if(s === hd){
-          present = 1;
-        }
-      }
-      if (present === 0){
-        var re = /([0-9])-([0-9]*)/;
-        var day = hd.replace(re, "$1");
-        var hr = hd.replace(re, "$2");
-        
-        counts.push({
-          "day": day,
-          "hour": hr,
-          "sort": hd,
-          "value": 0,
-          "idArr": []
-        });
-      }
-    }
-    
     return counts;
   };
   
@@ -132,7 +110,9 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
   
   visualization.display = function(history, data) {
     utils.clearVisualization();
-    $("#title").html("<h1 id='viz_title'>Time Heatmap</h1><h2>Browsing by hour of the day &amp; day of the week. Right click to view records.</h2><div class='btn-toolbar' role='toolbar'> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Week <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='weekMenu'> </ul> </div> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Domain <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='domainMenu'> </ul> </div></div>");
+    var startWeek = "";
+    var endWeek = "";
+    $("#title").html("<h1 id='viz_title'>Time Heatmap</h1><h2>Browsing by hour of the day &amp; day of the week, " + startWeek + " - "+ endWeek +"</h2><p> Right click to view records.</p><div class='btn-toolbar' role='toolbar'> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Week <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='weekMenu'> </ul> </div></div>");
     
     var margin = { top: 50, right: 0, bottom: 100, left: 30 },
         width = 960 - margin.left - margin.right,
@@ -220,8 +200,6 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
 
         cards.transition().duration(2000)
             .style("fill", function(d) { return colorScale(d.value); });
-
-        //cards.select("title").text(function(d) { return d.value; });
   
         cards.exit().remove();
 
