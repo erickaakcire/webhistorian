@@ -97,6 +97,11 @@ define(function() {
     $("#above_visual").empty();
     $("#cards").empty();
   };
+  
+  utils.lessDays = function(endDate, lessDays) {
+    var date = new Date (endDate.getFullYear(),endDate.getMonth(),(endDate.getDate()-lessDays) );
+    return date;
+  }
 
 
   utils.filterByDates = function(data, startDate, endDate) {

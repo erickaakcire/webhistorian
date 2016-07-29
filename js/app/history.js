@@ -381,21 +381,14 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
 
   history.compareWeekVisits = function(startDate, data, callback) {
     var weekAend = startDate;
-    var weekAstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-7) );
-    var weekBstart = new Date (startDate.getFullYear(),startDate.getMonth(),(startDate.getDate()-14) );
+    var weekAstart = utils.lessDays(startDate,7);
+    var weekBstart = utils.lessDays(startDate,14);
 
     var weekAendNum = weekAend.getTime();
     var weekAstartNum = weekAstart.getTime();
     var weekBstartNum = weekBstart.getTime();
-
-      data.sort(function(a, b) {
-        if (a["date"] < b["date"])
-          return -1;
-        else if (a["date"] > b["date"])
-          return 1;
-          
-        return 0;
-      });
+    
+    data = utils.sortByProperty(data, "date");
     
     //before this week data array, this week data array
     var twd = onlyBetween(data, "date", weekAstartNum, weekAendNum);
@@ -753,7 +746,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
       return false;
     });
   }
-  function svyEnd (data){ //i=1???
+  function svyEnd (data){ //i=1 because the end item is the second one in the config
     for (i=1;i<data.length;i++) {
       if (data[i].url === config.endSvyUrls[1]) {
       	var noStudy = {timeStored: now.getTime(), endType: 0};

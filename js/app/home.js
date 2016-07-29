@@ -17,7 +17,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
   
   function goHome (){
     if(vizSelected !== "home"){
-      $("#cards").html("<br/><br/><h1>One moment please. Loading Home</h1><br/><br/><br/><br/>");
+      $("#cards").html("<br/><br/><h1>One moment please. Loading Home.</h1><br/><br/><br/><br/>");
       requirejs(["app/home"], function(home) {
         home.display(history, history.fullData);
         vizSelected = "home";
@@ -27,7 +27,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
   }
   function goWebVisit (){
     if (vizSelected !== "web_visit"){
-      $("#cards").html("<br/><br/><h1>One moment please. Loading Web Visits</h1><br/><br/><br/><br/>");
+      $("#cards").html("<br/><br/><h1>One moment please. Loading Web Visits.</h1><br/><br/><br/><br/>");
       requirejs(["app/websites-visited"], function(websites_visited) {
         websites_visited.display(history, history.fullData);
         vizSelected = "web_visit"
@@ -37,7 +37,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
   }
   function goSearchWords(){
     if(vizSelected !== "search_words"){
-      $("#cards").html("<br/><br/><h1>One moment please. Loading Search Words</h1><br/><br/><br/><br/>");
+      $("#cards").html("<br/><br/><h1>One moment please. Loading Search Words.</h1><br/><br/><br/><br/>");
       requirejs(["app/search-terms"], function(search_words) {
         search_words.display(history, history.fullData);
         vizSelected = "search_words";
@@ -47,7 +47,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
   }
   function goNetwork () {
     if (vizSelected !== "network"){
-      $("#cards").html("<br/><br/><h1>One moment please. Loading Network</h1><br/><br/><br/><br/>");
+      $("#cards").html("<br/><br/><h1>One moment please. Loading Network.</h1><br/><br/><br/><br/>");
       requirejs(["app/site-network"], function(site_network) {
         site_network.display(history, history.fullData);
         vizSelected = "network";
@@ -57,9 +57,12 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
   }
   function goTime () {
     if (vizSelected !== "time"){
-      $("#cards").html("<br/><br/><h1>One moment please. Loading Time Heatmap</h1><br/><br/><br/><br/>");
+      $("#cards").html("<br/><br/><h1>One moment please. Loading Time Heatmap.</h1><br/><br/><br/><br/>");
       requirejs(["app/time"], function(time) {
-        time.display(history, history.fullData);
+        var now = new Date();
+        var sevenDaysAgo = utils.lessDays(now, 7);
+        var weekData = utils.filterByDates(history.fullData, sevenDaysAgo, now);
+        time.display(history, weekData);
         vizSelected = "time";
       });
     }
@@ -67,7 +70,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
   }
   function goDataTable (){
     if (vizSelected !== "data_table"){
-      $("#cards").html("<br/><br/><h1>One moment please. Loading Data Table</h1><br/><br/><br/><br/>");
+      $("#cards").html("<br/><br/><h1>One moment please. Loading Data Table.</h1><br/><br/><br/><br/>");
       requirejs(["app/data-table"], function(data_table) {
         data_table.display(history, history.fullData, "");
         vizSelected = "data_table";
