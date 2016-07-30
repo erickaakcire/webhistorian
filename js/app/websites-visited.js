@@ -312,6 +312,28 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                      disabled: false 
                  },
                  {
+                     title: 'View in Time Heatmap',
+                     action: function(d) {
+                       //filter the dataset to just the domain of the object
+                       var all = history.fullData;
+                       var dv = [];
+                       for (var i in all){
+                         var domain = all[i].domain;
+                         var item = all[i];
+                         if (domain === d.__data__.className){
+                           dv.push(item);
+                         }
+                       }
+                       requirejs(["app/time"], function(time) {
+                         time.display(history, dv);
+                         $("#viz_title").html("All Visits to " + d.__data__.className);
+                         $("#title h2").html("To return to a visualization please use the Navigation above.");
+                         vizSelected = "time";
+                       });
+                     },
+                     disabled: false 
+                 },
+                 {
                      title: 'Permanently Delete',
                      action: function(d) {
                        if (confirm('Do you want to PERMANENTLY remove ALL visits to URLs from '+d.__data__.className+' from your local browser history?')) {

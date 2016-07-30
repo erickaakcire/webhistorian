@@ -1,6 +1,8 @@
 //based on http://bl.ocks.org/tjdecke/5558084
 define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/history"], function(utils, moment, context, rangeSlide, history) {
   var visualization = {};
+  var weekSelectedId = "0";
+  var now = new Date();
   
   var menu = [
       {
@@ -24,31 +26,78 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
               var day = "";
               switch (d.__data__.day) {
                   case "1":
-                      day = "Sun";
-                      break;
-                  case "2":
                       day = "Mon";
                       break;
-                  case "3":
+                  case "2":
                       day = "Tues";
                       break;
-                  case "4":
+                  case "3":
                       day = "Wed";
                       break;
-                  case "5":
+                  case "4":
                       day = "Thurs";
                       break;
-                  case "6":
+                  case "5":
                       day = "Fri";
                       break;
+                  case "6":
+                      day = "Sat";
+                      break;
                   case "7":
-                      day = "Saturday";
+                      day = "Sun";
               }
               $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
               $("#title h2").html(dv.length + " visits - To return to a visualization please use the Navigation above.");
               vizSelected = "data_table";
             });
           },
+      },
+      {
+        title: 'View in Web Visits',
+        action: function(d){
+          //filter the dataset to just the IDs in the idArr
+          var all = history.fullData;
+          var dv = [];
+          for (var i in all){
+            var id = all[i].id;
+            var item = all[i];
+            for (var i=0; i < d.__data__.idArr.length; i++){
+              idData = d.__data__.idArr[i];
+              if (id === idData){
+                dv.push(item);
+              }
+            }
+          }
+          requirejs(["app/websites-visited"], function(wv) {
+            var day = "";
+            switch (d.__data__.day) {
+                case "1":
+                    day = "Mon";
+                    break;
+                case "2":
+                    day = "Tues";
+                    break;
+                case "3":
+                    day = "Wed";
+                    break;
+                case "4":
+                    day = "Thurs";
+                    break;
+                case "5":
+                    day = "Fri";
+                    break;
+                case "6":
+                    day = "Sat";
+                    break;
+                case "7":
+                    day = "Sun";
+            }
+            wv.display(history, dv);
+            $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
+            $("#title h2").html(dv.length + " visits - To return to a visualization please use the Navigation above.");
+            vizSelected = "web_visit";
+          });
+        }
       }
     ]
   
@@ -83,7 +132,6 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
         if (valueObj[j].idArr.length !== undefined){
           val = valueObj[j].idArr.length;
         }
-        
         counts.push({
           "day": day,
           "hour": hr,
@@ -108,12 +156,178 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
     return hrDataSum;
   }
   
+  function weekMenu(){
+    var se = JSON.parse(sessionStorage.getItem("se"));
+    var start = new Date(se[0].start);
+    var end = new Date(se[0].end);
+    var startYear = moment(start).format('YYYY');
+    var startDay = moment(start).format('DDD');
+    var endYear = moment(end).format('YYYY');
+    var endDay = moment(end).format('DDD');
+    if (endYear !== startYear) {
+      endDay = endDay + 365;
+    }
+    var daySpan = endDay - startDay;
+    var fullWeeks = Math.floor(daySpan/7);
+    
+    $("#weekMenu").append("<li role='presentation'><a id='allData' role='menuitem' href='#'>All "+fullWeeks+" Weeks</a></li><li role='presentation' class='divider'></li>");
+    $("#allData").click(function(){
+      if(weekSelectedId !== "all"){
+        weekSelectedId = "all";
+        visualization.display(history, history.fullData);
+        $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + moment(start).format('ddd, MMM D') + " - "+ moment(end).format('ddd, MMM D') +"</h2>");
+      }
+    });
+    $("#weekMenu").append("<li role='presentation'><a id='thisWeek' role='menuitem' href='#'>This Week - Default</a></li>");
+    $("#thisWeek").click(function(){
+      if(weekSelectedId !== "0"){
+        weekSelectedId = "0";
+        var sevenDaysAgo = utils.lessDays(now, 7);
+        var weekData = utils.filterByDates(history.fullData, sevenDaysAgo, now);
+        visualization.display(history, weekData);
+      }
+    });
+    
+    for(var i=1; i<=fullWeeks; i++) { //i=1 to skip the current week
+      var subtractStart = i * 7;
+      var subtractEnd = subtractStart + 7;
+      var subtractStartD = subtractStart + 1;
+      var startWeek = utils.lessDays(end,subtractStart);
+      var endWeek = utils.lessDays(end,subtractEnd);
+      var startWeekD = utils.lessDays(end,subtractStartD);
+      var startWeekDisplay = moment(startWeekD).format('ddd, MMM D');
+      var endWeekDisplay = moment(endWeek).format('ddd, MMM D');
+      $("#weekMenu").append("<li role='presentation'><a id='week"+ i +"' role='menuitem' href='#'>" + endWeekDisplay + " - " + startWeekDisplay + "</a></li>");
+    }
+    $("#week1").click(function(){
+      var startWeek1 = utils.lessDays(now, 7);
+      var endWeek1 = utils.lessDays(now, 14);
+      var startWeek1D = utils.lessDays(now, 8);
+      var startWeekDisplay1 = moment(startWeek1D).format('ddd, MMM D');
+      var endWeekDisplay1 = moment(endWeek1).format('ddd, MMM D');
+      var weekData1 = utils.filterByDates(history.fullData, endWeek1, startWeek1);
+      visualization.display(history, weekData1);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay1 + " - "+ startWeekDisplay1 +"</h2>")
+    });
+    $("#week2").click(function(){
+      var startWeek2 = utils.lessDays(now, 14);
+      var endWeek2 = utils.lessDays(now, 21);
+      var startWeek2D = utils.lessDays(now, 15);
+      var startWeekDisplay2 = moment(startWeek2D).format('ddd, MMM D');
+      var endWeekDisplay2 = moment(endWeek2).format('ddd, MMM D');
+      var weekData2 = utils.filterByDates(history.fullData, endWeek2, startWeek2);
+      visualization.display(history, weekData2);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay2 + " - "+ startWeekDisplay2 +"</h2>")
+    });
+    $("#week3").click(function(){
+      var startWeek3 = utils.lessDays(now, 21);
+      var endWeek3 = utils.lessDays(now, 28);
+      var startWeek3D = utils.lessDays(now, 22);
+      var startWeekDisplay3 = moment(startWeek3D).format('ddd, MMM D');
+      var endWeekDisplay3 = moment(endWeek3).format('ddd, MMM D');
+      var weekData3 = utils.filterByDates(history.fullData, endWeek3, startWeek3);
+      visualization.display(history, weekData3);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay3 + " - "+ startWeekDisplay3 +"</h2>")
+    });
+    $("#week4").click(function(){
+      var startWeek4 = utils.lessDays(now, 28);
+      var endWeek4 = utils.lessDays(now, 35);
+      var startWeek4D = utils.lessDays(now, 29);
+      var startWeekDisplay4 = moment(startWeek4D).format('ddd, MMM D');
+      var endWeekDisplay4 = moment(endWeek4).format('ddd, MMM D');
+      var weekData4 = utils.filterByDates(history.fullData, endWeek4, startWeek4);
+      visualization.display(history, weekData4);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay4 + " - "+ startWeekDisplay4 +"</h2>")
+    });
+    $("#week5").click(function(){
+      var startWeek5 = utils.lessDays(now, 35);
+      var endWeek5 = utils.lessDays(now, 42);
+      var startWeek5D = utils.lessDays(now, 36);
+      var startWeekDisplay5 = moment(startWeek5D).format('ddd, MMM D');
+      var endWeekDisplay5 = moment(endWeek5).format('ddd, MMM D');
+      var weekData5 = utils.filterByDates(history.fullData, endWeek5, startWeek5);
+      visualization.display(history, weekData5);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay5 + " - "+ startWeekDisplay5 +"</h2>")
+    });
+    $("#week6").click(function(){
+      var startWeek6 = utils.lessDays(now, 42);
+      var endWeek6 = utils.lessDays(now, 49);
+      var startWeek6D = utils.lessDays(now, 43);
+      var startWeekDisplay6 = moment(startWeek6D).format('ddd, MMM D');
+      var endWeekDisplay6 = moment(endWeek6).format('ddd, MMM D');
+      var weekData6 = utils.filterByDates(history.fullData, endWeek6, startWeek6);
+      visualization.display(history, weekData6);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay6 + " - "+ startWeekDisplay6 +"</h2>")
+    });
+    $("#week7").click(function(){
+      var startWeek7 = utils.lessDays(now, 49);
+      var endWeek7 = utils.lessDays(now, 56);
+      var startWeek7D = utils.lessDays(now, 50);
+      var startWeekDisplay7 = moment(startWeek7D).format('ddd, MMM D');
+      var endWeekDisplay7 = moment(endWeek7).format('ddd, MMM D');
+      var weekData7 = utils.filterByDates(history.fullData, endWeek7, startWeek7);
+      visualization.display(history, weekData7);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay7 + " - "+ startWeekDisplay7 +"</h2>")
+    });
+    $("#week8").click(function(){
+      var startWeek8 = utils.lessDays(now, 56);
+      var endWeek8 = utils.lessDays(now, 63);
+      var startWeek8D = utils.lessDays(now, 57);
+      var startWeekDisplay8 = moment(startWeek8D).format('ddd, MMM D');
+      var endWeekDisplay8 = moment(endWeek8).format('ddd, MMM D');
+      var weekData8 = utils.filterByDates(history.fullData, endWeek8, startWeek8);
+      visualization.display(history, weekData8);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay8 + " - "+ startWeekDisplay8 +"</h2>")
+    });
+    $("#week9").click(function(){
+      var startWeek9 = utils.lessDays(now, 63);
+      var endWeek9 = utils.lessDays(now, 70);
+      var startWeek9D = utils.lessDays(now, 64);
+      var startWeekDisplay9 = moment(startWeek9D).format('ddd, MMM D');
+      var endWeekDisplay9 = moment(endWeek9).format('ddd, MMM D');
+      var weekData9 = utils.filterByDates(history.fullData, endWeek9, startWeek9);
+      visualization.display(history, weekData9);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay9 + " - "+ startWeekDisplay9 +"</h2>")
+    });
+    $("#week10").click(function(){
+      var startWeek10 = utils.lessDays(now, 70);
+      var endWeek10 = utils.lessDays(now, 77);
+      var startWeek10D = utils.lessDays(now, 71);
+      var startWeekDisplay10 = moment(startWeek10D).format('ddd, MMM D');
+      var endWeekDisplay10 = moment(endWeek10).format('ddd, MMM D');
+      var weekData10 = utils.filterByDates(history.fullData, endWeek10, startWeek10);
+      visualization.display(history, weekData10);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay10 + " - "+ startWeekDisplay10 +"</h2>")
+    });
+    $("#week11").click(function(){
+      var startWeek11 = utils.lessDays(now, 77);
+      var endWeek11 = utils.lessDays(now, 84);
+      var startWeek11D = utils.lessDays(now, 78);
+      var startWeekDisplay11 = moment(startWeek11D).format('ddd, MMM D');
+      var endWeekDisplay11 = moment(endWeek11).format('ddd, MMM D');
+      var weekData11 = utils.filterByDates(history.fullData, endWeek11, startWeek11);
+      visualization.display(history, weekData11);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay11 + " - "+ startWeekDisplay11 +"</h2>")
+    });
+    $("#week12").click(function(){
+      var startWeek12 = utils.lessDays(now, 84);
+      var endWeek12 = utils.lessDays(now, 91);
+      var startWeek12D = utils.lessDays(now, 85);
+      var startWeekDisplay12 = moment(startWeek12D).format('ddd, MMM D');
+      var endWeekDisplay12 = moment(endWeek12).format('ddd, MMM D');
+      var weekData12 = utils.filterByDates(history.fullData, endWeek12, startWeek12);
+      visualization.display(history, weekData12);
+      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay12 + " - "+ startWeekDisplay12 +"</h2>")
+    });
+  }
+  
   visualization.display = function(history, data) {
     utils.clearVisualization();
-    var startWeek = "";
-    var endWeek = "";
-    $("#title").html("<h1 id='viz_title'>Time Heatmap</h1><h2>Browsing by hour of the day &amp; day of the week, " + startWeek + " - "+ endWeek +"</h2><p> Right click to view records.</p><div class='btn-toolbar' role='toolbar'> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Week <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='weekMenu'> </ul> </div></div>");
-    
+    var sevenDaysAgo = utils.lessDays(now, 7);
+    var startW = moment(sevenDaysAgo).format('ddd, MMM D');;
+    var endW = moment().format('ddd, MMM D');
+    $("#title").html("<h1 id='viz_title'>Time Heatmap</h1><h2>Browsing by hour of the day &amp; day of the week, " + startW + " - "+ endW +"</h2><p> Right click for more options.</p><div class='btn-toolbar' role='toolbar'> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Week <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='weekMenu'> </ul> </div></div>");
+    var weeksList = weekMenu();
     var margin = { top: 50, right: 0, bottom: 100, left: 30 },
         width = 960 - margin.left - margin.right,
         height = 430 - margin.top - margin.bottom,
