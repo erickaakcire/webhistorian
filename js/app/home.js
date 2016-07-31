@@ -29,7 +29,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
     if (vizSelected !== "web_visit"){
       $("#cards").html("<br/><br/><h1>One moment please. Loading Web Visits.</h1><br/><br/><br/><br/>");
       requirejs(["app/websites-visited"], function(websites_visited) {
-        websites_visited.display(history, history.fullData);
+        websites_visited.display(history, history.fullData, 0);
         vizSelected = "web_visit"
       });
     }

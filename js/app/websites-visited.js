@@ -5,18 +5,23 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
   var sd = null;
   var ed = null;
   
-  function datesOrig(){
+  function datesOrig(dfd){
     var seStored = JSON.parse(sessionStorage.getItem('se'));
     sd = seStored[0].start;
     ed = seStored[0].end;
     endDate = new Date (ed);
     //startDate = new Date (sd); //start with full dataset
     
-    startDate = new Date (  
-        endDate.getFullYear(),  
-        endDate.getMonth(),  
-        (endDate.getDate()-7)  
-    );//start with most recent week
+    if (dfd === 0){
+      startDate = new Date (  
+          endDate.getFullYear(),  
+          endDate.getMonth(),  
+          (endDate.getDate()-7)  
+      );//start with most recent week
+    }
+    else if (dfd === 1){
+      startDate = new Date (sd);
+    }
   }
     
   visualization.catData = function(data, categories, callback){
@@ -143,7 +148,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
       callback(catsObj);
     }
   
-    visualization.display = function(history, data)
+    visualization.display = function(history, data, displayFullData)
     {
       utils.clearVisualization();
       var change = 0;
@@ -153,8 +158,8 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
 
       catAsync(function(categories) {
         var seStored = JSON.parse(sessionStorage.getItem('se'));
-        if(startDate===null){
-          datesOrig();
+        if(startDate===null || displayFullData === 1){
+          datesOrig(displayFullData);
         }
         var filteredData = utils.filterByDates(data, startDate, endDate);
         var datasetV = visualization.catData(filteredData, categories, getVisitData);

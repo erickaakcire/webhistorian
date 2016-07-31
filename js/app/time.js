@@ -4,98 +4,73 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
   var weekSelectedId = "0";
   var now = new Date();
   
+  function getIdArr (d) {
+    //filter the dataset to just the IDs in the idArr
+    var all = history.fullData;
+    var dv = [];
+    for (var i in all){
+      var id = all[i].id;
+      var item = all[i];
+      var domain = all[i].domain;
+      for (var i=0; i < d.__data__.idArr.length; i++){
+        idData = d.__data__.idArr[i];
+        if (id === idData && domain !== null){
+          dv.push(item);
+        }
+      }
+    }
+    return dv;
+  }
+  function getDay (d){
+    var day = "";
+    switch (d.__data__.day) {
+        case "1":
+            day = "Mon";
+            break;
+        case "2":
+            day = "Tues";
+            break;
+        case "3":
+            day = "Wed";
+            break;
+        case "4":
+            day = "Thurs";
+            break;
+        case "5":
+            day = "Fri";
+            break;
+        case "6":
+            day = "Sat";
+            break;
+        case "7":
+            day = "Sun";
+    }
+  }
+  
   var menu = [
       {
-          title: 'View in Data Table',
-          action: function(d) {
-            //filter the dataset to just the IDs in the idArr
-            var all = history.fullData;
-            var dv = [];
-            for (var i in all){
-              var id = all[i].id;
-              var item = all[i];
-              for (var i=0; i < d.__data__.idArr.length; i++){
-                idData = d.__data__.idArr[i];
-                if (id === idData){
-                  dv.push(item);
-                }
-              }
-            }
-            requirejs(["app/data-table"], function(data_table) {
-              data_table.display(history, dv, "");
-              var day = "";
-              switch (d.__data__.day) {
-                  case "1":
-                      day = "Mon";
-                      break;
-                  case "2":
-                      day = "Tues";
-                      break;
-                  case "3":
-                      day = "Wed";
-                      break;
-                  case "4":
-                      day = "Thurs";
-                      break;
-                  case "5":
-                      day = "Fri";
-                      break;
-                  case "6":
-                      day = "Sat";
-                      break;
-                  case "7":
-                      day = "Sun";
-              }
-              $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
-              $("#title h2").html(dv.length + " visits - To return to a visualization please use the Navigation above.");
-              vizSelected = "data_table";
-            });
-          },
+        title: 'View in Data Table',
+        action: function(d) {
+          var dv = getIdArr(d);
+          requirejs(["app/data-table"], function(data_table) {
+            data_table.display(history, dv, "");
+            var day = getDay (d);
+            $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
+            $("#title h2").html(dv.length + " visits - To return to a visualization please use the Navigation above.");
+            vizSelected = "data_table";
+          });
+        },
       },
       {
         title: 'View in Web Visits',
         action: function(d){
-          //filter the dataset to just the IDs in the idArr
-          var all = history.fullData;
-          var dv = [];
-          for (var i in all){
-            var id = all[i].id;
-            var item = all[i];
-            for (var i=0; i < d.__data__.idArr.length; i++){
-              idData = d.__data__.idArr[i];
-              if (id === idData){
-                dv.push(item);
-              }
-            }
-          }
+          var data = getIdArr(d);
           requirejs(["app/websites-visited"], function(wv) {
-            var day = "";
-            switch (d.__data__.day) {
-                case "1":
-                    day = "Mon";
-                    break;
-                case "2":
-                    day = "Tues";
-                    break;
-                case "3":
-                    day = "Wed";
-                    break;
-                case "4":
-                    day = "Thurs";
-                    break;
-                case "5":
-                    day = "Fri";
-                    break;
-                case "6":
-                    day = "Sat";
-                    break;
-                case "7":
-                    day = "Sun";
-            }
-            wv.display(history, dv);
+            var day = getDay(d);
             $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
-            $("#title h2").html(dv.length + " visits - To return to a visualization please use the Navigation above.");
+            $("#title h2").html(data.length + " visits - To return to a visualization please use the Navigation above.");
             vizSelected = "web_visit";
+            wv.display(history, data, 1);
           });
         }
       }
@@ -198,127 +173,15 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
       var startWeekDisplay = moment(startWeekD).format('ddd, MMM D');
       var endWeekDisplay = moment(endWeek).format('ddd, MMM D');
       $("#weekMenu").append("<li role='presentation'><a id='week"+ i +"' role='menuitem' href='#'>" + endWeekDisplay + " - " + startWeekDisplay + "</a></li>");
+      $("#week"+i).click(function(){
+        if(weekSelectedId !== i){
+          weekSelectedId = i;
+          var weekData = utils.filterByDates(history.fullData, endWeek, startWeek);
+          visualization.display(history, weekData);
+          $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay + " - " + startWeekDisplay)
+        }
+      });
     }
-    $("#week1").click(function(){
-      var startWeek1 = utils.lessDays(now, 7);
-      var endWeek1 = utils.lessDays(now, 14);
-      var startWeek1D = utils.lessDays(now, 8);
-      var startWeekDisplay1 = moment(startWeek1D).format('ddd, MMM D');
-      var endWeekDisplay1 = moment(endWeek1).format('ddd, MMM D');
-      var weekData1 = utils.filterByDates(history.fullData, endWeek1, startWeek1);
-      visualization.display(history, weekData1);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay1 + " - "+ startWeekDisplay1 +"</h2>")
-    });
-    $("#week2").click(function(){
-      var startWeek2 = utils.lessDays(now, 14);
-      var endWeek2 = utils.lessDays(now, 21);
-      var startWeek2D = utils.lessDays(now, 15);
-      var startWeekDisplay2 = moment(startWeek2D).format('ddd, MMM D');
-      var endWeekDisplay2 = moment(endWeek2).format('ddd, MMM D');
-      var weekData2 = utils.filterByDates(history.fullData, endWeek2, startWeek2);
-      visualization.display(history, weekData2);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay2 + " - "+ startWeekDisplay2 +"</h2>")
-    });
-    $("#week3").click(function(){
-      var startWeek3 = utils.lessDays(now, 21);
-      var endWeek3 = utils.lessDays(now, 28);
-      var startWeek3D = utils.lessDays(now, 22);
-      var startWeekDisplay3 = moment(startWeek3D).format('ddd, MMM D');
-      var endWeekDisplay3 = moment(endWeek3).format('ddd, MMM D');
-      var weekData3 = utils.filterByDates(history.fullData, endWeek3, startWeek3);
-      visualization.display(history, weekData3);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay3 + " - "+ startWeekDisplay3 +"</h2>")
-    });
-    $("#week4").click(function(){
-      var startWeek4 = utils.lessDays(now, 28);
-      var endWeek4 = utils.lessDays(now, 35);
-      var startWeek4D = utils.lessDays(now, 29);
-      var startWeekDisplay4 = moment(startWeek4D).format('ddd, MMM D');
-      var endWeekDisplay4 = moment(endWeek4).format('ddd, MMM D');
-      var weekData4 = utils.filterByDates(history.fullData, endWeek4, startWeek4);
-      visualization.display(history, weekData4);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay4 + " - "+ startWeekDisplay4 +"</h2>")
-    });
-    $("#week5").click(function(){
-      var startWeek5 = utils.lessDays(now, 35);
-      var endWeek5 = utils.lessDays(now, 42);
-      var startWeek5D = utils.lessDays(now, 36);
-      var startWeekDisplay5 = moment(startWeek5D).format('ddd, MMM D');
-      var endWeekDisplay5 = moment(endWeek5).format('ddd, MMM D');
-      var weekData5 = utils.filterByDates(history.fullData, endWeek5, startWeek5);
-      visualization.display(history, weekData5);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay5 + " - "+ startWeekDisplay5 +"</h2>")
-    });
-    $("#week6").click(function(){
-      var startWeek6 = utils.lessDays(now, 42);
-      var endWeek6 = utils.lessDays(now, 49);
-      var startWeek6D = utils.lessDays(now, 43);
-      var startWeekDisplay6 = moment(startWeek6D).format('ddd, MMM D');
-      var endWeekDisplay6 = moment(endWeek6).format('ddd, MMM D');
-      var weekData6 = utils.filterByDates(history.fullData, endWeek6, startWeek6);
-      visualization.display(history, weekData6);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay6 + " - "+ startWeekDisplay6 +"</h2>")
-    });
-    $("#week7").click(function(){
-      var startWeek7 = utils.lessDays(now, 49);
-      var endWeek7 = utils.lessDays(now, 56);
-      var startWeek7D = utils.lessDays(now, 50);
-      var startWeekDisplay7 = moment(startWeek7D).format('ddd, MMM D');
-      var endWeekDisplay7 = moment(endWeek7).format('ddd, MMM D');
-      var weekData7 = utils.filterByDates(history.fullData, endWeek7, startWeek7);
-      visualization.display(history, weekData7);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay7 + " - "+ startWeekDisplay7 +"</h2>")
-    });
-    $("#week8").click(function(){
-      var startWeek8 = utils.lessDays(now, 56);
-      var endWeek8 = utils.lessDays(now, 63);
-      var startWeek8D = utils.lessDays(now, 57);
-      var startWeekDisplay8 = moment(startWeek8D).format('ddd, MMM D');
-      var endWeekDisplay8 = moment(endWeek8).format('ddd, MMM D');
-      var weekData8 = utils.filterByDates(history.fullData, endWeek8, startWeek8);
-      visualization.display(history, weekData8);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay8 + " - "+ startWeekDisplay8 +"</h2>")
-    });
-    $("#week9").click(function(){
-      var startWeek9 = utils.lessDays(now, 63);
-      var endWeek9 = utils.lessDays(now, 70);
-      var startWeek9D = utils.lessDays(now, 64);
-      var startWeekDisplay9 = moment(startWeek9D).format('ddd, MMM D');
-      var endWeekDisplay9 = moment(endWeek9).format('ddd, MMM D');
-      var weekData9 = utils.filterByDates(history.fullData, endWeek9, startWeek9);
-      visualization.display(history, weekData9);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay9 + " - "+ startWeekDisplay9 +"</h2>")
-    });
-    $("#week10").click(function(){
-      var startWeek10 = utils.lessDays(now, 70);
-      var endWeek10 = utils.lessDays(now, 77);
-      var startWeek10D = utils.lessDays(now, 71);
-      var startWeekDisplay10 = moment(startWeek10D).format('ddd, MMM D');
-      var endWeekDisplay10 = moment(endWeek10).format('ddd, MMM D');
-      var weekData10 = utils.filterByDates(history.fullData, endWeek10, startWeek10);
-      visualization.display(history, weekData10);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay10 + " - "+ startWeekDisplay10 +"</h2>")
-    });
-    $("#week11").click(function(){
-      var startWeek11 = utils.lessDays(now, 77);
-      var endWeek11 = utils.lessDays(now, 84);
-      var startWeek11D = utils.lessDays(now, 78);
-      var startWeekDisplay11 = moment(startWeek11D).format('ddd, MMM D');
-      var endWeekDisplay11 = moment(endWeek11).format('ddd, MMM D');
-      var weekData11 = utils.filterByDates(history.fullData, endWeek11, startWeek11);
-      visualization.display(history, weekData11);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay11 + " - "+ startWeekDisplay11 +"</h2>")
-    });
-    $("#week12").click(function(){
-      var startWeek12 = utils.lessDays(now, 84);
-      var endWeek12 = utils.lessDays(now, 91);
-      var startWeek12D = utils.lessDays(now, 85);
-      var startWeekDisplay12 = moment(startWeek12D).format('ddd, MMM D');
-      var endWeekDisplay12 = moment(endWeek12).format('ddd, MMM D');
-      var weekData12 = utils.filterByDates(history.fullData, endWeek12, startWeek12);
-      visualization.display(history, weekData12);
-      $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay12 + " - "+ startWeekDisplay12 +"</h2>")
-    });
   }
   
   visualization.display = function(history, data) {

@@ -4,6 +4,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
   
   history.fullData = [];
   history.urlArray = [];
+  var leaveOnce = 0;
   
   var startDate = null;
   var endDate = null;
@@ -511,7 +512,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         }
         
         $("#changeIdSet").click(function(){
-          $("#id-body").html("<div class='alert alert-warning'><p><span class='glyphicon glyphicon-exclamation-sign' aria-hidden='true'></span> There are only a few cases when you might need to do this, e.g. you entered your study ID incorrectly or you entered your orignial installation ID incorrectly. <br/><br/>If this is not the case please do not change your ID, it could make your data less secure!</p></div><p>Change your Web Historian Identifier</p><fieldset class='form-group' id='idChoice'><input type='text' class='form-control' id='field_identifier' placeholder='Enter identifier here&#8230;' /></fieldset>");
+          $("#id-body").html("<div class='alert alert-warning'><p><span class='glyphicon glyphicon-exclamation-sign' aria-hidden='true'></span> There are only a few cases when you might need to do this, e.g. you entered your study ID incorrectly or you entered your original installation ID incorrectly. <br/><br/>If this is not the case please do not change your ID, it could make your data less secure!</p></div><p>Change your Web Historian Identifier</p><fieldset class='form-group' id='idChoice'><input type='text' class='form-control' id='field_identifier' placeholder='Enter identifier here&#8230;' /></fieldset>");
       		$("#field_identifier").val(id);
           var elseBefore = 0;
           $("#chose_identifier").off('click');
@@ -874,12 +875,12 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
       svyEnd(history.fullData);
       storeCats(showHome);
       $(document).mouseleave(function() {
-        if (svyEndType === null && lastUl === undefined) {
+        if (svyEndType === null && lastUl === undefined && leaveOnce === 0) {
           $("#upload_modal").modal("show");
           $(".modal-title").html("Thank you for using Web Historian!");
           $("#par1").html("<h3>Please consider participating in the research project.</h3><p> <a href='http://webhistorian.org/participate' target='blank'>Click here</a> for more information, or click the orange Participate button to begin uploading your data.");
+          leaveOnce = 1;
         }
-        //add an opt-out of the research - settings - only if no endType
     });
 
     })
