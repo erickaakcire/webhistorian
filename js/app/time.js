@@ -58,6 +58,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
             $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
             $("#title h2").html(dv.length + " visits - To return to a visualization please use the Navigation above.");
             vizSelected = "data_table";
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
           });
         },
       },
@@ -71,6 +72,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
             $("#title h2").html(data.length + " visits - To return to a visualization please use the Navigation above.");
             vizSelected = "web_visit";
             wv.display(history, data, 1);
+            document.body.scrollTop = document.documentElement.scrollTop = 0;
           });
         }
       }
@@ -189,7 +191,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
     var sevenDaysAgo = utils.lessDays(now, 7);
     var startW = moment(sevenDaysAgo).format('ddd, MMM D');;
     var endW = moment().format('ddd, MMM D');
-    $("#title").html("<h1 id='viz_title'>Time Heatmap</h1><h2>Browsing by hour of the day &amp; day of the week, " + startW + " - "+ endW +"</h2><p> Right click for more options.</p><div class='btn-toolbar' role='toolbar'> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Week <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='weekMenu'> </ul> </div></div>");
+    $("#title").html("<h1 id='viz_title'>Time Heatmap</h1><h2>Browsing by hour of the day &amp; day of the week, " + startW + " - "+ endW +"</h2><p> Right click for more options. <br/>Is this visualization incomplete? If you also use Internet Explorer or Firefox, you can import your browsing history to include it. Just follow <a href='http://www.webhistorian.org/importing/' target='_blank'>these steps</a>.</p><div class='btn-toolbar' role='toolbar'> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Week <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='weekMenu'> </ul> </div></div>");
     var weeksList = weekMenu();
     var margin = { top: 50, right: 0, bottom: 100, left: 30 },
         width = 960 - margin.left - margin.right,

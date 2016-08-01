@@ -21,6 +21,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
       requirejs(["app/home"], function(home) {
         home.display(history, history.fullData);
         vizSelected = "home";
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
       });
     }
     else { console.log("already selected"); }
@@ -30,7 +31,8 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
       $("#cards").html("<br/><br/><h1>One moment please. Loading Web Visits.</h1><br/><br/><br/><br/>");
       requirejs(["app/websites-visited"], function(websites_visited) {
         websites_visited.display(history, history.fullData, 0);
-        vizSelected = "web_visit"
+        vizSelected = "web_visit";
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
       });
     }
     else { console.log("already selected"); }
@@ -41,6 +43,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
       requirejs(["app/search-terms"], function(search_words) {
         search_words.display(history, history.fullData);
         vizSelected = "search_words";
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
       });
     }
     else { console.log("already selected"); }
@@ -51,6 +54,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
       requirejs(["app/site-network"], function(site_network) {
         site_network.display(history, history.fullData);
         vizSelected = "network";
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
       });
     }
     else { console.log("already selected"); }
@@ -64,6 +68,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
         var weekData = utils.filterByDates(history.fullData, sevenDaysAgo, now);
         time.display(history, weekData);
         vizSelected = "time";
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
       });
     }
     else { console.log("already selected"); }
@@ -74,6 +79,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
       requirejs(["app/data-table"], function(data_table) {
         data_table.display(history, history.fullData, "");
         vizSelected = "data_table";
+        document.body.scrollTop = document.documentElement.scrollTop = 0;
       });
     }
     else { console.log("already selected"); }
@@ -117,6 +123,9 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
     });
     $("#search_words_card").click(function() {
       goSearchWords();
+    });
+    $("#web_visit_card").click(function() {
+      goWebVisit();
     });
     $("#time_card").click(function() {
       goTime();

@@ -158,9 +158,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
 
       catAsync(function(categories) {
         var seStored = JSON.parse(sessionStorage.getItem('se'));
-        if(startDate===null || displayFullData === 1){
-          datesOrig(displayFullData);
-        }
+        datesOrig(displayFullData);
         var filteredData = utils.filterByDates(data, startDate, endDate);
         var datasetV = visualization.catData(filteredData, categories, getVisitData);
         var datasetH = visualization.catData(filteredData, categories, getHabitData);
@@ -312,6 +310,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                          $("#viz_title").html("All Visits to " + d.__data__.className);
                          $("#title h2").append(" - To return to a visualization please use the Navigation above.");
                          vizSelected = "data_table";
+                         document.body.scrollTop = document.documentElement.scrollTop = 0;
                        });
                      },
                      disabled: false 
@@ -334,6 +333,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                          $("#viz_title").html("All Visits to " + d.__data__.className);
                          $("#title h2").html("To return to a visualization please use the Navigation above.");
                          vizSelected = "time";
+                         document.body.scrollTop = document.documentElement.scrollTop = 0;
                        });
                      },
                      disabled: false 
