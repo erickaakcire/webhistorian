@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Web Historian - Web History Visualizations",
-  "version": "0.7.8",
+  "version": "0.7.9",
   "short_name": "Web Historian",
   "description": "Web Historian - Visualize your web use to understand your habits",
   "permissions": [
