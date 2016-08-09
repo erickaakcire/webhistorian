@@ -5,6 +5,22 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
   var sd = null;
   var ed = null;
   
+  function daysInRange(){
+    var startYear = moment(startDate).format('YYYY');
+    var endYear = moment(endDate).format('YYYY');
+    var startDay = moment(startDate).format('DDD');
+    var endDay = moment(endDate).format('DDD');
+    var diff = 0;
+    if (startYear === endYear){
+      diff = endDay - startDay;
+    }
+    else {
+      endDay += 365;
+      diff = endDay - startDay;
+    }
+    return diff + 1;
+  }
+  
   function datesOrig(dfd){
     var seStored = JSON.parse(sessionStorage.getItem('se'));
     sd = seStored[0].start;
@@ -85,11 +101,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
   //simplest view, just a count of visits
   function getVisitData(data, catObj, callback) {
     var domains = utils.countPropDomains(data, "domain");
-    var maxInd = utils.lowHighNum(domains, "count", false);
-    var maxD = domains[maxInd].domain;
-    var maxC = domains[maxInd].count;
-    $("#title").append("<h3 style=\"display:none\">You visited "+ maxD +" the most, "+ maxC +" times.</h3>");
-      return callback(catObj, domains); 
+    return callback(catObj, domains); 
   };
   //habits view needs processing to segment by day
   function getHabitData (data, catObj, callback) {
@@ -130,14 +142,6 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
             "topD": currentTopD
           });
        }
-       var startDiff = new Date(sd);
-       var endDiff = new Date(ed);
-       var oneDay = 24 * 60 * 60 * 1000;
-       var utcStart = Date.UTC(startDiff.getFullYear(), startDiff.getMonth(), startDiff.getDate());
-       var utcEnd = Date.UTC(endDiff.getFullYear(), endDiff.getMonth(), endDiff.getDate());
-       diffDays = Math.ceil((utcEnd - utcStart) / oneDay) + 1;
-       $("#title h2").empty();
-       $("#title").append("<h2 id='viz_subtitle' style=\"display:none\">You have a span of " + diffDays + " days in your browsing history.</h2>");
      
        return callback(catObj, domainDay2);         
     };
@@ -214,15 +218,15 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
               habits = 0;
               change = 1;
               var numDomains = utils.countUniqueProperty(data, "domain");
-              $("#title").prepend("<h1 id='viz_title'>What websites do you visit most?");
+              $("#title").html("<h1 id='viz_title'>What websites do you visit most?</h1>");
               $("#above_visual").html("<div class='btn-group' data-toggle='buttons'> <label class='btn btn-primary active'> <input type='radio' name=\"options\" id=\"visits\" autocomplete=\"off\" checked> All Visits  </label> <label class=\"btn btn-primary\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\"> Daily Habits  </label></div> &nbsp; &nbsp; <input type='text' id='searchBox'><input type='button' id='search' value='website search'/> &nbsp; "+ aboveTxt +"<p><br/> <input type='text' id='slider' name='slider_name' value=''/>");
               changeBubble(datasetV);
             }
             function showHabits (){
               habits = 1;
               change = 1;
-              $("#title h2").show();
-              $("#title").prepend("<h1 id='viz_title'>What websites do you visit regularly?</h1>");
+              var range = daysInRange();
+              $("#title").html("<h1 id='viz_title'>What websites do you visit regularly? showing " + range + " days</h1>");
               $("#above_visual").html("<div class=\"btn-group\" data-toggle=\"buttons\"> <label class=\"btn btn-primary\"> <input type=\"radio\" name=\"options\" id=\"visits\" autocomplete=\"off\"> All Visits  </label> <label class=\"btn btn-primary active\"> <input type=\"radio\"name=\"options\" id=\"habits\" autocomplete=\"off\" checked> Daily Habits  </label> </div> &nbsp; &nbsp; <input type='text' id='searchBox'><input type='button' id='search' value='website search'/> &nbsp; "+aboveTxt+"<p><br/><input type='text' id='slider' name='slider_name' value=''/>");
               changeBubble(datasetH);
             }
@@ -230,8 +234,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
             //default option
             if (change === 0){
               var habits = 0;
-              $("#title h1").empty();
-              //$("#title h2").show();
+              $("#title").empty();
               $("#above_visual").empty();
               showVisits();
             }
@@ -240,16 +243,12 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
             function listenView(){
               $("input[name='options']").on("change", function () {
                 if (this.id === "habits"){
-                  $("#title h1").empty();
-                  $("#title h2").show();
-                  $("#title h3").hide(); 
+                  $("#title").empty();
                   $("#above_visual").empty();
                   showHabits();
                 }
                 else if (this.id === "visits")  {
-                  $("#title h1").empty();
-                  $("#title h2").hide();
-                  $("#title h3").show();
+                  $("#title").empty();
                   $("#above_visual").empty();
                   showVisits();
                 }
@@ -310,7 +309,8 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                 else if (habits === 1){
                   datasetH = visualization.catData(filteredD, categories, getHabitData);
                   changeBubble(datasetH);
-                  $("#title h2").show();
+                  var range = daysInRange();
+                  $("#title").html("<h1 id='viz_title'>What websites do you visit regularly? showing " + range + " days</h1>");
                 }
                 d3.selectAll(".node").style("opacity","1");
               }
@@ -348,7 +348,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                        requirejs(["app/data-table"], function(data_table) {
                          data_table.display(history, dv, "");
                          $("#viz_title").html("All Visits to " + d.__data__.className);
-                         $("#title h2").append(" - To return to a visualization please use the Navigation above.");
+                         $("#title h2").append(" To return to a visualization please use the Navigation above.");
                          vizSelected = "data_table";
                          document.body.scrollTop = document.documentElement.scrollTop = 0;
                        });
@@ -371,7 +371,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                        requirejs(["app/time"], function(time) {
                          time.display(history, dv);
                          $("#viz_title").html("All Visits to " + d.__data__.className);
-                         $("#title h2").html("To return to a visualization please use the Navigation above.");
+                         $("#title h2").html(" To return to a visualization please use the Navigation above.");
                          vizSelected = "time";
                          document.body.scrollTop = document.documentElement.scrollTop = 0;
                        });
