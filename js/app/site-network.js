@@ -19,6 +19,25 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
        topD.push({value: categories[i].value, category: categories[i].category});
      }
    }
+   
+   function searchWebsites(query){
+     var countNodes = 0;
+     var theNodes = d3.selectAll(".node").filter(function(d) { 
+       var re = new RegExp( query, "gi" );
+       countNodes = countNodes + 1;
+       return d.name.match(re);
+     });
+     console.log("matches: "+theNodes[0].length + " out of: " + countNodes);
+     d3.selectAll("circle").style("fill","rgb(160,160,160)");
+     var nodeArr = theNodes[0];
+     for (var i in nodeArr){
+       var aNode = nodeArr[i];
+       d3.select(aNode.firstChild).style({fill: "yellow", stroke: "#a6a6a6", "stroke-width": "1px"});
+     }
+     if (nodeArr.length === 0 || countNodes === theNodes[0].length){
+       d3.selectAll("circle").style("fill", function(d) { return color(d.category); });
+     }
+   }
   
   function datesOrig(){
     var seStored = JSON.parse(sessionStorage.getItem('se'));
@@ -168,6 +187,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
 
     d3.select("#title").append("h1").text("How did you get there?").attr("id", "viz_title");
     d3.select("#title").append("h2").text(totalLinks + " links between " + numSites + " websites");
+    $("#title h2").append("&nbsp; &nbsp;<input type='text' id='searchBox'><input type='button' id='search' value='website search'/>");
     $("#above_visual").html("<p id='viz_a'>Drag to move website circles to a fixed position. Double click to release the dragged site. Right click for more options.</p><p><br/> <input type='text' id='slider' name='slider_name' value=''/>");
     d3.select("#below_visual").append("p").text("This is a network based on the time order of your website visits. There is a link between two websites if you visited one website before the other.").attr("id", "viz_p");
     
@@ -198,7 +218,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
     var edgesMaxValue = 0;
     
     function cat(domain){
-      consol.log(domain);
+      console.log(domain);
     }
 
     // Compute the distinct nodes from the links.
@@ -402,6 +422,32 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
         return x1 > nx2 || x2 < nx1 || y1 > ny2 || y2 < ny1;
       };
     }
+    
+    $("#search").click(function(){
+      searchWebsites(document.querySelector('#searchBox').value);
+    });
+    $('#searchBox').bind("enterKey",function(e){
+      searchWebsites(document.querySelector('#searchBox').value);
+    });
+    $('#searchBox').keyup(function(e){
+        if(e.keyCode == 13)
+        {
+            $(this).trigger("enterKey");
+        }
+    });
+    var timeoutID = null;
+
+    function findMember(str) {
+      console.log('search: ' + str);
+    }
+
+    $('#searchBox').keyup(function() {
+      clearTimeout(timeoutID);
+      //var $searchBox = $(this);
+      var val = document.querySelector('#searchBox').value;
+      timeoutID = setTimeout(function() { searchWebsites(val); }, 500); 
+    });
+    
   };
 
   return visualization;

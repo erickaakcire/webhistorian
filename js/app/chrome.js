@@ -95,7 +95,16 @@ chrome.alarms.onAlarm.addListener(function(alarm) {
       chrome.browserAction.setTitle({
         title: "Upload additional browsing data! Click the cloud upload icon in the app."
       });
-    } else {
+    } else if(svyEnd===1 && now.getTime() - lastUpload < (1000 * 60 * 60 * 1440)){
+      chrome.browserAction.setIcon({
+        path: "images/star-yellow-64.png"
+      });
+
+      chrome.browserAction.setTitle({
+        title: "Web Historian"
+      });
+    }
+    else {
       chrome.browserAction.setIcon({
         path: "images/star-yellow-64.png"
       });

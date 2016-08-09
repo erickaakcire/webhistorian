@@ -148,8 +148,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
       callback(catsObj);
     }
     
-    function searchWebsites(){
-      var query = document.querySelector('#searchBox').value;
+    function searchWebsites(query){
       var theNodes = d3.selectAll(".node").filter(function(d) { 
         var re = new RegExp( query, "gi" );
         return d.className.match(re);
@@ -256,16 +255,27 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                 }
             });
             $("#search").click(function(){
-              searchWebsites();
+              searchWebsites(document.querySelector('#searchBox').value);
             });
             $('#searchBox').bind("enterKey",function(e){
-              searchWebsites();
+              searchWebsites(document.querySelector('#searchBox').value);
             });
             $('#searchBox').keyup(function(e){
                 if(e.keyCode == 13)
                 {
                     $(this).trigger("enterKey");
                 }
+            });
+            var timeoutID = null;
+
+            function findMember(str) {
+              console.log('search: ' + str);
+            }
+
+            $('#searchBox').keyup(function() {
+              clearTimeout(timeoutID);
+              var $searchBox = $(this);
+              timeoutID = setTimeout(function() { searchWebsites($searchBox.val()); }, 500); 
             });
             }
 
