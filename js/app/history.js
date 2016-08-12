@@ -692,6 +692,49 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
                 requirejs(["passive-data-kit", "crypto-js-md5"], function(pdk, CryptoJS) 
                 {
                   pdk.upload(config.uploadUrl, CryptoJS.MD5(result.upload_identifier).toString(), 'web-historian', bundles, 0, onProgress, onComplete);
+                  
+				  chrome.storage.local.get({ 'last_transmission_timestamp': 0 }, function (timeResult) 
+	              {
+	              	var now = timeResult['last_transmission_timestamp'];
+	              	
+	              	var removals = JSON.parse(localStorage.getItem("removals"));
+	              	
+	              	if (removals != null) {
+	              		var toRemove = [];
+	              		
+	              		for (var i = 0; i < removals.length; i++) {
+	              		  var removal = removals[i];
+	              			
+	              		  if (removal['timeRemoved'] > now) {
+	              			removal['date'] = removal['timeRemoved'];
+	              			    
+	              			toRemove.push(removal);
+	              		  }
+	              		}
+	              		
+	              		if (toRemove.length > 0) {
+							chrome.storage.local.get({ 'upload_identifier': '' }, function (result) 
+							{
+								requirejs(["passive-data-kit", "crypto-js-md5", "app/config"], function(pdk, CryptoJS, config) 
+								{
+									var onProgress = function(index, length) {
+
+									};
+
+									var onComplete = function() {
+										var completeTime = (new Date()).getTime();
+									
+										chrome.storage.local.set({ 'last_transmission_timestamp': completeTime }, function() {
+
+										});
+									};
+			
+									pdk.upload(config.uploadUrl, CryptoJS.MD5(result.upload_identifier).toString(), 'web-historian-deletion', [toRemove], 0, onProgress, onComplete);
+								});                 
+							});
+						}
+	                }
+	              });
                 });                 
               });
             });
