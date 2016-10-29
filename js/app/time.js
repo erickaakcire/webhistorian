@@ -191,7 +191,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
     var sevenDaysAgo = utils.lessDays(now, 7);
     var startW = moment(sevenDaysAgo).format('ddd, MMM D');;
     var endW = moment().format('ddd, MMM D');
-    $("#title").html("<h1 id='viz_title'>Time Heatmap</h1><h2>Browsing by hour of the day &amp; day of the week, " + startW + " - "+ endW +"</h2><p> Right click for more options. <br/>Is this visualization incomplete? If you also use Internet Explorer or Firefox, you can import your browsing history to include it. Just follow <a href='http://www.webhistorian.org/importing/' target='_blank'>these steps</a>.</p><div class='btn-toolbar' role='toolbar'> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Week <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='weekMenu'> </ul> </div></div>");
+    $("#title").html("<h1 id='viz_title'>Time Heatmap</h1><h2>Browsing by hour of the day &amp; day of the week, " + startW + " - "+ endW +"</h2><p>Is this visualization incomplete? If you also use Internet Explorer or Firefox, you can import your browsing history to include it. Just follow <a href='http://www.webhistorian.org/importing/' target='_blank'>these steps</a>.</p><div class='btn-toolbar' role='toolbar'> <div class='btn-group btn-group-sm'> <button type='button' class='btn btn-default dropdown-toggle' data-toggle='dropdown' href='#'> Week <span class='glyphicon glyphicon-chevron-down'></span> </button> <ul class='dropdown-menu' role='menu' id='weekMenu'> </ul> </div></div>");
     var weeksList = weekMenu();
     var margin = { top: 50, right: 0, bottom: 100, left: 30 },
         width = 960 - margin.left - margin.right,
@@ -201,7 +201,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
         buckets = 9,
         colors = ["#ffffd9","#edf8b1","#c7e9b4","#7fcdbb","#41b6c4","#1d91c0","#225ea8","#253494","#081d58"], // alternatively colorbrewer.YlGnBu[9]
         days = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"],
-        times = ["1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a", "11a", "12a", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p", "12p"];
+        times = ["1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a", "11a", "12p", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p", "12a"];
 
     var svg = d3.select("#visual_div").append("svg")
         .attr("width", width + margin.left + margin.right)
@@ -263,7 +263,12 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
             .attr("width", gridSize)
             .attr("height", gridSize)
             .on("mouseover", function(d){
-              tooltip.text("Visits: " + d.value);
+              if (d.value==0){
+                tooltip.text("Visits: " + d.value);
+              }
+              else {
+                tooltip.text("Visits: " + d.value + " - Right-click to see what these visits are.");
+              }
               tooltip.style("visibility", "visible");
             })
             .on("mousemove", function() {
