@@ -190,7 +190,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
           return d.text;
         })
         .on("mouseover", function(d) {
-          tooltip.text("Search terms indluding \"" + d.text + "\": " + d.allTerms);
+          tooltip.text("Search terms indluding \"" + d.text + "\": " + d.allTerms + " -- Right-click for more options");
           tooltip.style("visibility", "visible");
         })
         .on("mousemove", function() {

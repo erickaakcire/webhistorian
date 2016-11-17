@@ -338,7 +338,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
         tooltip.style("visibility", "hidden");
       }))
       .on("mouseover", function(d){
-        tooltip.text(d.name + " Category: "+d.category);
+        tooltip.text(d.name + " Category: " + d.category + ". Right click for more options");
         tooltip.style("visibility", "visible");
       })
       .on("mousemove", function() {

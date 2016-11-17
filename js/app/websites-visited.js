@@ -428,7 +428,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                   }))
                   .on("mouseover", function(d) {
                       if (habits===0){
-                        tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName);
+                        tooltip.text(d.className + ", Visits: " + format(d.value) + ", Category: " + d.packageName + ". Right-click for more options");
                       }
                       else if (habits===1){
                         //var percentDays = Math.round((d.value/diffDays) * 100);

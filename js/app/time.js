@@ -267,7 +267,16 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
                 tooltip.text("Visits: " + d.value);
               }
               else {
-                tooltip.text("Visits: " + d.value + " - Right-click to see what these visits are.");
+                var day1 = d.idArr[0];
+                var full = history.fullData;
+                var day2 = "";
+                for (var i=0;i<full.length;i++){
+                  var f = full[i];
+                  if (f.id == day1){
+                    day2 = moment(f.date).format('M/D');
+                  }
+                }
+                tooltip.text("Visits: " + d.value + " on "+ day2 +" - Right-click to see what these visits are.");
               }
               tooltip.style("visibility", "visible");
             })
