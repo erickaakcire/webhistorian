@@ -164,8 +164,8 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
         visualization.display(history, weekData);
       }
     });
-    
-    for(var i=1; i<=fullWeeks; i++) { //i=1 to skip the current week
+
+    function substractDateFromIndex(i){
       var subtractStart = i * 7;
       var subtractEnd = subtractStart + 7;
       var subtractStartD = subtractStart + 1;
@@ -174,13 +174,20 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
       var startWeekD = utils.lessDays(end,subtractStartD);
       var startWeekDisplay = moment(startWeekD).format('ddd, MMM D');
       var endWeekDisplay = moment(endWeek).format('ddd, MMM D');
-      $("#weekMenu").append("<li role='presentation'><a id='week"+ i +"' role='menuitem' href='#'>" + endWeekDisplay + " - " + startWeekDisplay + "</a></li>");
-      $("#week"+i).click(function(){
-        if(weekSelectedId !== i){
-          weekSelectedId = i;
-          var weekData = utils.filterByDates(history.fullData, endWeek, startWeek);
+      return { startWeek: startWeek, endWeek: endWeek, startWeekDisplay: startWeekDisplay, endWeekDisplay: endWeekDisplay };
+    }
+    
+    for(var i=1; i<=fullWeeks; i++){ //i=1 to skip the current week
+      var d=substractDateFromIndex(i);
+      $("#weekMenu").append("<li role='presentation'><a id='week"+ i +"' role='menuitem' href='#'>" + d.endWeekDisplay + " - " + d.startWeekDisplay + "</a></li>");
+      $("#week" + i).click(function(e) {
+        var weekId = e.target.id.replace(/[^0-9]+/, "");
+        if(weekSelectedId !== weekId){
+          var d=substractDateFromIndex(parseInt(weekId));
+          weekSelectedId = weekId;
+          var weekData = utils.filterByDates(history.fullData, d.endWeek, d.startWeek);
           visualization.display(history, weekData);
-          $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + endWeekDisplay + " - " + startWeekDisplay)
+          $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + d.endWeekDisplay + " - " + d.startWeekDisplay)
         }
       });
     }

@@ -302,12 +302,12 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                 var epochTo = new Date(0);
                 endDate = new Date (epochTo.setUTCSeconds(d.to));
                 var filteredD = utils.filterByDates(history.fullData, startDate, endDate);
+                datasetV = visualization.catData(filteredD, categories, getVisitData);
+                datasetH = visualization.catData(filteredD, categories, getHabitData);
                 if(habits === 0) {
-                  datasetV = visualization.catData(filteredD, categories, getVisitData);
                   changeBubble(datasetV);
                 }
                 else if (habits === 1){
-                  datasetH = visualization.catData(filteredD, categories, getHabitData);
                   changeBubble(datasetH);
                   var range = daysInRange();
                   $("#title").html("<h1 id='viz_title'>What websites do you visit regularly? showing " + range + " days</h1>");
