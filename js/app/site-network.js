@@ -80,6 +80,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
               }
               requirejs(["app/data-table"], function(data_table) {
                 data_table.display(history, dv, "");
+                $(".wh-tooltip").remove();
                 $("#viz_title").html("All Visits to " + d.__data__.name);
                 $("#title h2").append(" - To return to a visualization please use the Navigation above.");
                 vizSelected = "data_table";
@@ -90,6 +91,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
             title: 'Permanently Delete',
             action: function(d) {
               if (confirm('Do you want to PERMANENTLY remove ALL visits to URLs from '+d.__data__.name+' from your local browser history?')) {
+                $(".wh-tooltip").remove();
                 //filter the dataset to just the domain of the object
                 var all = utils.sortByProperty(history.fullData,"url");
                 var newHist = [];
@@ -273,7 +275,8 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
     .style("background-color", "rgba(0, 0, 0, 0.75)")
     .style("border-radius", "6px")
     .style("font", "12px sans-serif")
-    .text("tooltip");
+    .text("tooltip")
+    .attr("class", "wh-tooltip");
     
     var force = d3.layout.force()
       .nodes(d3.values(nodes))

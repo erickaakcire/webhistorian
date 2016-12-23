@@ -54,7 +54,8 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
           var dv = getIdArr(d);
           requirejs(["app/data-table"], function(data_table) {
             data_table.display(history, dv, "");
-            var day = getDay (d);
+            var day = getDay(d);
+            $(".wh-tooltip").remove();
             $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
             $("#title h2").html(dv.length + " visits - To return to a visualization please use the Navigation above.");
             vizSelected = "data_table";
@@ -68,6 +69,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
           var data = getIdArr(d);
           requirejs(["app/websites-visited"], function(wv) {
             var day = getDay(d);
+            $(".wh-tooltip").remove();
             $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
             $("#title h2").html(data.length + " visits - To return to a visualization please use the Navigation above.");
             vizSelected = "web_visit";
@@ -259,7 +261,8 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
         .style("background-color", "rgba(0, 0, 0, 0.75)")
         .style("border-radius", "6px")
         .style("font", "12px sans-serif")
-        .text("tooltip");
+        .text("tooltip")
+        .attr("class", "wh-tooltip");
 
         cards.enter().append("rect")
             .attr("x", function(d) { return (d.hour - 1) * gridSize; })
@@ -271,7 +274,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
             .attr("height", gridSize)
             .on("mouseover", function(d){
               if (d.value==0){
-                tooltip.text("Visits: " + d.value);
+                tooltip.text("Visits: " + d.value + ".");
               }
               else {
                 var day1 = d.idArr[0];
@@ -292,7 +295,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
             })
             .on("mouseout", function(){
           	  return tooltip.style("visibility", "hidden");
-          	})
+            })
             .on("contextmenu", d3.contextMenu(menu, function(){
               tooltip.style("visibility", "hidden");
             }))
