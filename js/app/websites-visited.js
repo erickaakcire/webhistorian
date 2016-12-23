@@ -204,7 +204,8 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
           .style("background-color", "rgba(0, 0, 0, 0.75)")
           .style("border-radius", "6px")
           .style("font", "12px sans-serif")
-          .text("tooltip");
+          .text("tooltip")
+          .attr("class", "wh-tooltip");
       
           var vis = d3.select("#visual_div").append("svg")
                   .attr("width", r)
@@ -347,6 +348,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                        }
                        requirejs(["app/data-table"], function(data_table) {
                          data_table.display(history, dv, "");
+                         $(".wh-tooltip").remove();
                          $("#viz_title").html("All Visits to " + d.__data__.className);
                          $("#title h2").append(" To return to a visualization please use the Navigation above.");
                          vizSelected = "data_table";
@@ -370,6 +372,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                        }
                        requirejs(["app/time"], function(time) {
                          time.display(history, dv);
+                         $(".wh-tooltip").remove();
                          $("#viz_title").html("All Visits to " + d.__data__.className);
                          $("#title h2").html(" To return to a visualization please use the Navigation above.");
                          vizSelected = "time";
@@ -382,6 +385,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                      title: 'Permanently Delete',
                      action: function(d) {
                        if (confirm('Do you want to PERMANENTLY remove ALL visits to URLs from '+d.__data__.className+' from your local browser history?')) {
+                         $(".wh-tooltip").remove();
                          //filter the dataset to just the domain of the object
                          var all = utils.sortByProperty(history.fullData,"url");
                          var newHist = [];

@@ -62,6 +62,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
           else {
             requirejs(["app/data-table"], function(data_table) {
               data_table.display(history, st, "");
+              $(".wh-tooltip").remove();
               $("#viz_title").html("All visits with search term: " + d.__data__.text);
               $("#title h2").append(" - To return to a visualization please use the Navigation above.");
               vizSelected = "data_table";
@@ -98,6 +99,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
             if (removal === null){
               alert("No URLs were removed. ");
             } else {
+              $(".wh-tooltip").remove();
               utils.removeHistory(removal);
               history.fullData = utils.sortByProperty(newHist,"date");
               visualization.display(history, history.fullData);
@@ -148,7 +150,8 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider"], function(u
       .style("background-color", "rgba(0, 0, 0, 0.75)")
       .style("border-radius", "6px")
       .style("font", "12px sans-serif")
-      .text("tooltip");
+      .text("tooltip")
+      .attr("class", "wh-tooltip");
     var fill = d3.scale.category20();
     d3.layout.cloud().size([width, height])
       .words(searchWords)

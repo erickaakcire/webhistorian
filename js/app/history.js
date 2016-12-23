@@ -172,7 +172,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         if (event.data["action"] == "updateProgress") {
     
           var currentProgress = (100 * ((itemCount - event.data["count"]) / itemCount)).toFixed(0) + '%';
-
+          
           if (lastPercentage != currentProgress)
           {
             $("#visit_progress").width(currentProgress);
