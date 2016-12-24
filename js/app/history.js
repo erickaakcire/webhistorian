@@ -138,7 +138,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         }
         chrome.history.search({
                 'text': '',
-                'maxResults': 0,
+                'maxResults': (typeof browser == "undefined" ? 0 : Number.MAX_SAFE_INTEGER),
                 'startTime': timeSelect
                 //, 'endTime': end //not working
             },

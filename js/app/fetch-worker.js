@@ -195,13 +195,19 @@ self.transformData = function(data) {
       var reDefaultDomain = /^.*\.([\w\d_-]*\.[a-zA-Z][a-zA-Z][a-zA-Z]?[a-zA-Z]?)$/;
 
       if (dataItem.url.match(reGoogleMaps)) {
-        domain = "google.com/maps";
+          domain = "google.com/maps";
       } else if (protocol === "chrome-extension") {
-        if (title != "") {
-          domain = title + " Extension";
-        } else {
-          domain = "Chrome Extension";
-        }
+          if (title != "") {
+              domain = title + " Extension";
+          } else {
+              domain = "Chrome Extension";
+          }
+      } else if (protocol === "moz-extension") {
+          if (title != "") {
+              domain = title + " Extension";
+          } else {
+              domain = "Firefox Extension";
+          }
       } else if (protocol === "file") {
         domain = "Local File";
       } else if (host.match(reWwwGoogle) || host.match(reGoogleOnly)) {
