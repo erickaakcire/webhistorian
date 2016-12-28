@@ -1,7 +1,6 @@
 define(["moment", "app/config", "app/utils"], function (moment, config, utils) 
 {   
   var history = {};
-  
   history.fullData = [];
   history.urlArray = [];
   var leaveOnce = 0;
@@ -403,7 +402,6 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     //search terms array (for each input)
     var stTwd = utils.generateTerms(twd);
     var stLwd = utils.generateTerms(lwd);
-
     if (stTwd.length > 0 && stLwd.length > 0) {
       //sort terms array
       var sStTwd = utils.sortByProperty(stTwd,"term");
@@ -465,12 +463,24 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         topTermLw: topTermLw,
         topTermTw: topTermTw
       };
+      console.log("before svyLink");
       svyLink(function(url){ 
         var online = 0;
         if(url !== ""){
           online = 1;
         }
         callback(weekCompareData, online, url);
+      });
+    }
+    else {
+      //not enough data
+      var wcd = "";
+      svyLink(function(url){ 
+        var online = 0;
+        if(url !== ""){
+          online = 1;
+        }
+        callback(wcd, online, url);
       });
     }
   };
@@ -844,7 +854,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
           var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p> <div id='mc_embed_signup'> <form action='http://webhistorian.us10.list-manage.com/subscribe/post?u=cfe106c4d74667df0e62d95ff&amp;id=b65d35d432' method='post' id='mc-embedded-subscribe-form' name='mc-embedded-subscribe-form' class='validate' target='_blank' novalidate> <div id='mc_embed_signup_scroll'> <h2>Subscribe to our mailing list</h2><p>New opportunities and features.</p> <div class='mc-field-group'> <label for='mce-EMAIL'>Email Address </label> <input type='email' value='' name='EMAIL' class='required email' id='mce-EMAIL'> </div> <div class='mc-field-group input-group'> <strong>Interests </strong> <ul><li><input type='checkbox' checked value='1' name='group[10657][1]' id='mce-group[10657]-10657-0'><label for='mce-group[10657]-10657-0'>Web Historian User</label></li> <li><input type='checkbox' value='2' name='group[10657][2]' id='mce-group[10657]-10657-1'><label for='mce-group[10657]-10657-1'>Interested in the Web Historian project</label></li> <li><input type='checkbox' value='4' name='group[10657][4]' id='mce-group[10657]-10657-2'><label for='mce-group[10657]-10657-2'>May want to use Web Historian for my own research</label></li> </ul> </div> 	<div id='mce-responses' class='clear'> 		<div class='response' id='mce-error-response' style='display:none'></div> 		<div class='response' id='mce-success-response' style='display:none'></div> 	</div> <!-- real people should not fill this in and expect good things - do not remove this or risk form bot signups--> <div style='position: absolute; left: -5000px;' aria-hidden='true'><input type='text' name='b_cfe106c4d74667df0e62d95ff_b65d35d432' tabindex='-1' value=''></div> <div class='clear'><input type='submit' value='Subscribe' name='subscribe' id='mc-embedded-subscribe' class='button'></div> </div> </form> </div> <!--End mc_embed_signup-->";
           //Your central jumping-off point for browsing the web this week was * this week. It was * last week.
           //of the # websites you visited over the past # days, you visited * the most, but you visited * on the most different days. 
-          var thanks = "<h3>Thank you for participating in our study!</h3><p>For more information about the project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. For updates on reports and to participate in further studies <a href=\""+config.endSvyUrls[0]+"\" target=\"_blank\">click here to sign up</a>. Two months after your first data upload you will be asked for a follow-up contribution. </p>";
+          var thanks = "<br/><h3>Thank you for participating in our study!</h3><p>You are now able to view your uploaded data on the Web Historian server. This icon <span class='glyphicon glyphicon-export'></span> has appeared in your navigation to allow you to do so. You will be able to see how you compare to other participants in your overall amount of browsing, the number of different websites you visit, and more.</p><p>For more information about the research project see \"<a href=\" http://www.webhistorian.org/participate/\" target=\"_blank\">Understanding Access to Information Online and in Context\"</a>. Two months after your first data upload you will be asked for a follow-up contribution. </p>";
           var notEnoughData = "<h3>Week in Review</h3><p>The week in review compares this week's web browsing to the previous week. To see the week in review feature you can keep browsing in Chrome witout clearing your history until you have 14 days of browsing. If you changed the dates you are viewing with the calendar, just expand the range between the start and end date to 14 days or more.</p>";
           var offline = "<div class='alert alert-warning'><p><span class='glyphicon glyphicon-wrench' aria-hidden='true'></span> Your browser is offline. Web Historian will function, but web site categories may be limited to 'Other' and you won't be able to participate in the research project until you are online.</p></div>";
           
@@ -855,19 +865,23 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
               $("#research").show();
               if(online===1){ weekHtml = weekInReview; }
               else { weekHtml = offline + weekInReview; }
+              console.log("Never uploaded, more than 1 week data");
             }
             else if (lastUlD === "Never" && weekData.weekBstart < dataStartDate) { 
               $("#research").show();
               if(online===1) { weekHtml = notEnoughData; }
               else { weekHtml = offline + notEnoughData; }
+              console.log("Never uploaded, less than 1 week data");
               } 
             else if (svyEndType === 0 && weekData.weekBstart >= dataStartDate){
               if(online===1) { weekHtml = weekInReview; }
               else { weekHtml = offline + weekInReview; }
+              console.log("Refused or not qualified, more than 1 week data");
             }
             else if (svyEndType === 0 && weekData.weekBstart < dataStartDate){
               if(online===1) { weekHtml = notEnoughData; }
               else { weekHtml = offline + notEnoughData; }
+              console.log("Refused or not qualified, less than 1 week data");
             }
             else if (lastUlD !== "Never" && svyEndType === null){
                 if(url !== ""){
@@ -881,6 +895,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
             }
             else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart >= dataStartDate) { 
               $("#nav_review").show();
+              console.log("Uploaded and finished, more than 1 week data");
               if(online===1)
                 weekHtml = weekInReview + thanks; 
               else
@@ -888,14 +903,15 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
               }
             else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart < dataStartDate) { 
               $("#nav_review").show();
+              console.log("Uploaded and finished survey, less than 1 week data");
               if(online===1)
                 weekHtml = notEnoughData + thanks; 
               else
                 weekHtml = offline + notEnoughData + thanks;
               }
-            else { $("#research").show(); console.log("condition not specified"); }; 
-          
-          return weekHtml;    
+            else { $("#research").show(); console.log("Upload, survey amount of days, and online status condition not a specified condition"); }; 
+            
+            return weekHtml;    
         });
       };
     
