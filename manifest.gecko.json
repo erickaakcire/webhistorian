@@ -1,0 +1,28 @@
+{
+  "manifest_version": 2,
+  "name": "Web Historian - Web History Visualizations",
+  "version": "0.8.3",
+  "short_name": "Web Historian",
+  "description": "Web Historian - Visualize your web use to understand your habits",
+  "permissions": [
+    "history",
+    "tabs",
+    "storage",
+    "alarms"
+  ],
+  "browser_action": {
+    "default_icon": "images/star48.png"
+  },
+  "icons": { "16": "images/star16.png",
+    "48": "images/star48.png",
+    "128": "images/star128.png" },
+  "background": {
+    "scripts": ["js/app/chrome.js"]
+  },
+  "offline_enabled": true,
+  "applications": {
+    "gecko": {
+      "strict_min_version": "50.0"
+    }
+  }
+}
