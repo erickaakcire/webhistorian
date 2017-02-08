@@ -109,7 +109,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
           var prev = result.before;
           chrome.storage.local.get({ 'upload_identifier': ''}, function(result){
             var hId1 = result.upload_identifier;
-            var hId = hId1.replace(/ /g, "%20");
+            var hId = encodeURIComponent(hId1);
             var svyUrl1 = actions[0].url + "&whId="+ chrome.runtime.id + "&prev=" + prev + "&hId=" + hId;
             callback(svyUrl1);
           });
