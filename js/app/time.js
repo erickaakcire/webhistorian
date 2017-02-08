@@ -139,10 +139,10 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
     var se = JSON.parse(sessionStorage.getItem("se"));
     var start = new Date(se[0].start);
     var end = new Date(se[0].end);
-    var startYear = moment(start).format('YYYY');
-    var startDay = moment(start).format('DDD');
-    var endYear = moment(end).format('YYYY');
-    var endDay = moment(end).format('DDD');
+    var startYear = parseInt(moment(start).format('YYYY'));
+    var startDay = parseInt(moment(start).format('DDD'));
+    var endYear = parseInt(moment(end).format('YYYY'));
+    var endDay = parseInt(moment(end).format('DDD'));
     if (endYear !== startYear) {
       endDay = endDay + 365;
     }
