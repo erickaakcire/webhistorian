@@ -56,8 +56,8 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
             data_table.display(history, dv, "");
             var day = getDay(d);
             $(".wh-tooltip").remove();
-            $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
-            $("#title h2").html(dv.length + " visits - To return to a visualization please use the Navigation above.");
+            $("#viz_title").text("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
+            $("#title h2").text(dv.length + " visits - To return to a visualization please use the Navigation above.");
             vizSelected = "data_table";
             document.body.scrollTop = document.documentElement.scrollTop = 0;
           });
@@ -70,8 +70,8 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
           requirejs(["app/websites-visited"], function(wv) {
             var day = getDay(d);
             $(".wh-tooltip").remove();
-            $("#viz_title").html("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
-            $("#title h2").html(data.length + " visits - To return to a visualization please use the Navigation above.");
+            $("#viz_title").text("All Visits on " + day + " at " + d.__data__.hour + ":00 (24 hr format)");
+            $("#title h2").text(data.length + " visits - To return to a visualization please use the Navigation above.");
             vizSelected = "web_visit";
             wv.display(history, data, 1);
             document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -154,7 +154,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
       if(weekSelectedId !== "all"){
         weekSelectedId = "all";
         visualization.display(history, history.fullData);
-        $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + moment(start).format('ddd, MMM D') + " - "+ moment(end).format('ddd, MMM D') +"</h2>");
+        $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + moment(start).format('ddd, MMM D') + " - "+ moment(end).format('ddd, MMM D'));
       }
     });
     $("#weekMenu").append("<li role='presentation'><a id='thisWeek' role='menuitem' href='#'>This Week - Default</a></li>");
@@ -189,7 +189,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
           weekSelectedId = weekId;
           var weekData = utils.filterByDates(history.fullData, d.endWeek, d.startWeek);
           visualization.display(history, weekData);
-          $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + d.endWeekDisplay + " - " + d.startWeekDisplay)
+          $("#title h2").text("Browsing by hour of the day &amp; day of the week, " + d.endWeekDisplay + " - " + d.startWeekDisplay)
         }
       });
     }
