@@ -1,169 +1,172 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <!--
-	Copyright (C) 2016 Ericka Menchen-Trevino & contributors, info@webhistorian.org
+    Copyright (C) 2016 Ericka Menchen-Trevino & contributors, info@webhistorian.org
 
-	This program is free software; you can redistribute it and/or modify
-	it under the terms of the GNU General Public License as published by
-	the Free Software Foundation; either version 2 of the License, or
-	(at your option) any later version.
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
 
-	This program is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-	GNU General Public License for more details.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
-	You should have received a copy of the GNU General Public License along
-	with this program; if not, write to the Free Software Foundation, Inc.,
-	51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 -->
 <html>
-	<head>
-		<meta charset="utf-8" />
-			<title>Web Historian</title>
-      <link rel="stylesheet" type="text/css" href="css/style.css" />
-      <link rel="stylesheet" type="text/css" href="css/d3-context-menu.css" />
-			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap.min.css" />
-			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-theme.min.css" />
-			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-datepicker3.css" />
-			<link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-table.css">
-      <link rel="stylesheet" type="text/css" href="vendor/css/ion.rangeSlider.css">
-      <link rel="stylesheet" type="text/css" href="vendor/css/ion.rangeSlider.skinHTML5.css">
-			<script data-main="js/app/main.js" src="js/lib/require.js"></script>
-		</head>
-		<body>
-		<div id="main">
-			<nav class="navbar navbar-inverse navbar-fixed-top">
-				<div class="container">
-					<div class="navbar-header">
-						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-							<span class="sr-only">Toggle navigation</span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-						</button>
-						<span class="navbar-brand"><img src="images/star-nav-icon-ye.png" style="width: 20px; height: 24px; border: none; display: inline-block; padding-bottom: 4px;" /> Web Historian</span>
-							
-					</div>
-					<div id="navbar" style="display: none;">
-						<ul class="nav navbar-nav navbar-right">
-              <li id="nav_txt"><span class="navbar-brand"><p style="display: inline-block;">Navigation: </p></span></li> 
-              <li id="nav_home"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Home" id="home"><span class="glyphicon glyphicon-home"></span></a></li>
-							<li id="nav_sites_visited"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Web Visits" id="web_visit"><span class="glyphicon glyphicon-globe"></span></a></li>
-							<li id="nav_search_terms"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Search Terms" id="search_words"><span class="glyphicon glyphicon-search"></span></a></li>
-							<li id="nav_network"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Network" id="network"><span class="glyphicon glyphicon-link"></span></a></li>
-              <li id="nav_time"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Time Heatmap" id="time"><span class="glyphicon glyphicon-calendar"></span></a></li>
-							<li id="nav_all_data"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Data Table" id="data_table"><span class="glyphicon glyphicon-list"></span></a></li>
-							<li id="nav_upload" data-toggle="tooltip" data-placement="bottom" title="Participate in Research"><a href="#" data-toggle="modal" id="submit" data-target="#upload_modal"><span style="color: #ffff99" class="glyphicon glyphicon-cloud-upload"></span></a></li>
-							<li id="nav_review"><a href="#" id="link_access_server" data-toggle="tooltip" data-placement="bottom" title="View on Server"><span class="glyphicon glyphicon-export"></span></a></li>
-						</ul>
+<head>
+    <meta charset="utf-8" />
+    <title>Web Historian</title>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" type="text/css" href="css/d3-context-menu.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-theme.min.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-datepicker3.min.css" />
+    <link rel="stylesheet" type="text/css" href="vendor/css/bootstrap-table.min.css">
+    <link rel="stylesheet" type="text/css" href="vendor/css/ion.rangeSlider.css">
+    <link rel="stylesheet" type="text/css" href="vendor/css/ion.rangeSlider.skinHTML5.css">
+    <script data-main="js/app/main.js" src="js/lib/require.js"></script>
+</head>
+<body>
+    <div id="main">
+        <nav class="navbar navbar-inverse navbar-fixed-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <span class="navbar-brand"><img src="images/star-nav-icon-ye.png" style="width: 20px; height: 24px; border: none; display: inline-block; padding-bottom: 4px;" /> Web Historian</span>
 
-					</div><!--/.nav-collapse -->
-				</div>
-			</nav>
-			
-			<div style="margin-top: 60px;"></div>
-			
-			<div class="row" id="progress_bars">
-				<div id="progress">
-					<h1>Welcome!</h1>
-          <p>Thank you for using Web Historian, the extension that visualizes your web use to help you understand your habits. </p><p>Web Historian needs a moment to turn the data your browser uses into data <em>you</em> can use. Your visualizations will be ready shortly!</p>
-          
-          <h6>Creating your visualizations&#8230;</h6>
-					<div class="progress">
-						<div class="progress-bar" id="visit_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
-					</div>
-          
-          <!-- image? -->
-      
-          <center>
-            <br/><br/>
-            <h2>Right-click for many important features.</h2></center>
-            <p>This animated GIF shows one of the many right-click features of Web Historian, going from the Web Visits view to the Time Heatmap view when you want to see <strong>when</strong> you visited a site. Try right-clicking in all of the visualizations to see many useful options. Often a right-click is a two-finger-tap on a trackpad. Check out other Web Historian features on <a href="http://www.webhistorian.org/" target=_blank>our website</a>.</p>
-           <center> <img src="images/visitsToTime-sm.gif" style="border: none; display: inline-block; padding-bottom: 4px;">
-          </center>
-         
-				</div>
-			</div>
+                </div>
+                <div id="navbar" style="display: none;">
+                    <ul class="nav navbar-nav navbar-right">
+                        <li id="nav_txt"><span class="navbar-brand"><p style="display: inline-block;">Navigation: </p></span></li>
+                        <li id="nav_home"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Home" id="home"><span class="glyphicon glyphicon-home"></span></a></li>
+                        <li id="nav_sites_visited"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Web Visits" id="web_visit"><span class="glyphicon glyphicon-globe"></span></a></li>
+                        <li id="nav_search_terms"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Search Terms" id="search_words"><span class="glyphicon glyphicon-search"></span></a></li>
+                        <li id="nav_network"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Network" id="network"><span class="glyphicon glyphicon-link"></span></a></li>
+                        <li id="nav_time"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Time Heatmap" id="time"><span class="glyphicon glyphicon-calendar"></span></a></li>
+                        <li id="nav_all_data"><a href="#" data-toggle="tooltip" data-placement="bottom" title="Data Table" id="data_table"><span class="glyphicon glyphicon-list"></span></a></li>
+                        <li id="nav_upload" data-toggle="tooltip" data-placement="bottom" title="Participate in Research"><a href="#" data-toggle="modal" id="submit" data-target="#upload_modal"><span style="color: #ffff99" class="glyphicon glyphicon-cloud-upload"></span></a></li>
+                        <li id="nav_review"><a href="#" id="link_access_server" data-toggle="tooltip" data-placement="bottom" title="View on Server"><span class="glyphicon glyphicon-export"></span></a></li>
+                    </ul>
 
-		<div id="visualizations">
-				<div id="cards"></div>
-				<div id="loader"></div>
-				<div id="title"></div>
-				<div id="above_visual"></div>
-				<div id="visual_div"></div>
-			</div>
-			<div id="below_visual"></div>
-      <div id="footer" style="display: none;"><hr><p>For more information about Web Historian visit <a href="http://webhistorian.org" target="blank">http://webhistorian.org</a>.</p><p><a id='settings'><span class="glyphicon glyphicon-cog"></span> Settings</a></p></div>
-		</div>
+                </div><!--/.nav-collapse -->
+            </div>
+        </nav>
 
-		<div class="modal fade" tabindex="-1" role="dialog" id="upload_modal">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title">Upload Data to the Research Project</h4>
-					</div>
-					<div class="modal-body">
-						<div id="modal_overview"></div>
+        <div style="margin-top: 60px;"></div>
 
-						<div class="progress">
-							<div class="progress-bar" id="upload_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
-						</div>
-						
-            <div id='par1'><p id='par1'>Click Participate to begin.</p></div>
-            
-						<div id="progress_actions">
-							<h6>Survey</h6>
-							
-							<p>You can begin the research survey that just openend in a new tab while your data uploads.</p>
-							
-							<ul id="progress_actions_list">
-							</ul>
-						</div>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
-						<button type="button" class="btn btn-warning" id="upload_data">Participate</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="modal fade" tabindex="-1" role="dialog" id="identifier_modal">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title">Your Identifier</h4>
-					</div>
-					<div class="modal-body" id="id-body"></div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-info" id="back" style="display: none;">Back</button><button type="button" class="btn btn-info" id="chose_identifier">Continue&#8230;</button>
-					</div>
-				</div>
-			</div>
-		</div>
-		<div class="modal fade" tabindex="-1" role="dialog" id="welcome_modal">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title">Welcome!</h4>
-					</div>
-					<div class="modal-body" id="welcome-body">
-            <p>Were you given a Web Historian ID to use as part of a research project?
-              <label class="radio-inline"><input type="radio" name="optProj" value="1" id="yesProjId">Yes</label>
-              <label class="radio-inline"><input type="radio" name="optProj" value="0" id="noProjId" checked>No</label>
-            </p>
-            <p>Have you installed Web Historian on another web browser previously?
-              <label class="radio-inline"><input type="radio" name="optBefore" value="1" id="yesBefore">Yes</label>
-              <label class="radio-inline"><input type="radio" name="optBefore" value="0" id="noBefore" checked>No</label>
-            </p>
-					</div>
-					<div class="modal-footer">
-						<button type="button" class="btn btn-info" id="choose_welcome">Continue&#8230;</button>
-					</div>
-				</div>
-			</div>
-		</div>
-	</body>
+        <div class="row" id="progress_bars">
+            <div id="progress">
+                <h1>Welcome!</h1>
+                <p>Thank you for using Web Historian, the extension that visualizes your web use to help you understand your habits. </p><p>Web Historian needs a moment to turn the data your browser uses into data <em>you</em> can use. Your visualizations will be ready shortly!</p>
+
+                <h6>Creating your visualizations&#8230;</h6>
+                <div class="progress">
+                    <div class="progress-bar" id="visit_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
+                </div>
+
+                <!-- image? -->
+
+                <center>
+                    <br /><br />
+                    <h2>Right-click for many important features.</h2>
+                </center>
+                <p>This animated GIF shows one of the many right-click features of Web Historian, going from the Web Visits view to the Time Heatmap view when you want to see <strong>when</strong> you visited a site. Try right-clicking in all of the visualizations to see many useful options. Often a right-click is a two-finger-tap on a trackpad. Check out other Web Historian features on <a href="http://www.webhistorian.org/" target=_blank>our website</a>.</p>
+                <center>
+                    <img src="images/visitsToTime-sm.gif" style="border: none; display: inline-block; padding-bottom: 4px;">
+                </center>
+
+            </div>
+        </div>
+
+        <div id="visualizations">
+            <div id="cards"></div>
+            <div id="loader"></div>
+            <div id="title"></div>
+            <div id="above_visual"></div>
+            <div id="visual_div"></div>
+        </div>
+        <div id="below_visual"></div>
+        <div id="footer" style="display: none;"><hr><p>For more information about Web Historian visit <a href="http://webhistorian.org" target="blank">http://webhistorian.org</a>.</p><p><a id='settings'><span class="glyphicon glyphicon-cog"></span> Settings</a></p></div>
+    </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog" id="upload_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Upload Data to the Research Project</h4>
+                </div>
+                <div class="modal-body">
+                    <div id="modal_overview"></div>
+
+                    <div class="progress">
+                        <div class="progress-bar" id="upload_progress" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%; min-width: 3em;"></div>
+                    </div>
+
+                    <div id='par1'><p id='par1'>Click Participate to begin.</p></div>
+
+                    <div id="progress_actions">
+                        <h6>Survey</h6>
+
+                        <p>You can begin the research survey that just openend in a new tab while your data uploads.</p>
+
+                        <ul id="progress_actions_list"></ul>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-warning" id="upload_data">Participate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="identifier_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Your Identifier</h4>
+                </div>
+                <div class="modal-body" id="id-body"></div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" id="back" style="display: none;">Back</button><button type="button" class="btn btn-info" id="chose_identifier">Continue&#8230;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog" id="welcome_modal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">Welcome!</h4>
+                </div>
+                <div class="modal-body" id="welcome-body">
+                    <p>
+                        Were you given a Web Historian ID to use as part of a research project?
+                        <label class="radio-inline"><input type="radio" name="optProj" value="1" id="yesProjId">Yes</label>
+                        <label class="radio-inline"><input type="radio" name="optProj" value="0" id="noProjId" checked>No</label>
+                    </p>
+                    <p>
+                        Have you installed Web Historian on another web browser previously?
+                        <label class="radio-inline"><input type="radio" name="optBefore" value="1" id="yesBefore">Yes</label>
+                        <label class="radio-inline"><input type="radio" name="optBefore" value="0" id="noBefore" checked>No</label>
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-info" id="choose_welcome">Continue&#8230;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
 </html>

@@ -154,7 +154,7 @@ define(["app/utils", "moment", "d3-context-menu", "ion.rangeSlider", "app/histor
       if(weekSelectedId !== "all"){
         weekSelectedId = "all";
         visualization.display(history, history.fullData);
-        $("#title h2").html("Browsing by hour of the day &amp; day of the week, " + moment(start).format('ddd, MMM D') + " - "+ moment(end).format('ddd, MMM D'));
+        $("#title h2").text("Browsing by hour of the day &amp; day of the week, " + moment(start).format('ddd, MMM D') + " - "+ moment(end).format('ddd, MMM D'));
       }
     });
     $("#weekMenu").append("<li role='presentation'><a id='thisWeek' role='menuitem' href='#'>This Week - Default</a></li>");

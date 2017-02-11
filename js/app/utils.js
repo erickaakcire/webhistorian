@@ -220,7 +220,6 @@ define(function() {
     return value / Math.LN10;
   };
 
-
   utils.countProperties = function(data, property) {
     //count a property value of an object, return array with unique property values (counter), and count of that value (count)
     var countArray = [];
