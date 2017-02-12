@@ -349,7 +349,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                        requirejs(["app/data-table"], function(data_table) {
                          data_table.display(history, dv, "");
                          $(".wh-tooltip").remove();
-                         $("#viz_title").html("All Visits to " + d.__data__.className);
+                         $("#viz_title").text("All Visits to " + d.__data__.className);
                          $("#title h2").append(" To return to a visualization please use the Navigation above.");
                          vizSelected = "data_table";
                          document.body.scrollTop = document.documentElement.scrollTop = 0;
@@ -373,8 +373,8 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                        requirejs(["app/time"], function(time) {
                          time.display(history, dv);
                          $(".wh-tooltip").remove();
-                         $("#viz_title").html("All Visits to " + d.__data__.className);
-                         $("#title h2").html(" To return to a visualization please use the Navigation above.");
+                         $("#viz_title").text("All Visits to " + d.__data__.className);
+                         $("#title h2").text("To return to a visualization please use the Navigation above.");
                          vizSelected = "time";
                          document.body.scrollTop = document.documentElement.scrollTop = 0;
                        });

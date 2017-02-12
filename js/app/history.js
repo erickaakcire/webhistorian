@@ -73,25 +73,25 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     }
   }
   
-  function chooseId () {
-		$("#chose_identifier").off('click');
-    $("#chose_identifier").click(function(eventObj) {
-			eventObj.preventDefault();
-      $(".modal-title").html("Your Identifier");
-			var identifier = $("#field_identifier").val();
-			if (identifier != null && identifier != undefined && identifier != "")	{
-				var allowed = /^[-a-zA-Z0-9_ ]*$/;
-        if (identifier.match(allowed)) {
-          chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) {
-  					$("#identifier_modal").modal("hide");
-  				});
-        }
-        else {
-          $("#id-body").append("<p>Please remove special characters, only alpha-numeric, space - and _ allowed.</p>")
-        }
-			}
-			return false;
-		});
+  function chooseId() {
+      $("#chose_identifier").off('click');
+      $("#chose_identifier").click(function (eventObj) {
+          eventObj.preventDefault();
+          $(".modal-title").text("Your Identifier");
+          var identifier = $("#field_identifier").val();
+          if (identifier != null && identifier != undefined && identifier != "") {
+              var allowed = /^[-a-zA-Z0-9_ ]*$/;
+              if (identifier.match(allowed)) {
+                  chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) {
+                      $("#identifier_modal").modal("hide");
+                  });
+              }
+              else {
+                  $("#id-body").append("<p>Please remove special characters, only alpha-numeric, space - and _ allowed.</p>")
+              }
+          }
+          return false;
+      });
   }
   
   function svyLink(callback){
@@ -108,7 +108,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
           var prev = result.before;
           chrome.storage.local.get({ 'upload_identifier': ''}, function(result){
             var hId1 = result.upload_identifier;
-            var hId = hId1.replace(/ /g, "%20");
+            var hId = encodeURIComponent(hId1);
             var svyUrl1 = actions[0].url + "&whId="+ chrome.runtime.id + "&prev=" + prev + "&hId=" + hId;
             callback(svyUrl1);
           });
@@ -175,7 +175,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
           if (lastPercentage != currentProgress)
           {
             $("#visit_progress").width(currentProgress);
-            $("#visit_progress").html(currentProgress);
+            $("#visit_progress").text(currentProgress);
   
             lastPercentage = currentProgress;
 
@@ -186,7 +186,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         
         if (event.data["finished"] != undefined) {
           $("#transform_progress").width("100%");
-          $("#transform_progress").html("100%");
+          $("#transform_progress").text("100%");
     
           history.fullData = event.data["items"];
 
@@ -510,7 +510,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         }
         
         $("#identifier_modal").modal("show");
-        $(".modal-title").html("Settings");
+        $(".modal-title").text("Settings");
         
         $("#id-body").html("<p>Your Web Historian identifier is: <strong>" + id + "</strong></p><p>If you need to change your Web Historian Identifier you can <a id='changeIdSet'>click here</a>.</p><hr/><p>Your last upload was completed on: " + dateOut +"</p>");
         if (svyEndType === null && lastUl === undefined){
@@ -555,8 +555,8 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     });
 
     $('#upload_modal').on('show.bs.modal', function (e) {
-      $(".modal-title").html("Upload Data to the Research Project");
-      $("#par1").html("Click Participate to begin.")
+      $(".modal-title").text("Upload Data to the Research Project");
+      $("#par1").text("Click Participate to begin.")
       
       $("div#progress_actions").hide();
       chrome.storage.local.get({ 'lastPdkUpload': 0, 'completedActions': [] }, function (result) {
@@ -564,12 +564,12 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
           .error(function(jqXHR, textStatus, errorThrown){
             if (textStatus == 'timeout'){
               console.log('The server is not responding');
-              $("div#progress_actions").html("The server is not responding. Please choose 'Cancel,' check your Internet connection and try again.");
+              $("div#progress_actions").text("The server is not responding. Please choose 'Cancel,' check your Internet connection and try again.");
               $("div#progress_actions").show();
             }
             if (textStatus == 'error') {
               console.log(errorThrown);
-              $("div#progress_actions").html("The server is not responding. Please choose 'Cancel,' check your Internet connection and try again.");
+              $("div#progress_actions").text("The server is not responding. Please choose 'Cancel,' check your Internet connection and try again.");
               $("div#progress_actions").show();
             }
               
@@ -615,10 +615,10 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
       
           if (dayIndices.length > 0) {
             if (dayIndices.length == 1) {
-              $("#modal_overview").html("1 day to upload (" + dayIndices[0]+ ").");
+              $("#modal_overview").text("1 day to upload (" + dayIndices[0]+ ").");
             } 
             else {
-              $("#modal_overview").html(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
+              $("#modal_overview").text(dayIndices.length + " days to upload (" + dayIndices[0] + " to " + dayIndices[dayIndices.length - 1] + ").");
             }
             var toList = [];
             var action = actions[0];
@@ -818,7 +818,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     
     history.wir = function(weekData, online, url) {
         $("#cards").append("<div id=\"wir\"></div>");
-        $("#wir").html( function() {
+        $("#wir").html(function() {
           var aEnd = moment(weekData.weekAend).format("ddd MMM D");
           var aStart = moment(weekData.weekAstart).format("ddd MMM D");
           var bEnd = moment(weekData.weekBend).format("ddd MMM D");
@@ -940,7 +940,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
       $(document).mouseleave(function() {
         if (svyEndType === null && lastUl === undefined && leaveOnce === 0) {
           $("#upload_modal").modal("show");
-          $(".modal-title").html("Thank you for using Web Historian!");
+          $(".modal-title").text("Thank you for using Web Historian!");
           $("#par1").html("<h3>Please consider participating in the research project.</h3><p> <a href='http://webhistorian.org/participate' target='blank'>Click here</a> for more information, or click the orange Participate button to begin uploading your data.");
           leaveOnce = 1;
         }
