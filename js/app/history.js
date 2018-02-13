@@ -278,7 +278,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         }
   
         if (event.data["action"] == "fetchHistory") {
-    //        console.log('WORKER POSTED: ' + JSON.stringify(event.data));
+            //console.log('WORKER POSTED: ' + JSON.stringify(event.data));
     
             var historyItem = event.data["historyItem"];
           chrome.history.getVisits({url: historyItem.url}, function (visitItems) 
@@ -937,14 +937,6 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
       svyEnd(history.fullData);
       storeCats(showHome);
       //$("ytplayer").hide();
-      $(document).mouseleave(function() {
-        if (svyEndType === null && lastUl === undefined && leaveOnce === 0) {
-          $("#upload_modal").modal("show");
-          $(".modal-title").html("Thank you for using Web Historian!");
-          $("#par1").html("<h3>Please consider participating in the research project.</h3><p> <a href='http://webhistorian.org/participate' target='blank'>Click here</a> for more information, or click the orange Participate button to begin uploading your data.");
-          leaveOnce = 1;
-        }
-    });
 
     })
   });
