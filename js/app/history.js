@@ -207,7 +207,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
           {
             if (result.study == "") {
               function welcomeModal (){
-                $("#welcome_modal").modal("show");
+                //$("#welcome_modal").modal("show");
                 $("#choose_welcome").click(function(eventObj) {
                   var selectedP = $("input[type='radio'][name='optProj']:checked");
                   var selectedValProj = selectedP.val();
