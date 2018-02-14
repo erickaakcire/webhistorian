@@ -1,7 +1,7 @@
-# Web Historian: Visualize your web use to understand your habits
-This extension for Google Chrome or Firefox helps users track their browsing habits to become more mindful of how they spend their time online. Web Historian helps unlock the information that is already in your web browsing history with easy to use interactive visualizations. For more information see [http://webhistorian.org](http://webhistorian.org). It can be installed from the [Chrome store]( https://chrome.google.com/webstore/detail/web-historian-web-history/chpcblajbmmlbhecpnnadmjmlbhkloji) or via [Mozilla.org for Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/web-historian/).
+# Web Historian - Educational Edition: Visualize your web use to understand your habits
+This extension for Google Chrome helps users track their browsing habits to become more mindful of how they spend their time online. This extension has been used in the classroom (middle school through higher ed) to help students understand their actual browsing behavior and digital traces in general, as well as for personal productivity purposes. 
 
-Web Historian was created to help researchers partner with users to advance understanding of how the web impacts society. By informing and empowering users about their own data, they can then give informed consent to take part in research about online behavior. Web Historian invites users to participate in a [research project](http://www.webhistorian.org/participate/). The opt-in only IRB-approved research involves submitting browsing data and taking a short online survey about online and offline information gathering. 
+Web Historian helps unlock the information that is already in your web browsing history with easy to use interactive visualizations. For more information see [http://webhistorian.org](http://webhistorian.org). It can be installed from the [Chrome store]( https://chrome.google.com/webstore/detail/web-historian-web-history/chpcblajbmmlbhecpnnadmjmlbhkloji).
 
 The extension uses the D3.js for the visualizations and accesses the history data via the chrome.history API.
 
@@ -9,7 +9,6 @@ Web Historian runs entirely on the local browser using only client-side JavaScri
 
 #To run the extension in Developer Mode in Chrome
 
-You will be able to see  your visualizations, but you won't be able to participate in the research project when you install Web Historian using developer mode. To add this extension from the Chrome Store: 
 <ol>
 <li> Download the extension code to your machine. Press the "Clone or download" green button on the Web Historian Repsitory https://github.com/erickaakcire/webhistorian. From there you can download the zip file or copy the address to clone. If you downoad the zip file you need to unzip it.
 <li> In your file system rename the file .../js/app/config.js-template.js to .../js/app/config.js
@@ -23,26 +22,13 @@ You will be able to see  your visualizations, but you won't be able to participa
 <li> Browse to the directory where you downloaded the extension code and click "Select"
 </ol>
 
-
-#To load as a temporary Add-on in Firefox
-
-You will be able to see  your visualizations, but you won't be able to participate in the research project when you install Web Historian in this way.
-<ol>
-<li> Download the extension code to your machine. Press the "Clone or download" green button on the Web Historian Repsitory https://github.com/erickaakcire/webhistorian. From there you can download the zip file or copy the address to clone. If you downoad the zip file you need to unzip it.
-<li> In your file system rename the file .../js/app/config.js-template.js to .../js/app/config.js
-<li> Delete the file manifest.json, then rename the file manifest.gecko.json to manifest.json
-<li> Go to Firefox. Go to the menu Tools > Add-ons
-<li> On the Ad-ons screen click on the gear icon, then choose "Debug Add-ons". Choose "Load Temporary Ad-on"
-<li> Browse to the directory where you downloaded the extension code and select the manifest.json file. Choose OK and Web Historian will load.
-</ol>
-
 # Technical Overview
 
 Web Historian is a web application created in JavaScript using d3.js, jQuery, Bootstrap, require.js and a number of other browser-based technologies.
 
-The entrypoint into the extension is the `index.html` file in the root of the project's directory. This file creates the "shell" of the user interface, including the toolbar as well as designated `DIV` element where various visualizations will load each's respective content.
+The entry point into the extension is the `index.html` file in the root of the project's directory. This file creates the "shell" of the user interface, including the toolbar as well as designated `DIV` element where various visualizations will load each's respective content.
 
-The JavaScript architecture of the extension is built around [RequireJS](http://requirejs.org/) to split the project into separate module that componentize the implementaion of the project as well as providing "on-demand" loading of components as needed.
+The JavaScript architecture of the extension is built around [RequireJS](http://requirejs.org/) to split the project into separate module that componentizes the implementation of the project as well as providing "on-demand" loading of components as needed.
 
 On the launch of the extension, this process is followed:
 
