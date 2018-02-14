@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Web Historian Edu - History Visualizations",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "short_name": "Web Historian Edu",
   "description": "Web Historian Edu - Visualize your web use to understand your habits",
   "permissions": [
