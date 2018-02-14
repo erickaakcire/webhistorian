@@ -1,7 +1,6 @@
 define(["app/utils", "moment", "app/history"], function(utils, moment, history) {
   var visualization = {};
-  vizSelected = "home";
-  
+  vizSelected = "home";  
   
   var countHome = 0;
   var countWebVisits = 0;

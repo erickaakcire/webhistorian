@@ -1,15 +1,15 @@
-# Web Historian: See your web browsing history in a new light
-This extension for the Google Chrome browser lets you visualize your web browsing history in ways you've never seen before. See how you navigate the web, what search words you use the most, and what websites you visit using interactive visualizations. For more information see [http://webhistorian.org] (http://webhistorian.org).
+# Web Historian: Visualize your web use to understand your habits
+This extension for Google Chrome or Firefox helps users track their browsing habits to become more mindful of how they spend their time online. Web Historian helps unlock the information that is already in your web browsing history with easy to use interactive visualizations. For more information see [http://webhistorian.org](http://webhistorian.org). It can be installed from the [Chrome store]( https://chrome.google.com/webstore/detail/web-historian-web-history/chpcblajbmmlbhecpnnadmjmlbhkloji) or via [Mozilla.org for Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/web-historian/).
 
-Web Historian helps users analyze their own web browsing, and users can opt-in to donate their history data to a research project and take a brief survey to provide context for the data. This allows social scientists to combine the analysis of real-world browsing records with the contextual information that can only be provided by the users themselves. 
+Web Historian was created to help researchers partner with users to advance understanding of how the web impacts society. By informing and empowering users about their own data, they can then give informed consent to take part in research about online behavior. Web Historian invites users to participate in a [research project](http://www.webhistorian.org/participate/). The opt-in only IRB-approved research involves submitting browsing data and taking a short online survey about online and offline information gathering. 
 
 The extension uses the D3.js for the visualizations and accesses the history data via the chrome.history API.
 
 Web Historian runs entirely on the local browser using only client-side JavaScript and can be used while the browser is offline (the Web Visits view will be less colorful offline since categories are downloaded from a server), until the "Participate in Research" option is chosen.
 
-#To run the extension in Developer Mode
+#To run the extension in Developer Mode in Chrome
 
-You will be able to see  your visualizations, but you won't be able to participate in the research project when you install Web Historian using developer mode.
+You will be able to see  your visualizations, but you won't be able to participate in the research project when you install Web Historian using developer mode. To add this extension from the Chrome Store: 
 <ol>
 <li> Download the extension code to your machine. Press the "Clone or download" green button on the Web Historian Repsitory https://github.com/erickaakcire/webhistorian. From there you can download the zip file or copy the address to clone. If you downoad the zip file you need to unzip it.
 <li> In your file system rename the file .../js/app/config.js-template.js to .../js/app/config.js
@@ -21,6 +21,19 @@ You will be able to see  your visualizations, but you won't be able to participa
 <li> Click "Load unpacked extension"
 
 <li> Browse to the directory where you downloaded the extension code and click "Select"
+</ol>
+
+
+#To load as a temporary Add-on in Firefox
+
+You will be able to see  your visualizations, but you won't be able to participate in the research project when you install Web Historian in this way.
+<ol>
+<li> Download the extension code to your machine. Press the "Clone or download" green button on the Web Historian Repsitory https://github.com/erickaakcire/webhistorian. From there you can download the zip file or copy the address to clone. If you downoad the zip file you need to unzip it.
+<li> In your file system rename the file .../js/app/config.js-template.js to .../js/app/config.js
+<li> Delete the file manifest.json, then rename the file manifest.gecko.json to manifest.json
+<li> Go to Firefox. Go to the menu Tools > Add-ons
+<li> On the Ad-ons screen click on the gear icon, then choose "Debug Add-ons". Choose "Load Temporary Ad-on"
+<li> Browse to the directory where you downloaded the extension code and select the manifest.json file. Choose OK and Web Historian will load.
 </ol>
 
 # Technical Overview

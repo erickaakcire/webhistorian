@@ -73,25 +73,25 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     }
   }
   
-  function chooseId () {
-		$("#chose_identifier").off('click');
-    $("#chose_identifier").click(function(eventObj) {
-			eventObj.preventDefault();
-      $(".modal-title").html("Your Identifier");
-			var identifier = $("#field_identifier").val();
-			if (identifier != null && identifier != undefined && identifier != "")	{
-				var allowed = /^[-a-zA-Z0-9_ ]*$/;
-        if (identifier.match(allowed)) {
-          chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) {
-  					$("#identifier_modal").modal("hide");
-  				});
-        }
-        else {
-          $("#id-body").append("<p>Please remove special characters, only alpha-numeric, space - and _ allowed.</p>")
-        }
-			}
-			return false;
-		});
+  function chooseId() {
+      $("#chose_identifier").off('click');
+      $("#chose_identifier").click(function (eventObj) {
+          eventObj.preventDefault();
+          $(".modal-title").text("Your Identifier");
+          var identifier = $("#field_identifier").val();
+          if (identifier != null && identifier != undefined && identifier != "") {
+              var allowed = /^[-a-zA-Z0-9_ ]*$/;
+              if (identifier.match(allowed)) {
+                  chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) {
+                      $("#identifier_modal").modal("hide");
+                  });
+              }
+              else {
+                  $("#id-body").append("<p>Please remove special characters, only alpha-numeric, space - and _ allowed.</p>")
+              }
+          }
+          return false;
+      });
   }
   
   function svyLink(callback){
@@ -108,7 +108,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
           var prev = result.before;
           chrome.storage.local.get({ 'upload_identifier': ''}, function(result){
             var hId1 = result.upload_identifier;
-            var hId = hId1.replace(/ /g, "%20");
+            var hId = encodeURIComponent(hId1);
             var svyUrl1 = actions[0].url + "&whId="+ chrome.runtime.id + "&prev=" + prev + "&hId=" + hId;
             callback(svyUrl1);
           });
@@ -175,7 +175,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
           if (lastPercentage != currentProgress)
           {
             $("#visit_progress").width(currentProgress);
-            $("#visit_progress").html(currentProgress);
+            $("#visit_progress").text(currentProgress);
   
             lastPercentage = currentProgress;
 
@@ -186,7 +186,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         
         if (event.data["finished"] != undefined) {
           $("#transform_progress").width("100%");
-          $("#transform_progress").html("100%");
+          $("#transform_progress").text("100%");
     
           history.fullData = event.data["items"];
 
@@ -502,7 +502,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     
     history.wir = function(weekData, online, url) {
         $("#cards").append("<div id=\"wir\"></div>");
-        $("#wir").html( function() {
+        $("#wir").html(function() {
           var aEnd = moment(weekData.weekAend).format("ddd MMM D");
           var aStart = moment(weekData.weekAstart).format("ddd MMM D");
           var bEnd = moment(weekData.weekBend).format("ddd MMM D");
