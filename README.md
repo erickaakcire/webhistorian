@@ -5,7 +5,7 @@ Web Historian helps unlock the information that is already in your web browsing 
 
 The extension uses the D3.js for the visualizations and accesses the history data via the chrome.history API.
 
-Web Historian runs entirely on the local browser using only client-side JavaScript and can be used while the browser is offline (the Web Visits view will be less colorful offline since categories are downloaded from a server), until the "Participate in Research" option is chosen.
+Web Historian runs entirely on the local browser using only client-side JavaScript and can be used while the browser is offline (the Web Visits view will be less colorful offline since categories are downloaded from a server).
 
 # To run the extension in Developer Mode in Chrome
 
@@ -35,8 +35,7 @@ On the launch of the extension, this process is followed:
 1. `index.html` loads the RequireJS library, which uses `js/app/main.js` to configure the JavaScript environment
 2. `js/app/main.js` loads `js/app/history.js` which launches a modal progress display that tracks the progress of the extension retrieving and transforming the user's browsing history for use with other upload and display components.
 3. `js/app/main.js` loads `js/app/home.js` to display the home page and trigger the require.js scripts to load on click.
-4. On a successful fetch of the local browsing history, the extension dismisses the progress modal and presents the user with options to visualize their data and opt-in to the research project.
-5. If the user chooses to participate in the research, the extension loads `js/lib/passive-data-kit.js` which packages and uploads the user's web history to a [Passive Data Kit](https://github.com/audaciouscode/PassiveDataKit-Django) server.
+4. On a successful fetch of the local browsing history, the extension dismisses the progress modal and presents the user with options to visualize their data.
 
 # Visualizations Overview
 
