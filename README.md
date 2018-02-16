@@ -7,7 +7,7 @@ The extension uses the D3.js for the visualizations and accesses the history dat
 
 Web Historian runs entirely on the local browser using only client-side JavaScript and can be used while the browser is offline (the Web Visits view will be less colorful offline since categories are downloaded from a server), until the "Participate in Research" option is chosen.
 
-#To run the extension in Developer Mode in Chrome
+# To run the extension in Developer Mode in Chrome
 
 <ol>
 <li> Download the extension code to your machine. Press the "Clone or download" green button on the Web Historian Repsitory https://github.com/erickaakcire/webhistorian. From there you can download the zip file or copy the address to clone. If you downoad the zip file you need to unzip it.
