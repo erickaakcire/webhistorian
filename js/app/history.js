@@ -73,27 +73,6 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     }
   }
   
-  function chooseId() {
-      $("#chose_identifier").off('click');
-      $("#chose_identifier").click(function (eventObj) {
-          eventObj.preventDefault();
-          $(".modal-title").text("Your Identifier");
-          var identifier = $("#field_identifier").val();
-          if (identifier != null && identifier != undefined && identifier != "") {
-              var allowed = /^[-a-zA-Z0-9_ ]*$/;
-              if (identifier.match(allowed)) {
-                  chrome.storage.local.set({ 'upload_identifier': identifier }, function (result) {
-                      $("#identifier_modal").modal("hide");
-                  });
-              }
-              else {
-                  $("#id-body").append("<p>Please remove special characters, only alpha-numeric, space - and _ allowed.</p>")
-              }
-          }
-          return false;
-      });
-  }
-  
   function svyLink(callback){
     requirejs(["app/config"], function (config) {
       $("#loader").html("<br/><br/><h1>One moment please.</h1><br/><br/><br/><br/>");
@@ -463,7 +442,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
         topTermLw: topTermLw,
         topTermTw: topTermTw
       };
-      console.log("before svyLink");
+
       svyLink(function(url){ 
         var online = 0;
         if(url !== ""){
@@ -549,23 +528,23 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
               $("#research").show();
               if(online===1){ weekHtml = weekInReview; }
               else { weekHtml = offline + weekInReview; }
-              console.log("Never uploaded, more than 1 week data");
+              //console.log("Never uploaded, more than 1 week data");
             }
             else if (lastUlD === "Never" && weekData.weekBstart < dataStartDate) { 
               $("#research").show();
               if(online===1) { weekHtml = notEnoughData; }
               else { weekHtml = offline + notEnoughData; }
-              console.log("Never uploaded, less than 1 week data");
+              //console.log("Never uploaded, less than 1 week data");
               } 
             else if (svyEndType === 0 && weekData.weekBstart >= dataStartDate){
               if(online===1) { weekHtml = weekInReview; }
               else { weekHtml = offline + weekInReview; }
-              console.log("Refused or not qualified, more than 1 week data");
+              //console.log("Refused or not qualified, more than 1 week data");
             }
             else if (svyEndType === 0 && weekData.weekBstart < dataStartDate){
               if(online===1) { weekHtml = notEnoughData; }
               else { weekHtml = offline + notEnoughData; }
-              console.log("Refused or not qualified, less than 1 week data");
+              //console.log("Refused or not qualified, less than 1 week data");
             }
             else if (lastUlD !== "Never" && svyEndType === null){
                 if(url !== ""){
@@ -579,7 +558,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
             }
             else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart >= dataStartDate) { 
               $("#nav_review").show();
-              console.log("Uploaded and finished, more than 1 week data");
+              //console.log("Uploaded and finished, more than 1 week data");
               if(online===1)
                 weekHtml = weekInReview + thanks; 
               else
@@ -587,7 +566,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
               }
             else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart < dataStartDate) { 
               $("#nav_review").show();
-              console.log("Uploaded and finished survey, less than 1 week data");
+              //console.log("Uploaded and finished survey, less than 1 week data");
               if(online===1)
                 weekHtml = notEnoughData + thanks; 
               else
@@ -611,16 +590,38 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     chrome.storage.local.get('lastPdkUpload', function (result) {
       lastUl = result.lastPdkUpload;
      });
-     
+
+     chrome.storage.local.get('install_time', function (result) {
+       installTime = result.install_time;
+     });
+
+     chrome.storage.local.get('subscribed', function (result) {
+       subscribed = result.subscribed;
+     });
+
     history.insertCards();
-    //Get all data into fullData1
+    
+	$("#mc-embedded-subscribe").click(function(eventObj) {
+      	chrome.storage.local.set({ 'subscribed': 'true' }, function (result) {
+	    });
+	});
+
+	
+	//Get all data into fullData1
     getUrls(noTransform, noViz, function()
     {
       storeStartEnd(history.fullData);
       //svyEnd(history.fullData);
       storeCats(showHome);
       //$("ytplayer").hide();
-
+	  $(document).mouseleave(function() {
+		var today = new Date().getDay();
+		var instDay = new Date(installTime).getDay();
+		if (instDay === today && leaveOnce === 0 && subscribed !== 'true') {
+	      $("#mailing_list_modal").modal("show");
+	      leaveOnce = 1;
+	    }
+	});
     })
   });
 

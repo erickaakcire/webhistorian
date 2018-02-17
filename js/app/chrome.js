@@ -30,9 +30,13 @@ function install_notice() {
         return;
 
     var now = new Date().getTime();
-    localStorage.setItem('install_time', now);
+
+	chrome.storage.local.set({ 'install_time': now }, function (result) {
+    });
+	console.log("installation "+ now);
+
     chrome.tabs.create({url: "index.html"});
-    console.log("installation");
+    
 }
 install_notice();
 
