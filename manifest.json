@@ -7,8 +7,7 @@
   "permissions": [
     "history",
     "tabs",
-    "storage",
-    "alarms"
+    "storage"
   ],
   "browser_action": {
     "default_icon": "images/star48.png"
