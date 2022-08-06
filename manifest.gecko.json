@@ -1,5 +1,5 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "Web Historian Edu - History Visualizations",
   "version": "0.9.3",
   "short_name": "Web Historian Edu",
@@ -7,17 +7,16 @@
   "permissions": [
     "history",
     "tabs",
-    "storage",
-    "alarms"
+    "storage"
   ],
-  "browser_action": {
+  "action": {
     "default_icon": "images/star48.png"
   },
   "icons": { "16": "images/star16.png",
     "48": "images/star48.png",
     "128": "images/star128.png" },
   "background": {
-    "scripts": ["js/app/chrome.js"]
+    "service_worker": "js/app/chrome.js"
   },
   "offline_enabled": true,
   "applications": {

@@ -1,22 +1,26 @@
 {
-  "manifest_version": 2,
-  "name": "Web Historian Edu - History Visualizations",
-  "version": "0.9.3",
-  "short_name": "Web Historian Edu",
-  "description": "Web Historian Edu - Visualize your web use to understand your habits",
+  "manifest_version": 3,
+  "default_locale": "en",
+  "name": "__MSG_appName__",
+  "version": "1.0",
+  "short_name": "__MSG_appShortName__",
+  "description": "__MSG_appDesc__",
   "permissions": [
     "history",
     "tabs",
     "storage"
   ],
-  "browser_action": {
-    "default_icon": "images/star48.png"
+  "action": {
+    "default_icon": "images/star48.png",
+    "default_popup": "popup/popup.html"
   },
-  "icons": { "16": "images/star16.png",
+  "icons": {
+    "16": "images/star16.png",
     "48": "images/star48.png",
-    "128": "images/star128.png" },
-  "background": {
-    "scripts": ["js/app/chrome.js"]
+    "128": "images/star128.png"
   },
-  "offline_enabled": true
+  "background": {
+    "service_worker": "background.js"
+  },
+  "minimum_chrome_version": "88.0.0.0"
 }

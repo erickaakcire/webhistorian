@@ -52,7 +52,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
     if (catStored === null){
       var cats = [];
       $("#progress_bars").html("<h1>One moment please...</h1><p>Fetching website categories.</p>");
-       $.getJSON(config.categoriesUrl, function (cat) {      
+       $.getJSON(config.categoriesUrl, function (cat) {
         for (var j in cat.children) {
           cats.push({search: cat.children[j]["search"], category: cat.children[j]["category"], value: cat.children[j]["value"]});
         }
@@ -510,15 +510,16 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
             topDomainLwD = "the same";
           }
           else { topDomainLwD = "<strong><a href=\"http://" + topDomainLw + "\" target=\"_blank\">" + topDomainLw + "</a></strong>";}
+
         
           //var seStored = JSON.parse(sessionStorage.getItem('se'));
           var dataStartDate = history.fullData[0].date; //seStored[0].start;
         
-          var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p> ";
+          var weekInReview = "<h3>Week in review</h3><p>This week (" + aStart + " to " + aEnd +  ")" + " you browsed the web <strong>" + percent + "% " + percentML + "</strong> last week (" + bStart + " to " + bEnd + ").</p> <p>The website you visited the most this week was <strong><a href=\"http://"+ topDomainTw +"\" target=\"_blank\">" + topDomainTw + "</a></strong>. It was " + topDomainLwD + " last week. For more details on web site visits see the Web Visits visual <span class=\"glyphicon glyphicon-globe\"></span></p> <p>The search term you used the most this week was <strong>"+ topTermTw +"</strong></div>. It was "+ topTermLwD +" last week. For more details on search term use see the Search Terms visual <span class=\"glyphicon glyphicon-search\"></span></p>";
           //Your central jumping-off point for browsing the web this week was * this week. It was * last week.
           //of the # websites you visited over the past # days, you visited * the most, but you visited * on the most different days. 
-
-          var notEnoughData = "<h3>Week in Review</h3><p>The week in review compares this week's web browsing to the previous week. To see the week in review feature you can keep browsing in Chrome witout clearing your history until you have 14 days of browsing. If you changed the dates you are viewing with the calendar, just expand the range between the start and end date to 14 days or more.</p>";
+          var dl_data = "<h3>Download your browsing data</h3> <p><button id=\"dl_json\">Download JSON</button></p>"
+          var notEnoughData = "<h3>Week in Review</h3><p>The week in review compares this week's web browsing to the previous week. To see the week in review feature you can keep browsing in Chrome witout clearing your history until you have 14 days of browsing. If you changed the dates you are viewing with the calendar, just expand the range between the start and end date to 14 days or more.</p> <h3>Download your browsing data</h3> <p><button id=\"dl_json\">Download JSON</button></p>";
           var offline = "<div class='alert alert-warning'><p><span class='glyphicon glyphicon-wrench' aria-hidden='true'></span> Your browser is offline. Web Historian will function, but web site categories may be limited to 'Other' until you are online and reload the extension.</p></div>";
           
           var weekHtml = "";
@@ -526,24 +527,24 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
 
             if (lastUlD === "Never" && weekData.weekBstart >= dataStartDate) {
               $("#research").show();
-              if(online===1){ weekHtml = weekInReview; }
-              else { weekHtml = offline + weekInReview; }
+              if(online===1){ weekHtml = weekInReview + dl_data; }
+              else { weekHtml = offline + weekInReview + dl_data; }
               //console.log("Never uploaded, more than 1 week data");
             }
             else if (lastUlD === "Never" && weekData.weekBstart < dataStartDate) { 
               $("#research").show();
-              if(online===1) { weekHtml = notEnoughData; }
-              else { weekHtml = offline + notEnoughData; }
+              if(online===1) { weekHtml = notEnoughData + dl_data; }
+              else { weekHtml = offline + notEnoughData + dl_data; }
               //console.log("Never uploaded, less than 1 week data");
               } 
             else if (svyEndType === 0 && weekData.weekBstart >= dataStartDate){
-              if(online===1) { weekHtml = weekInReview; }
-              else { weekHtml = offline + weekInReview; }
+              if(online===1) { weekHtml = weekInReview + dl_data; }
+              else { weekHtml = offline + weekInReview + dl_data; }
               //console.log("Refused or not qualified, more than 1 week data");
             }
             else if (svyEndType === 0 && weekData.weekBstart < dataStartDate){
-              if(online===1) { weekHtml = notEnoughData; }
-              else { weekHtml = offline + notEnoughData; }
+              if(online===1) { weekHtml = notEnoughData + dl_data; }
+              else { weekHtml = offline + notEnoughData + dl_data; }
               //console.log("Refused or not qualified, less than 1 week data");
             }
             else if (lastUlD !== "Never" && svyEndType === null){
@@ -553,34 +554,44 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
                   $("#research").html("<br/><br/><div class='alert alert-danger'><h3><span class='glyphicon glyphicon-exclamation-sign' aria-hidden='true'></span> Please complete your survey for the research project 'Understanding Access to Information Online and in Context.': " + link + "</h3><p>You will pick up right where you left off. When you have finished the survey you can <a href=''>reload</a> to remove this message.</div><br/><br/><br/>");
                 }
                 else {
-                  weekHtml = offline + weekInReview;
+                  weekHtml = offline + weekInReview + dl_data;
                 }
             }
             else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart >= dataStartDate) { 
               $("#nav_review").show();
               //console.log("Uploaded and finished, more than 1 week data");
               if(online===1)
-                weekHtml = weekInReview + thanks; 
+                weekHtml = weekInReview + thanks + dl_data;
               else
-                weekHtml = offline + weekInReview + thanks;
+                weekHtml = offline + weekInReview + thanks + dl_data;
               }
             else if (lastUlD !== "Never" && svyEndType === 1 && weekData.weekBstart < dataStartDate) { 
               $("#nav_review").show();
               //console.log("Uploaded and finished survey, less than 1 week data");
               if(online===1)
-                weekHtml = notEnoughData + thanks; 
+                weekHtml = notEnoughData + thanks + dl_data;
               else
-                weekHtml = offline + notEnoughData + thanks;
+                weekHtml = offline + notEnoughData + thanks + dl_data;
               }
             else { $("#research").show(); console.log("Upload, survey amount of days, and online status condition not a specified condition"); }; 
             
             return weekHtml;    
         });
+      function download(content, fileName, contentType) {
+        const a = document.createElement("a");
+        const file = new Blob([content], { type: contentType });
+        a.href = URL.createObjectURL(file);
+        a.download = fileName;
+        a.click();
+      }
+       $("#dl_json").click(function(){
+        download(JSON.stringify(history.fullData), "web_historian_data.json", "text/plain");
+        });
       };
     
     //insert the code for the cards, but doesn't display them (display: none)
     history.insertCards = function (){
-      $("#cards").html("<div id=\"research\" style=\"display: none;\"><h3>Using Web Historian </h3><p>The browser's 'back' button will not navigate within Web Historian, please use the navigation icons at the top right to explore your visualizations.</p> </div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"time_card\"> <div class=\"thumbnail\"> <img src=\"images/time.png\" alt=\"Time\" /> <div class=\"caption\"> <h3>Time Heatmap</h3> <p> Hours of the day and days of the week when you browse the web the most. </p> </div> </div> </a> </div>");
+      $("#cards").html("<div id=\"research\" style=\"display: none;\"> </div><div class=\"row\" id=\"viz_selector\" style=\"display: none;\"> <div class=\"col-sm-6 col-md-3\"> <a id=\"web_visit_card\"> <div class=\"thumbnail\"> <img src=\"images/visit.png\" alt=\"Web Visits\" /> <div class=\"caption\"> <h3>Web Visits</h3> <p> Circles sized by number of days a site was visited, or total visits to the site. </p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"search_words_card\"> <div class=\"thumbnail\"> <img src=\"images/wordCloud.png\" alt=\"Search Words\" /> <div class=\"caption\"> <h3>Search Terms</h3> <p> Words used in multiple web searches are larger. &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"network_card\"> <div class=\"thumbnail\"> <img src=\"images/network.png\" alt=\"Network\" /> <div class=\"caption\"> <h3>Network</h3> <p> Links between websites browsed from - to. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</p> </div> </div> </a> </div> <div class=\"col-sm-6 col-md-3\"> <a id=\"time_card\"> <div class=\"thumbnail\"> <img src=\"images/time.png\" alt=\"Time\" /> <div class=\"caption\"> <h3>Time Heatmap</h3> <p> Hours of the day and days of the week when you browse the web the most. </p> </div> </div> </a> </div>");
       };
   
   //Putting it all together
@@ -618,7 +629,7 @@ define(["moment", "app/config", "app/utils"], function (moment, config, utils)
 		var today = new Date().getDay();
 		var instDay = new Date(installTime).getDay();
 		if (instDay === today && leaveOnce === 0 && subscribed !== 'true') {
-	      $("#mailing_list_modal").modal("show");
+	      //$("#mailing_list_modal").modal("show");
 	      leaveOnce = 1;
 	    }
 	});

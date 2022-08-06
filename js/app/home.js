@@ -113,6 +113,7 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
 
   $('[data-toggle="tooltip"]').tooltip();
 
+
   visualization.homeClicks = function() {
     $("#data_table_card").click(function() {
       goDataTable();
@@ -138,7 +139,6 @@ define(["app/utils", "moment", "app/history"], function(utils, moment, history) 
     visualization.homeClicks();
     $('#viz_selector').show();
     history.compareWeekVisits(endDate, filteredData, history.wir);
- 
   };
   return visualization;
 });

@@ -1,0 +1,29 @@
+body {
+    width: 300px;
+    margin: auto 0;
+    font-size: 1em;
+    text-align: center;
+}
+
+.header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.footer {
+    text-align: center;
+    margin: 4px 8px;
+    font-size: 0.8em;
+}
+
+.header h1 {
+    font-size: 1em;
+    margin-left: 8px;
+}
+
+.user-info {
+    background: #ccc;
+    text-align: center;
+    padding: 4px 8px;
+}

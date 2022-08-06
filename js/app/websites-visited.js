@@ -213,7 +213,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                   .attr("class", "bubble")
                   .attr("id", "visualization");
               
-          var aboveTxt = "Click a circle to highlight. Double click to un-highlight. Right-click for options.<br/>  Is this visualization incomplete? If you also use Internet Explorer or Firefox, you can import your browsing history to include it. Just follow <a href='http://www.webhistorian.org/importing/' target='_blank'>these steps</a>.";
+          var aboveTxt = "Right-click a circle for options.<br/>";
             
             function showVisits(){
               habits = 0;
@@ -350,7 +350,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                          data_table.display(history, dv, "");
                          $(".wh-tooltip").remove();
                          $("#viz_title").text("All Visits to " + d.__data__.className);
-                         $("#title h2").append(" To return to a visualization please use the Navigation above.");
+                         $("#title h2").append(" To return to a visualization, please use the Navigation above.");
                          vizSelected = "data_table";
                          document.body.scrollTop = document.documentElement.scrollTop = 0;
                        });
@@ -436,7 +436,7 @@ define(["app/utils", "app/config", "moment", "d3-context-menu", "ion.rangeSlider
                       }
                       else if (habits===1){
                         //var percentDays = Math.round((d.value/diffDays) * 100);
-                        tooltip.text(d.className + ", Days Visited: " + format(d.value) + ", Category: " + d.packageName);
+                        tooltip.text(d.className + ", Days Visited: " + format(d.value) + ", Category: " + d.packageName + ". Right-click for more options");
                       }
                       tooltip.style("visibility", "visible");
                   })
