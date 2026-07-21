@@ -20,9 +20,6 @@ requirejs.config({
     },
     "crypto-js-md5": {
       exports: "CryptoJS"
-    },
-    "historian": {
-      deps: ["jquery"]
     }
   },
   baseUrl: "js/lib",

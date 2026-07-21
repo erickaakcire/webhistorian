@@ -2,12 +2,11 @@
   "manifest_version": 3,
   "default_locale": "en",
   "name": "__MSG_appName__",
-  "version": "1.1",
+  "version": "1.2",
   "short_name": "__MSG_appShortName__",
   "description": "__MSG_appDesc__",
   "permissions": [
     "history",
-    "tabs",
     "storage"
   ],
   "action": {
@@ -22,5 +21,5 @@
   "background": {
     "service_worker": "background.js"
   },
-  "minimum_chrome_version": "88.0.0.0"
+  "minimum_chrome_version": "102"
 }
